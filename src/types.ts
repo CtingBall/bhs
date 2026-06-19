@@ -92,14 +92,21 @@ export interface Summon {
 
 // ===== 主角 =====
 export type PassiveKind =
-  | 'firstAttackBoost' // 首张攻击牌伤害+
-  | 'freezeReduceAtk' // 冰冻额外降攻
-  | 'comboScale' // 连击越高伤害越高
-  | 'firstCardDiscount' // 每回合首张牌-1耗能
-  | 'turnBlock' // 每回合格挡
-  | 'lowHpHealBoost' // 低血治疗翻倍
-  | 'turnEndAoE' // 回合末AOE
-  | 'burnDouble'; // 燃烧翻倍
+  | 'firstAttackBoost'
+  | 'freezeReduceAtk'
+  | 'comboScale'
+  | 'firstCardDiscount'
+  | 'turnBlock'
+  | 'lowHpHealBoost'
+  | 'turnEndAoE'
+  | 'burnDouble'
+  | 'turnDraw'          // 每回合多抽X张
+  | 'comboEnergy'       // 打出第X张牌+1能量
+  | 'initialHand'       // 首回合多抽X张
+  | 'burnExtraDamage'   // 燃烧每层额外+X伤害
+  | 'firstAttackWeak'   // 首攻施加X虚弱
+  | 'killStrength'      // 击杀+力量
+  | 'firstBlockBoost'   // 首张格挡牌+格挡
 
 export interface PassiveEffect {
   kind: PassiveKind;

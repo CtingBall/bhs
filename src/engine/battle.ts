@@ -151,6 +151,10 @@ function killDeadEnemies(s: BattleState): number {
       if (heal > 0) {
         s.player.hp = Math.min(s.player.maxHp, s.player.hp + heal);
       }
+      // 被动：击杀+力量（Ukinovo红怒）
+      if (s.character.passive.kind === 'killStrength') {
+        addStatus(s.player.statuses, 'strength', s.character.passive.value ?? 2);
+      }
       // 战斗事件结算
       resolveBattleEventOnKill(s, e.name);
       s.enemies.splice(i, 1);
@@ -225,13 +229,16 @@ export function startPlayerTurn(s: BattleState): BattleState {
   killDeadEnemies(st);
   // 被动：每回合格挡（哎呦喂）
   if (st.character.passive.kind === 'turnBlock') st.player.block += st.character.passive.value ?? 0;
-  // 遗物：每回合格挡（永远的坦克/飞鱼娘圣域）
+  // 被动：每回合多抽牌（答辩）
+  if (st.character.passive.kind === 'turnDraw') drawCards(st, st.character.passive.value ?? 0);
+  // 遗物：每回合格挡
   st.player.block += relicValue(st, 'turnBlock');
   // 因子：思维额外手牌上限
   let handSize = (st.character.handSize ?? 5) + factorHandSizeBonus(st);
   if (st.turn === 1) {
     handSize += relicValue(st, 'firstBattleDraw');
     handSize += relicValue(st, 'battleStartDraw');
+    if (st.character.passive.kind === 'initialHand') handSize += st.character.passive.value ?? 0;
   }
   const toDraw = Math.max(0, handSize - st.hand.length);
   drawCards(st, toDraw);
@@ -273,6 +280,10 @@ function applyEffect(
         raw = factorDamageBonus(st, raw);
         const dealt = damageEnemy(target, raw);
         log(st, `${card.name} → ${target.name}：${dealt} 伤害`, 'player');
+        // fander被动：首攻施加虚弱
+        if (firstAttack && st.character.passive.kind === 'firstAttackWeak') {
+          addStatus(target.statuses, 'weak', st.character.passive.value ?? 1);
+        }
       }
       break;
     }
@@ -296,6 +307,8 @@ function applyEffect(
       if (getStatus(st.player.statuses, 'frail') > 0) v = Math.floor(v * 0.75);
       if (card.upgradeLevel) v += card.upgradeLevel * 2;
       v = factorBlockBonus(st, v);
+      // 星落被动：首张格挡牌额外格挡
+      if (st.cardsPlayedThisTurn === 0 && st.character.passive.kind === 'firstBlockBoost') v += st.character.passive.value ?? 0;
       st.player.block += v;
       break;
     }
@@ -359,6 +372,10 @@ export function playCard(
   st.player.energy -= cost;
   st.hand.splice(handIndex, 1);
   st.combo += 1;
+  // 被动：打出第X张牌+1能量（Ephyra卷王）
+  if (st.character.passive.kind === 'comboEnergy' && st.combo % (st.character.passive.value ?? 3) === 0) {
+    st.player.energy += 1;
+  }
   const firstAttack = st.cardsPlayedThisTurn === 0 && c.type === 'attack';
   for (const eff of c.effects) applyEffect(st, eff, c, targetIndex, firstAttack);
   // 召唤牌消耗：本场战斗不可再用，进入消耗堆
@@ -558,8 +575,10 @@ export function enemyTurn(s: BattleState): BattleState {
     const b = getStatus(enemy.statuses, 'burn');
     const sh = getStatus(enemy.statuses, 'shock');
     if (b + sh > 0) {
-      enemy.hp -= b + sh;
-      log(st, `${enemy.name} 受 ${b + sh} 持续伤害`, 'player');
+      let burnDmg = b;
+      if (st.character.passive.kind === 'burnExtraDamage') burnDmg += b * (st.character.passive.value ?? 1);
+      enemy.hp -= burnDmg + sh;
+      log(st, `${enemy.name} 受 ${burnDmg + sh} 持续伤害`, 'player');
     }
     decayStatuses(enemy.statuses);
   }
