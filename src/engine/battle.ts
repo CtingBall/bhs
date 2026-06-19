@@ -147,7 +147,7 @@ function killDeadEnemies(s: BattleState): number {
       const e = s.enemies[i];
       log(s, `击败 ${e.name} ${e.emoji}！`, 'crit');
       // 击杀回血遗物
-      const heal = relicValue(s, 'killHeal');
+      const heal = relicValue(s, 'killHeal') + relicValue(s, 'healOnKill');
       if (heal > 0) {
         s.player.hp = Math.min(s.player.maxHp, s.player.hp + heal);
       }
@@ -274,6 +274,8 @@ function applyEffect(
         if (p.kind === 'comboScale') raw += (st.combo - 1) * (p.value ?? 0);
         if (st.hand.length >= 6) raw += relicValue(st, 'fullHandDamage');
         if (hasRelic(st, 'demon-core')) raw += 1;
+        // 遗物：首攻额外伤害
+        if (firstAttack) raw += relicValue(st, 'firstAttackDamage');
         // 卡牌升级加成
         if (card.upgradeLevel) raw += card.upgradeLevel * 2;
         // 因子伤害加成
@@ -454,6 +456,9 @@ export function endPlayerTurn(s: BattleState): BattleState {
     st.battleEvent = { kind: null };
   }
   decayStatuses(st.player.statuses);
+  // 遗物：回合结束回复
+  const teHeal = relicValue(st, 'turnEndHeal');
+  if (teHeal > 0) st.player.hp = Math.min(st.player.maxHp, st.player.hp + teHeal);
   // StS 机制：弃掉所有手牌 → 预抽下回合手牌
   st.discardPile.push(...st.hand);
   st.hand = [];
@@ -539,8 +544,16 @@ export function enemyTurn(s: BattleState): BattleState {
         raw -= freezeLayers * (2 + (p.kind === 'freezeReduceAtk' ? p.value ?? 0 : 0));
         if (getStatus(enemy.statuses, 'weak') > 0) raw = Math.floor(raw * 0.75);
         if (getStatus(st.player.statuses, 'vuln') > 0) raw = Math.floor(raw * 1.5);
+        // 遗物：减伤
+        raw = Math.max(0, raw - relicValue(st, 'damageReduction'));
         const dealt = damagePlayer(st.player, Math.max(0, raw));
         log(st, `${enemy.name} 攻击你：${dealt} 伤害`, 'enemy');
+        // 遗物：荆棘反伤
+        const thorns = relicValue(st, 'thorns');
+        if (thorns > 0) {
+          enemy.hp = Math.max(0, enemy.hp - thorns);
+          log(st, `荆棘反伤 → ${enemy.name}：${thorns} 伤害`, 'player');
+        }
         break;
       }
       case 'defend':

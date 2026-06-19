@@ -97,6 +97,13 @@ const ZONE_BOSS: Record<Zone, string> = {
 };
 const ZONE_LIST: Zone[] = ['strike', 'doom', 'punish', 'abyss', 'mirage', 'armageddon', 'astral'];
 
+function hasRareChance(run: { relics: Relic[] }): boolean {
+  return run.relics.some((r) => r.effect.kind === 'rareChance');
+}
+function shopDiscount(run: { relics: Relic[] }): number {
+  return run.relics.reduce((sum, r) => sum + (r.effect.kind === 'shopDiscount' ? (r.effect.value ?? 0) : 0), 0);
+}
+
 function cardPrice(c: Card): number {
   return { common: 25, rare: 50, epic: 75, legendary: 120 }[c.rarity];
 }
@@ -244,10 +251,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const isCurse = card.type === 'curse';
     const next = playCard(battle, handIndex, targetIndex);
     if (next === battle) return; // 无法打出
-    // 没用的虫罐：打出诅咒得绳子
-    if (isCurse && next.relics.some((r) => r.id === 'useless-bug-jar')) {
-      const v = next.relics.find((r) => r.id === 'useless-bug-jar')!.effect.value ?? 8;
-      set({ run: { ...run, rope: run.rope + v } });
+    // 诅咒转绳子遗物（虫罐等）
+    if (isCurse) {
+      const ctr = next.relics.reduce((sum, r) => sum + (r.effect.kind === 'curseToRope' ? (r.effect.value ?? 0) : 0), 0);
+      if (ctr > 0) set({ run: { ...run, rope: run.rope + ctr } });
     }
     set({ battle: next });
     if (next.over) handleBattleEnd(get, set);
@@ -311,7 +318,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   enterShop: () => {
     const { run } = get();
     if (!run) return;
-    const rareBoost = run.relics.some((r) => r.id === 'dalit-liberation');
+    const rareBoost = hasRareChance(run);
     const cards: { card: Card; price: number }[] = [];
     for (let i = 0; i < 3; i++) {
       const c = rollRewardCard(rareBoost);
@@ -338,11 +345,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (!run || !shop) return;
     if (shop.boughtCards.includes(i)) return;
     const item = shop.cards[i];
-    if (run.rope < item.price) {
+    const discount = shopDiscount(run);
+    const finalPrice = Math.max(1, item.price - discount);
+    if (run.rope < finalPrice) {
       set({ toast: '绳子不够。' });
       return;
     }
-    const newRun = { ...run, rope: run.rope - item.price, deck: [...run.deck, item.card] };
+    const newRun = { ...run, rope: run.rope - finalPrice, deck: [...run.deck, item.card] };
     useMetaStore.getState().unlockCard(item.card.id);
     set({ run: newRun, shop: { ...shop, boughtCards: [...shop.boughtCards, i] }, toast: `购入：${item.card.name}` });
   },
@@ -350,11 +359,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
   buyShopRelic: () => {
     const { run, shop } = get();
     if (!run || !shop || !shop.relic || shop.relicBought) return;
-    if (run.amber < shop.relicPrice) {
+    const discount = shopDiscount(run);
+    const finalPrice = Math.max(1, shop.relicPrice - discount);
+    if (run.amber < finalPrice) {
       set({ toast: '琥珀不够。' });
       return;
     }
-    const newRun = { ...run, amber: run.amber - shop.relicPrice, relics: [...run.relics, shop.relic] };
+    const newRun = { ...run, amber: run.amber - finalPrice, relics: [...run.relics, shop.relic] };
     set({ run: newRun, shop: { ...shop, relicBought: true }, toast: `获得遗物：${shop.relic.name}` });
   },
 
@@ -597,7 +608,7 @@ function applyEventEffects(run: RunState, effects: { kind: string; value?: numbe
         break;
       }
       case 'randomCard':
-        r.deck = [...r.deck, rollRewardCard(r.relics.some((rr) => rr.id === 'dalit-liberation'))];
+        r.deck = [...r.deck, rollRewardCard(hasRareChance(r))];
         break;
       case 'casteUp': {
         const idx = CASTE_ORDER.indexOf(r.caste);
