@@ -116,6 +116,7 @@ export interface Character {
   initialDeck: string[];
   color: string; // 主色
   desc: string;
+  handSize?: number; // 手牌上限，默认 5
 }
 
 // ===== 阶级 =====

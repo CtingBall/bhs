@@ -67,15 +67,17 @@ function factorBlockBonus(s: BattleState, block: number): number {
   return block;
 }
 
-// 因子额外抽牌
-function factorExtraDraw(s: BattleState): number {
-  let extra = 0;
-  const thoughtFactors = (s.factors as Factor[]).filter((f) => f.kind === 'thought');
-  for (const f of thoughtFactors) {
-    if (f.id === 'factor-thought-2') extra += 2;
-    else extra += 1;
+// 因子额外手牌上限
+function factorHandSizeBonus(s: BattleState): number {
+  let bonus = 0;
+  if (hasFactorKind(s, 'thought')) {
+    const thoughtFactors = (s.factors as Factor[]).filter((f) => f.kind === 'thought');
+    for (const f of thoughtFactors) {
+      if (f.id === 'factor-thought-2') bonus += 2;
+      else bonus += 1;
+    }
   }
-  return extra;
+  return bonus;
 }
 
 function drawCards(s: BattleState, n: number) {
@@ -225,15 +227,15 @@ export function startPlayerTurn(s: BattleState): BattleState {
   if (st.character.passive.kind === 'turnBlock') st.player.block += st.character.passive.value ?? 0;
   // 遗物：每回合格挡（永远的坦克/飞鱼娘圣域）
   st.player.block += relicValue(st, 'turnBlock');
-  // 因子：思维额外抽牌
-  let draw = 5 + factorExtraDraw(st);
+  // 因子：思维额外手牌上限
+  let handSize = (st.character.handSize ?? 5) + factorHandSizeBonus(st);
   if (st.turn === 1) {
-    draw += relicValue(st, 'firstBattleDraw');
-    draw += relicValue(st, 'battleStartDraw');
+    handSize += relicValue(st, 'firstBattleDraw');
+    handSize += relicValue(st, 'battleStartDraw');
   }
-  drawCards(st, draw);
-  // 因子：思维·深 回合末回复（在 endPlayerTurn 处理）
-  // 战斗内随机事件：每3回合30%概率触发
+  const toDraw = Math.max(0, handSize - st.hand.length);
+  drawCards(st, toDraw);
+  // 战斗内随机事件：每2回合30%概率触发
   if (st.turn > 1 && st.turn % 2 === 0 && Math.random() < 0.3 && !st.battleEvent.kind) {
     rollBattleEvent(st);
   }
@@ -429,9 +431,11 @@ export function endPlayerTurn(s: BattleState): BattleState {
     st.battleEvent = { kind: null };
   }
   decayStatuses(st.player.statuses);
-  // 弃手牌
+  // StS 机制：弃掉所有手牌 → 预抽下回合手牌
   st.discardPile.push(...st.hand);
   st.hand = [];
+  const handSize = (st.character.handSize ?? 5) + factorHandSizeBonus(st);
+  drawCards(st, handSize);
   killDeadEnemies(st);
   if (st.enemies.length === 0 && !st.over) st.over = 'win';
   if (st.player.hp <= 0) st.over = 'lose';
