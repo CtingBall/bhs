@@ -310,6 +310,7 @@ export interface BattleState {
   hand: Card[];
   drawPile: Card[];
   discardPile: Card[];
+  exhaustedPile: Card[]; // 召唤牌消耗：本场战斗不可再用
   turn: number;
   cardsPlayedThisTurn: number;
   combo: number;

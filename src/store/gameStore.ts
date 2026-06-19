@@ -394,7 +394,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
       ),
     };
     set({ run: newRun, toast: `「重铸石」使用成功！${card.name} 提升至 ${currentLevel === 0 ? '升级' : '精通'}！` });
-    if (get().scene === 'shop') get().enterShop();
   },
 
   // ===== 召唤物融合 =====

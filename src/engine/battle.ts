@@ -178,6 +178,7 @@ export function createBattle(
     hand: [],
     drawPile: shuffle(run.deck.map((c) => ({ ...c }))),
     discardPile: [],
+    exhaustedPile: [],
     turn: 0,
     cardsPlayedThisTurn: 0,
     combo: 0,
@@ -352,7 +353,12 @@ export function playCard(
   st.combo += 1;
   const firstAttack = st.cardsPlayedThisTurn === 0 && c.type === 'attack';
   for (const eff of c.effects) applyEffect(st, eff, c, targetIndex, firstAttack);
-  st.discardPile.push(c);
+  // 召唤牌消耗：本场战斗不可再用，进入消耗堆
+  if (c.type === 'summon') {
+    st.exhaustedPile.push(c);
+  } else {
+    st.discardPile.push(c);
+  }
   st.cardsPlayedThisTurn += 1;
 
   killDeadEnemies(st);
