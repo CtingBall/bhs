@@ -3,7 +3,7 @@ import CardView from '@/components/CardView';
 import EnemyView from '@/components/EnemyView';
 import PlayerHud from '@/components/PlayerHud';
 import { cn } from '@/lib/utils';
-import { Layers, Trash2, Swords, ScrollText } from 'lucide-react';
+import { Layers, Trash2, Swords, ScrollText, Hand } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 
 export default function Battle() {
@@ -87,10 +87,18 @@ export default function Battle() {
           <div className="flex justify-center gap-4 mb-2 text-[10px] font-mono text-slate-400">
             <span className="flex items-center gap-1">
               <Layers className="w-3 h-3" /> 抽牌堆 {battle.drawPile.length}
+              {battle.drawPile.length === 0 && battle.discardPile.length > 0 && (
+                <span className="text-gold">→洗入</span>
+              )}
             </span>
             <span className="flex items-center gap-1">
               <Trash2 className="w-3 h-3" /> 弃牌堆 {battle.discardPile.length}
             </span>
+            {battle.exhaustedPile.length > 0 && (
+              <span className="flex items-center gap-1 text-gold/60">
+                消耗 {battle.exhaustedPile.length}
+              </span>
+            )}
           </div>
         </div>
 
@@ -129,6 +137,12 @@ export default function Battle() {
         </div>
 
         <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-3 mb-0.5">
+            <span className="font-mono text-xs text-mint/70 flex items-center gap-1">
+              <Hand className="w-3 h-3" />
+              手牌 {battle.hand.length}/{character.handSize ?? 5}
+            </span>
+          </div>
           <div className="flex gap-2 overflow-x-auto pb-2 px-1">
             {battle.hand.map((card, i) => {
               const unplayable =

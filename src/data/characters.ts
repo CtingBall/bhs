@@ -67,7 +67,6 @@ export const CHARACTERS: Character[] = [
     passiveDesc: '每回合首张牌耗能 -1',
     passive: { kind: 'firstCardDiscount', value: 1 },
     desc: '居合职业代表，进度写进昵称，快速过牌。',
-    handSize: 6,
     initialDeck: [
       'iaido-strike', 'iaido-strike', 'iaido-strike', 'iaido-strike',
       'mint-shield', 'mint-shield',
