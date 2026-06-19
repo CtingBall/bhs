@@ -293,6 +293,7 @@ function applyEffect(
     }
     case 'block': {
       let v = (eff.value ?? 0) + getStatus(st.player.statuses, 'dexterity');
+      if (getStatus(st.player.statuses, 'frail') > 0) v = Math.floor(v * 0.75);
       if (card.upgradeLevel) v += card.upgradeLevel * 2;
       v = factorBlockBonus(st, v);
       st.player.block += v;
@@ -483,6 +484,22 @@ function applyEnemySkill(st: BattleState, enemy: BattleState['enemies'][number])
     }
     case 'rampAttack':
       enemy.rampAttack = (enemy.rampAttack ?? 0) + (sk.value ?? 0);
+      break;
+    case 'applyVuln':
+      addStatus(st.player.statuses, 'vuln', sk.value ?? 0);
+      log(st, `${enemy.name} 给你施加了易伤`, 'enemy');
+      break;
+    case 'applyWeak':
+      addStatus(st.player.statuses, 'weak', sk.value ?? 0);
+      log(st, `${enemy.name} 给你施加了虚弱`, 'enemy');
+      break;
+    case 'applyFrail':
+      addStatus(st.player.statuses, 'frail', sk.value ?? 0);
+      log(st, `${enemy.name} 给你施加了脆弱`, 'enemy');
+      break;
+    case 'blockShield':
+      enemy.blockShield = (enemy.blockShield ?? 0) + (sk.value ?? 0);
+      log(st, `${enemy.name} 展开次数盾（${enemy.blockShield}层）`, 'enemy');
       break;
     default:
       break;

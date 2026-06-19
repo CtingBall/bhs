@@ -201,6 +201,24 @@ export const CHARACTERS: Character[] = [
       'flame-burst', 'flame-ember',
     ],
   },
+  {
+    id: 'xingluo',
+    name: '星落',
+    title: '光明之盾',
+    classId: 'lightshield',
+    emoji: '☀️',
+    color: '#FFD700',
+    passiveName: '决心循环',
+    passiveDesc: '每回合首张牌耗能-1',
+    passive: { kind: 'firstCardDiscount', value: 1 },
+    desc: '光盾生存循环的发明者，「光明决心一开就不会死」。',
+    initialDeck: [
+      'shield-bash', 'shield-bash', 'shield-bash',
+      'mint-shield', 'mint-shield',
+      'resolve', 'resolve',
+      'light-resolve', 'light-shield-basic', 'rock-solid',
+    ],
+  },
 ];
 
 export const CHARACTER_MAP: Record<string, Character> = Object.fromEntries(

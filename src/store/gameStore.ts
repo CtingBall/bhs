@@ -106,7 +106,7 @@ function relicPrice(r: Relic): number {
 
 function pickNormal(zone: Zone): Enemy[] {
   let pool = ENEMIES.filter((e) => !e.isElite && !e.isBoss);
-  if (zone !== 'punish') pool = pool.filter((e) => e.zone === zone);
+  if (zone !== 'punish') pool = pool.filter((e) => e.zone === zone || e.roaming);
   const count = Math.random() < 0.4 ? 2 : 1;
   const out: Enemy[] = [];
   for (let i = 0; i < count; i++) {

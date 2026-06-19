@@ -35,12 +35,17 @@ export function decayStatuses(statuses: StatusInstance[]): void {
   }
 }
 
-// 对敌人造成伤害（先扣格挡）
+// 对敌人造成伤害（先扣格挡，再扣次数盾）
 export function damageEnemy(
-  enemy: { hp: number; block: number; name: string },
+  enemy: { hp: number; block: number; name: string; blockShield?: number },
   raw: number,
 ): number {
   let dmg = Math.max(0, raw);
+  // 次数盾：受N次攻击后破盾，每次攻击减1层并完全吸收伤害
+  if (enemy.blockShield && enemy.blockShield > 0) {
+    enemy.blockShield -= 1;
+    return 0;
+  }
   if (enemy.block > 0) {
     const absorbed = Math.min(enemy.block, dmg);
     enemy.block -= absorbed;
@@ -70,6 +75,7 @@ export const STATUS_LABEL: Record<StatusType, string> = {
   dexterity: '敏捷',
   vuln: '易伤',
   weak: '虚弱',
+  frail: '脆弱',
   freeze: '冰冻',
   burn: '燃烧',
   shock: '感电',
@@ -81,6 +87,7 @@ export const STATUS_EMOJI: Record<StatusType, string> = {
   dexterity: '💨',
   vuln: '🎯',
   weak: '😇',
+  frail: '🪶',
   freeze: '❄️',
   burn: '🔥',
   shock: '⚡',

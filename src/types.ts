@@ -41,6 +41,7 @@ export type StatusType =
   | 'dexterity' // 敏捷：格挡+
   | 'vuln' // 易伤：受伤×1.5
   | 'weak' // 虚弱：造成伤害×0.75
+  | 'frail' // 脆弱：获得格挡×0.75
   | 'freeze' // 冰冻：攻击力-/层
   | 'burn' // 燃烧：回合末受伤害
   | 'shock' // 感电：回合末受伤害
@@ -162,6 +163,7 @@ export interface Enemy {
   intents: Intent[];
   desc: string;
   flavor?: string;
+  roaming?: boolean;
   skill?: EnemySkill;
   // 召唤物定义
   summons?: string[];
@@ -179,7 +181,11 @@ export interface EnemySkill {
     | 'summonAlly' // 召唤援军
     | 'stealEnergy' // 偷能量
     | 'rampAttack' // 攻击递增
-    | 'split'; // 分裂
+    | 'split' // 分裂
+    | 'applyVuln' // 给玩家上易伤
+    | 'applyWeak' // 给玩家上虚弱
+    | 'applyFrail' // 给玩家上脆弱
+    | 'blockShield'; // 次数盾
   value?: number;
 }
 
@@ -285,6 +291,7 @@ export interface BattleEnemy {
   rampAttack?: number; // 攻击递增累计
   chargeTurns?: number; // 蓄力计数
   skillTriggered?: boolean; // 一次性技能是否已触发
+  blockShield?: number; // 次数盾：受到N次攻击后破盾
 }
 
 export interface BattleSummon {
