@@ -680,13 +680,16 @@ export function rollRewardCard(rareBoost: boolean): Card {
   const r = Math.random();
   let rarity: Card['rarity'];
   if (rareBoost) {
-    if (r < 0.5) rarity = 'rare';
-    else if (r < 0.85) rarity = 'epic';
-    else rarity = 'legendary';
+    if (r < 0.35) rarity = 'rare';
+    else if (r < 0.65) rarity = 'epic';
+    else if (r < 0.90) rarity = 'legendary';
+    else rarity = 'common';
   } else {
-    if (r < 0.6) rarity = 'common';
-    else if (r < 0.88) rarity = 'rare';
-    else if (r < 0.98) rarity = 'epic';
+    // 5级品质：basic(15%) common(35%) rare(28%) epic(15%) legendary(7%)
+    if (r < 0.15) rarity = 'basic';
+    else if (r < 0.50) rarity = 'common';
+    else if (r < 0.78) rarity = 'rare';
+    else if (r < 0.93) rarity = 'epic';
     else rarity = 'legendary';
   }
   let pool = REWARD_POOL.filter((c) => c.rarity === rarity);

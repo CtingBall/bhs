@@ -10,6 +10,7 @@ const TYPE_STYLE: Record<Card['type'], { ring: string; tag: string; label: strin
 };
 
 const RARITY_GLOW: Record<Card['rarity'], string> = {
+  basic: 'shadow-[0_0_8px_rgba(150,150,160,0.15)]',
   common: 'shadow-[0_0_12px_rgba(180,200,210,0.25)]',
   rare: 'shadow-[0_0_16px_rgba(91,200,255,0.4)]',
   epic: 'shadow-[0_0_18px_rgba(176,124,255,0.45)]',

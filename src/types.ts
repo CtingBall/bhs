@@ -34,7 +34,7 @@ export const CLASS_NAME: Record<ClassId, string> = {
 
 // ===== 卡牌 =====
 export type CardType = 'attack' | 'skill' | 'summon' | 'curse' | 'event_card';
-export type Rarity = 'common' | 'rare' | 'epic' | 'legendary';
+export type Rarity = 'basic' | 'common' | 'rare' | 'epic' | 'legendary';
 
 export type StatusType =
   | 'strength' // 力量：攻击+

@@ -105,7 +105,7 @@ function shopDiscount(run: { relics: Relic[] }): number {
 }
 
 function cardPrice(c: Card): number {
-  return { common: 25, rare: 50, epic: 75, legendary: 120 }[c.rarity];
+  return { basic: 15, common: 25, rare: 50, epic: 75, legendary: 120 }[c.rarity];
 }
 function relicPrice(r: Relic): number {
   return { common: 4, rare: 6, boss: 8 }[r.rarity];
@@ -539,7 +539,7 @@ function handleBattleEnd(get: () => GameStore, set: (p: Partial<GameStore>) => v
     // 普通战/精英/prison → 奖励
     const rareBoost = newRun.relics.some((r) => r.id === 'dalit-liberation');
     const cards: Card[] = [];
-    for (let i = 0; i < 3; i++) cards.push(rollRewardCard(rareBoost));
+    for (let i = 0; i < 5; i++) cards.push(rollRewardCard(rareBoost));
     // 保底系统：每3场战斗必出一张稀有以上
     newRun.pityCounter = (newRun.pityCounter ?? 0) + 1;
     if (newRun.pityCounter >= 3) {

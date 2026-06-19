@@ -5,6 +5,7 @@ import PlayerHud from '@/components/PlayerHud';
 import { cn } from '@/lib/utils';
 import { Layers, Trash2, Swords, ScrollText, Hand } from 'lucide-react';
 import { useEffect, useRef } from 'react';
+import DeckViewer from '@/components/DeckViewer';
 
 export default function Battle() {
   const battle = useGameStore((s) => s.battle);
@@ -173,6 +174,7 @@ export default function Battle() {
           <span className="text-sm">结束回合</span>
         </button>
       </div>
+      <DeckViewer />
     </div>
   );
 }

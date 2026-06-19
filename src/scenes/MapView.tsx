@@ -3,6 +3,7 @@ import { ZONE_LIST, ZONE_NAME, CASTE_NAME } from '@/types';
 import type { MapNode, NodeType } from '@/types';
 import { getReachableIds } from '@/engine/map';
 import ParticleBg from '@/components/ParticleBg';
+import DeckViewer from '@/components/DeckViewer';
 import { Heart, Coins, Gem, Sparkles, ArrowLeft, Hammer } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -230,6 +231,7 @@ export default function MapView() {
           </div>
         )}
       </div>
+      <DeckViewer />
     </div>
   );
 }
