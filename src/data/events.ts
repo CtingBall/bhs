@@ -2816,6 +2816,188 @@ export const EVENTS: GameEvent[] = [
       },
     ],
   },
+
+  // ===== 限制性事件·高风险高回报（8件） =====
+  {
+    id: 'desperate-gamble',
+    title: '孤注一掷',
+    emoji: '🎲',
+    text: '「梭哈！再梭哈！」\n全群梭哈狂潮中，你面前出现了一张孤注一掷的契约。签下它你将获得强大力量，但代价惨重。',
+    options: [
+      {
+        label: '签下契约（扣10HP，获得遗物「孤注一掷契约」）',
+        resultText: '你咬牙签下契约，生命大幅下降，但获得了「孤注一掷契约」。',
+        effects: [
+          { kind: 'hp', value: -10 },
+          { kind: 'relic', cardId: 'desperate-pact' },
+        ],
+      },
+      {
+        label: '稳健拒绝（扣 3HP，安全离开）',
+        resultText: '你拒绝了这个危险的交易，但谈判时还是被坑了 3 点血。',
+        effects: [{ kind: 'hp', value: -3 }],
+      },
+    ],
+  },
+  {
+    id: 'rare-restriction',
+    title: '稀有封印',
+    emoji: '🔒',
+    text: '「赌狗应有尽有」\n一位神秘商人提出交易：本层你只能获得普通品质的卡牌，但给你一件强力遗物和一张随机卡。你敢接吗？',
+    options: [
+      {
+        label: '接受封印（获得「赌狗の运」+随机卡）',
+        resultText: '你接受了封印，获得了「赌狗の运」遗物和一张随机卡。本层稀有卡与你无缘了。',
+        effects: [
+          { kind: 'relic', cardId: 'gamblers-luck' },
+          { kind: 'randomCard', value: 1 },
+        ],
+      },
+      {
+        label: '拒绝封印',
+        resultText: '你拒绝了这个奇怪的交易，商人悻悻离开，你获得 3 点意志。',
+        effects: [{ kind: 'will', value: 3 }],
+      },
+    ],
+  },
+  {
+    id: 'blood-ceremony',
+    title: '血之仪式',
+    emoji: '🩸',
+    text: '「烧血打输出，刺激」——赤红浴血流的传说\n古老的赤红浴血仪式在你面前展开：献祭最大生命，换取血之契约与禁忌之力。',
+    options: [
+      {
+        label: '举行仪式（最大HP -5，获得「血之契约」+「血战」）',
+        resultText: '你割开了手腕献祭，最大生命永久减少 5 点，但获得了「血之契约」遗物和「血战」卡。',
+        effects: [
+          { kind: 'maxHp', value: -5 },
+          { kind: 'relic', cardId: 'blood-pact' },
+          { kind: 'addCard', cardId: 'blood-battle' },
+        ],
+      },
+      {
+        label: '拒绝献祭',
+        resultText: '你拒绝了这个血腥的仪式，回复 5 点生命作为自我安慰。',
+        effects: [{ kind: 'hp', value: 5 }],
+      },
+    ],
+  },
+  {
+    id: 'cursed-blade-find',
+    title: '诅咒之刃',
+    emoji: '🗡️',
+    text: '「诅咒之刃，用就完事了」\n你在废墟中发现了一把散发着不祥气息的利刃。握住它会给你力量，但也会招来诅咒。',
+    options: [
+      {
+        label: '握住诅咒之刃（获得「诅咒之刃」+被塞「金色大便」）',
+        resultText: '你握住了诅咒之刃，力量涌现但手牌被塞了一张「金色大便」诅咒卡。',
+        effects: [
+          { kind: 'relic', cardId: 'cursed-blade' },
+          { kind: 'addCurse', cardId: 'golden-poop' },
+        ],
+      },
+      {
+        label: '不碰诅咒之物，选择安全的路（获得「一击」）',
+        resultText: '你放弃了诅咒之刃，在旁边的箱子里找到了一张「一击」卡牌。',
+        effects: [{ kind: 'addCard', cardId: 'one-punch' }],
+      },
+    ],
+  },
+  {
+    id: 'glass-challenge',
+    title: '玻璃试炼',
+    emoji: '💎',
+    text: '「玻璃大炮，不是你死就是我亡」\n传说中的玻璃试炼：接受它你将获得毁天灭地的首攻力量，但之后三场战斗受到的伤害将翻倍。',
+    options: [
+      {
+        label: '接受试炼（扣8HP，获得「玻璃大炮」+「赤红觉醒」，后续3战受伤x2）',
+        resultText: '你接受了玻璃试炼，掉了 8 点血，但获得了「玻璃大炮」遗物和「赤红觉醒」。接下来的战斗将更加凶险。',
+        effects: [
+          { kind: 'hp', value: -8 },
+          { kind: 'relic', cardId: 'glass-cannon' },
+          { kind: 'addCard', cardId: 'crimson-awaken' },
+          { kind: 'nextBattleHarder', value: 1 },
+        ],
+      },
+      {
+        label: '拒绝试炼，活着不好吗',
+        resultText: '你拒绝了这场疯狂的试炼，回复 6 点生命。',
+        effects: [{ kind: 'hp', value: 6 }],
+      },
+    ],
+  },
+  {
+    id: 'heavy-choice',
+    title: '沉重抉择',
+    emoji: '🪨',
+    text: '「重甲笨重，但我能扛」\n一套传说中的重甲摆在面前。穿上它防御力飙升，但沉重的负担会让你接下来两场战斗初始能量减少 2 点。',
+    options: [
+      {
+        label: '穿上重甲（获得「重甲」，下两场初始能量-2）',
+        resultText: '你穿上了沉重的铠甲，获得了「重甲」遗物。但接下来两场战斗你会感到行动迟缓。',
+        effects: [{ kind: 'relic', cardId: 'heavy-armor' }],
+      },
+      {
+        label: '放弃重甲，保持灵活',
+        resultText: '你选择保持灵活的身手，获得 2 点意志和 2 点琥珀。',
+        effects: [
+          { kind: 'will', value: 2 },
+          { kind: 'amber', value: 2 },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'merchant-trap',
+    title: '商人陷阱',
+    emoji: '🏪',
+    text: '「商人说：拿了我的折扣就别想好过」\n一个油嘴滑舌的商人向你兜售贿赂金，拿了它商店折扣巨大，但你的绳子会被他卷走。或者你可以反过来给他绳子换点好东西。',
+    options: [
+      {
+        label: '接受贿赂（失去15绳子，获得「商人贿赂金」）',
+        resultText: '你拿了商人的贿赂金，绳子少了 15 根，但获得了「商人贿赂金」遗物。',
+        effects: [
+          { kind: 'rope', value: -15 },
+          { kind: 'relic', cardId: 'merchant-bribe' },
+        ],
+      },
+      {
+        label: '反向交易（付10绳子，获得「群疗」）',
+        resultText: '你反过来给了商人 10 根绳子，换到了一张「群疗」卡牌。',
+        effects: [
+          { kind: 'rope', value: -10 },
+          { kind: 'addCard', cardId: 'team-heal' },
+        ],
+      },
+      {
+        label: '不跟商人打交道，走人',
+        resultText: '你警惕地避开了这个可疑的商人，获得 3 点意志。',
+        effects: [{ kind: 'will', value: 3 }],
+      },
+    ],
+  },
+  {
+    id: 'deal-with-devil',
+    title: '恶魔交易',
+    emoji: '😈',
+    text: '「以命换命，不破不立」\n暗影中一个声音向你低语：用你的血肉换一件传说遗物。但交易的代价远不止于此……',
+    options: [
+      {
+        label: '签下恶魔契约（扣8HP，获得「双刃剑」+被塞「魔鬼契约」）',
+        resultText: '你与恶魔签下了契约，掉了 8 点血，获得了「双刃剑」遗物，但被塞了一张「魔鬼契约」诅咒卡。',
+        effects: [
+          { kind: 'hp', value: -8 },
+          { kind: 'relic', cardId: 'double-edged' },
+          { kind: 'addCurse', cardId: 'devil-curse' },
+        ],
+      },
+      {
+        label: '拒绝恶魔，净化自身（回复5HP）',
+        resultText: '你抵抗了恶魔的诱惑，圣光净化了你的身心，回复 5 点生命。',
+        effects: [{ kind: 'hp', value: 5 }],
+      },
+    ],
+  },
 ];
 
 export const EVENT_MAP: Record<string, GameEvent> = Object.fromEntries(

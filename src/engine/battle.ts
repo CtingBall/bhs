@@ -676,21 +676,23 @@ export function resolveBattleEventOnKill(st: BattleState, enemyName: string): vo
 }
 
 // 随机抽一张奖励卡（按稀有度权重，受达利特解放令影响）
-export function rollRewardCard(rareBoost: boolean): Card {
+export function rollRewardCard(zoneIndex: number, rareBoost: boolean): Card {
   const r = Math.random();
   let rarity: Card['rarity'];
+  // 按区域解锁稀有度：0-1区basic/common, 2-3区解锁rare, 4区解锁epic, 5+解锁legendary
+  const maxRarity = zoneIndex < 2 ? 'common' : zoneIndex < 4 ? 'rare' : zoneIndex < 5 ? 'epic' : 'legendary';
   if (rareBoost) {
-    if (r < 0.35) rarity = 'rare';
-    else if (r < 0.65) rarity = 'epic';
-    else if (r < 0.90) rarity = 'legendary';
+    if (r < 0.35 && maxRarity >= 'rare') rarity = 'rare';
+    else if (r < 0.55 && maxRarity >= 'epic') rarity = 'epic';
+    else if (r < 0.65 && maxRarity >= 'legendary') rarity = 'legendary';
     else rarity = 'common';
   } else {
-    // 5级品质：basic(15%) common(35%) rare(28%) epic(15%) legendary(7%)
-    if (r < 0.15) rarity = 'basic';
-    else if (r < 0.50) rarity = 'common';
-    else if (r < 0.78) rarity = 'rare';
-    else if (r < 0.93) rarity = 'epic';
-    else rarity = 'legendary';
+    if (r < 0.25) rarity = 'basic';
+    else if (r < 0.60) rarity = 'common';
+    else if (r < 0.82 && maxRarity >= 'rare') rarity = 'rare';
+    else if (r < 0.94 && maxRarity >= 'epic') rarity = 'epic';
+    else if (maxRarity >= 'legendary') rarity = 'legendary';
+    else rarity = 'common'; // 兜底
   }
   let pool = REWARD_POOL.filter((c) => c.rarity === rarity);
   if (pool.length === 0) pool = REWARD_POOL.filter((c) => c.rarity === 'common');

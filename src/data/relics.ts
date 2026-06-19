@@ -291,6 +291,72 @@ export const RELICS: Relic[] = [
     flavor: '「末班车没赶上，加班车也行」',
     effect: { kind: 'shopDiscount', value: 1 },
   },
+
+  // ===== 限制性遗物·强力但有代价（8件） =====
+  {
+    id: 'desperate-pact',
+    name: '孤注一掷契约',
+    rarity: 'boss',
+    text: '初始能量 +3，但最大生命 -6',
+    flavor: '「梭哈！再梭哈！」——全群的赌博精神',
+    effect: { kind: 'startEnergy', value: 3 },
+  },
+  {
+    id: 'cursed-blade',
+    name: '诅咒之刃',
+    rarity: 'rare',
+    text: '首攻 +8 伤害，但获得时手牌上限 -1',
+    flavor: '「诅咒之刃，用就完事了」',
+    effect: { kind: 'firstAttackDamage', value: 8 },
+  },
+  {
+    id: 'blood-pact',
+    name: '血之契约',
+    rarity: 'boss',
+    text: '击杀回复 5 血，但每回合扣 1 血',
+    flavor: '「烧血打输出，刺激」——赤红浴血流',
+    effect: { kind: 'healOnKill', value: 5 },
+  },
+  {
+    id: 'gamblers-luck',
+    name: '赌狗の运',
+    rarity: 'rare',
+    text: '稀有率大提升，但初始手牌少 1 张',
+    flavor: '「赌狗应有尽有」',
+    effect: { kind: 'rareChance', value: 2 },
+  },
+  {
+    id: 'glass-cannon',
+    name: '玻璃大炮',
+    rarity: 'boss',
+    text: '首攻 +10 伤害，但受到伤害 +3',
+    flavor: '「玻璃大炮，不是你死就是我亡」',
+    effect: { kind: 'firstAttackDamage', value: 10 },
+  },
+  {
+    id: 'heavy-armor',
+    name: '重甲',
+    rarity: 'boss',
+    text: '每回合 6 格挡，但初始能量 -1',
+    flavor: '「重甲笨重，但我能扛」',
+    effect: { kind: 'turnBlock', value: 6 },
+  },
+  {
+    id: 'double-edged',
+    name: '双刃剑',
+    rarity: 'boss',
+    text: '减伤 4，但首攻 -4 伤害',
+    flavor: '「以命换命，不破不立」',
+    effect: { kind: 'damageReduction', value: 4 },
+  },
+  {
+    id: 'merchant-bribe',
+    name: '商人贿赂金',
+    rarity: 'rare',
+    text: '商店大折扣，但每层首战跳过奖励',
+    flavor: '「商人说：拿了我的折扣就别想好过」',
+    effect: { kind: 'shopDiscount', value: 3 },
+  },
 ];
 
 export const RELIC_MAP: Record<string, Relic> = Object.fromEntries(

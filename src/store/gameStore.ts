@@ -324,7 +324,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const rareBoost = hasRareChance(run);
     const cards: { card: Card; price: number }[] = [];
     for (let i = 0; i < 3; i++) {
-      const c = rollRewardCard(rareBoost);
+      const c = rollRewardCard(run.zoneIndex, rareBoost);
       cards.push({ card: c, price: cardPrice(c) });
     }
     const availRelics = RELICS.filter((r) => !run.relics.some((rr) => rr.id === r.id));
@@ -548,7 +548,7 @@ function handleBattleEnd(get: () => GameStore, set: (p: Partial<GameStore>) => v
     // 普通战/精英/prison → 奖励
     const rareBoost = newRun.relics.some((r) => r.id === 'dalit-liberation');
     const cards: Card[] = [];
-    for (let i = 0; i < 5; i++) cards.push(rollRewardCard(rareBoost));
+    for (let i = 0; i < 5; i++) cards.push(rollRewardCard(run.zoneIndex, rareBoost));
     // 保底系统：每3场战斗必出一张稀有以上
     newRun.pityCounter = (newRun.pityCounter ?? 0) + 1;
     if (newRun.pityCounter >= 3) {
@@ -623,7 +623,7 @@ function applyEventEffects(run: RunState, effects: { kind: string; value?: numbe
         break;
       }
       case 'randomCard':
-        r.deck = [...r.deck, rollRewardCard(hasRareChance(r))];
+        r.deck = [...r.deck, rollRewardCard(r.zoneIndex, hasRareChance(r))];
         break;
       case 'casteUp': {
         const idx = CASTE_ORDER.indexOf(r.caste);
