@@ -96,7 +96,7 @@ export default function MapView() {
               {ZONE_NAME[zone]}
             </div>
             <div className="text-[10px] text-slate-400">
-              第 {run.zoneIndex + 1} / 3 区 · 探索 {visitedCount}/{zoneNodes.length}
+              第 {run.zoneIndex + 1} / 7 区 · 探索 {visitedCount}/{zoneNodes.length}
             </div>
           </div>
           <div className="w-20" />

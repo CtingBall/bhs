@@ -90,8 +90,12 @@ const ZONE_BOSS: Record<Zone, string> = {
   strike: 'tina',
   doom: 'giant-tower',
   punish: 'punish-dynasty',
+  abyss: 'void-lord',
+  mirage: 'dream-weaver',
+  armageddon: 'final-judge',
+  astral: 'star-eater',
 };
-const ZONE_LIST: Zone[] = ['strike', 'doom', 'punish'];
+const ZONE_LIST: Zone[] = ['strike', 'doom', 'punish', 'abyss', 'mirage', 'armageddon', 'astral'];
 
 function cardPrice(c: Card): number {
   return { common: 25, rare: 50, epic: 75, legendary: 120 }[c.rarity];
@@ -503,7 +507,7 @@ function handleBattleEnd(get: () => GameStore, set: (p: Partial<GameStore>) => v
     if (upCaste) toast += ` 阶级提升至「${upCaste}」！`;
 
     if (battleKind === 'boss') {
-      if (newRun.zoneIndex >= 2) {
+      if (newRun.zoneIndex >= 6) {
         meta.recordRun(true, 3);
         meta.addSediment(40 + newRun.battlesWon * 2);
         set({ run: newRun, scene: 'victory', toast });

@@ -91,7 +91,9 @@ function generateZone(): MapNode[] {
 }
 
 export function generateMap(): MapNode[][] {
-  return [generateZone(), generateZone(), generateZone()];
+  const zones: MapNode[][] = [];
+  for (let i = 0; i < 7; i++) zones.push(generateZone());
+  return zones;
 }
 
 // 判断哪些节点当前可点击（从 currentNodeId 出发可达的未访问节点）

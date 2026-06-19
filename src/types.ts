@@ -131,12 +131,16 @@ export const CASTE_NAME: Record<Caste, string> = {
 export const CASTE_ORDER: Caste[] = ['dalit', 'vaishya', 'kshatriya', 'brahmin'];
 
 // ===== 大区 =====
-export type Zone = 'strike' | 'doom' | 'punish';
-export const ZONE_LIST: Zone[] = ['strike', 'doom', 'punish'];
+export type Zone = 'strike' | 'doom' | 'punish' | 'abyss' | 'mirage' | 'armageddon' | 'astral';
+export const ZONE_LIST: Zone[] = ['strike', 'doom', 'punish', 'abyss', 'mirage', 'armageddon', 'astral'];
 export const ZONE_NAME: Record<Zone, string> = {
   strike: '强袭区',
   doom: '厄运区',
   punish: '惩戒区',
+  abyss: '深渊区',
+  mirage: '幻境区',
+  armageddon: '终末区',
+  astral: '星界区',
 };
 
 // ===== 敌人 =====
