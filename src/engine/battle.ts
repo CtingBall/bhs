@@ -330,6 +330,11 @@ function applyEffect(
     case 'energy':
       st.player.energy += eff.value ?? 0;
       break;
+    case 'maxHp': {
+      st.player.maxHp += eff.value ?? 0;
+      st.player.hp = Math.min(st.player.hp + (eff.value ?? 0), st.player.maxHp);
+      break;
+    }
   }
 }
 

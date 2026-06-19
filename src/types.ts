@@ -56,6 +56,7 @@ export interface CardEffect {
     | 'applyStatus'
     | 'draw'
     | 'energy'
+    | 'maxHp'
     | 'upgradeRandom';
   value?: number;
   status?: StatusType;
