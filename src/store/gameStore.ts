@@ -261,7 +261,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   endTurnAction: () => {
-    const { battle } = get();
+    const { battle, targetEnemyUid } = get();
     if (!battle || battle.over) return;
     let next = endPlayerTurn(battle);
     set({ battle: next });
@@ -270,7 +270,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set({ battle: next });
     if (next.over) return handleBattleEnd(get, set);
     next = startPlayerTurn(next);
-    set({ battle: next, targetEnemyUid: null });
+    // 保留已有目标（若存活），否则自动选第一个敌人
+    const stillAlive = targetEnemyUid && next.enemies.some(e => e.uid === targetEnemyUid);
+    set({ battle: next, targetEnemyUid: stillAlive ? targetEnemyUid : (next.enemies[0]?.uid ?? null) });
     if (next.over) return handleBattleEnd(get, set);
   },
 

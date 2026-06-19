@@ -231,6 +231,12 @@ export function startPlayerTurn(s: BattleState): BattleState {
   if (st.character.passive.kind === 'turnBlock') st.player.block += st.character.passive.value ?? 0;
   // 被动：每回合多抽牌（答辩）
   if (st.character.passive.kind === 'turnDraw') drawCards(st, st.character.passive.value ?? 0);
+  // 被动：回合开始全敌燃烧（莫妮卡）
+  if (st.character.passive.kind === 'burnAll') {
+    for (const e of st.enemies) addStatus(e.statuses, 'burn', st.character.passive.value ?? 3);
+  }
+  // 被动：每回合永久力量+1（夕）
+  if (st.character.passive.kind === 'rampStrength') addStatus(st.player.statuses, 'strength', st.character.passive.value ?? 1);
   // 遗物：每回合格挡
   st.player.block += relicValue(st, 'turnBlock');
   // 因子：思维额外手牌上限
@@ -335,8 +341,11 @@ function applyEffect(
       if (eff.statusTarget === 'self') {
         addStatus(st.player.statuses, eff.status!, amt);
       } else {
+        let amtActual = amt;
         const targets = eff.all ? st.enemies : [st.enemies[targetIndex]].filter(Boolean);
-        for (const t of targets) addStatus(t.statuses, eff.status!, amt);
+        // fander被动：施加虚弱时额外+1层
+        if (eff.status === 'weak' && st.character.passive.kind === 'weakBoost') amtActual += st.character.passive.value ?? 1;
+        for (const t of targets) addStatus(t.statuses, eff.status!, amtActual);
       }
       break;
     }
@@ -459,6 +468,10 @@ export function endPlayerTurn(s: BattleState): BattleState {
   // 遗物：回合结束回复
   const teHeal = relicValue(st, 'turnEndHeal');
   if (teHeal > 0) st.player.hp = Math.min(st.player.maxHp, st.player.hp + teHeal);
+  // 被动：回合末格挡>0回血（星落）
+  if (st.character.passive.kind === 'blockLife' && st.player.block > 0) {
+    st.player.hp = Math.min(st.player.maxHp, st.player.hp + (st.character.passive.value ?? 3));
+  }
   // StS 机制：弃掉所有手牌 → 预抽下回合手牌
   st.discardPile.push(...st.hand);
   st.hand = [];

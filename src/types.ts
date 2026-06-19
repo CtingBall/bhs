@@ -107,6 +107,10 @@ export type PassiveKind =
   | 'firstAttackWeak'   // 首攻施加X虚弱
   | 'killStrength'      // 击杀+力量
   | 'firstBlockBoost'   // 首张格挡牌+格挡
+  | 'weakBoost'         // 施加虚弱时额外+1层
+  | 'burnAll'           // 每回合开始全敌施加X燃烧
+  | 'blockLife'         // 回合末若格挡>0就回血
+  | 'rampStrength'      // 每回合开始永久力量+1
 
 export interface PassiveEffect {
   kind: PassiveKind;
