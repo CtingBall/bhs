@@ -11,7 +11,7 @@ export default function Shop() {
   const run = useGameStore((s) => s.run);
   const shop = useGameStore((s) => s.shop);
   const buyCard = useGameStore((s) => s.buyShopCard);
-  const buyRelic = useGameStore((s) => s.buyShopRelic);
+  const buyRelic = useGameStore((s) => s.buyShopRelic2);
   const removeCard = useGameStore((s) => s.removeShopCard);
   const reforgeCard = useGameStore((s) => s.reforgeCard);
   const fuseSummons = useGameStore((s) => s.fuseSummons);
@@ -23,7 +23,7 @@ export default function Shop() {
   // 计算商店折扣
   const discount = run.relics.reduce((s, r) => s + (r.effect.kind === 'shopDiscount' ? (r.effect.value ?? 0) : 0), 0);
   const cardPrices = shop.cards.map((item) => Math.max(1, item.price - discount));
-  const relicFinalPrice = Math.max(1, shop.relicPrice - discount);
+  const relicFinalPrices = shop.relicPrices.map((p) => Math.max(1, p - discount));
   const removeFinalPrice = Math.max(1, shop.removePrice - discount);
 
   return (
@@ -108,23 +108,29 @@ export default function Shop() {
         {/* 遗物 + 删卡 */}
         {tab === 'relic' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="glass rounded-xl p-4">
-              <div className="text-xs text-amber/70 mb-2 font-mono">遗物（用琥珀购买）</div>
-              {shop.relic && !shop.relicBought ? (
-                <button
-                  onClick={buyRelic}
-                  disabled={run.amber < relicFinalPrice}
-                  className="w-full text-left rounded-lg border border-amber/40 bg-amber/5 p-3 hover:border-amber transition-all disabled:opacity-40"
-                >
-                  <div className="font-display text-amber">✦ {shop.relic.name}</div>
-                  <div className="text-[11px] text-slate-300 mt-0.5">{shop.relic.text}</div>
-                  <div className="text-xs text-amber font-mono mt-1">{relicFinalPrice} 琥珀</div>
-                </button>
-              ) : (
-                <div className="text-slate-500 text-sm py-4 text-center">
-                  {shop.relicBought ? '已购买' : '今日无货'}
-                </div>
-              )}
+            <div className="glass rounded-xl p-4 col-span-full">
+              <div className="text-xs text-amber/70 mb-2 font-mono">遗物（用琥珀购买，每人限1件）</div>
+              <div className="flex gap-3">
+                {shop.relics.map((relic, i) => (
+                  <div key={i} className="flex-1">
+                    {relic && !shop.boughtRelics[i] ? (
+                      <button
+                        onClick={() => buyRelic(i)}
+                        disabled={run.amber < relicFinalPrices[i]}
+                        className="w-full text-left rounded-lg border border-amber/40 bg-amber/5 p-3 hover:border-amber transition-all disabled:opacity-40"
+                      >
+                        <div className="font-display text-amber text-sm">✦ {relic.name}</div>
+                        <div className="text-[11px] text-slate-300 mt-0.5">{relic.text}</div>
+                        <div className="text-xs text-amber font-mono mt-1">{relicFinalPrices[i]} 琥珀</div>
+                      </button>
+                    ) : (
+                      <div className="text-slate-500 text-xs py-4 text-center rounded-lg border border-dashed border-slate-600">
+                        {shop.boughtRelics[i] ? '已购买' : '售罄'}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
 
             <div className="glass rounded-xl p-4">

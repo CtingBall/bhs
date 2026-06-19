@@ -1,5 +1,7 @@
 import type { Card } from '@/types';
 import { cn } from '@/lib/utils';
+import CardTooltip from '@/components/CardTooltip';
+import { useState } from 'react';
 
 const TYPE_STYLE: Record<Card['type'], { ring: string; tag: string; label: string }> = {
   attack: { ring: 'border-danger/60', tag: 'bg-danger/20 text-danger', label: '攻击' },
@@ -32,6 +34,7 @@ export default function CardView({
   size?: 'sm' | 'md' | 'lg';
   playable?: boolean;
 }) {
+  const [hover, setHover] = useState(false);
   const ts = TYPE_STYLE[card.type];
   const dims =
     size === 'sm'
@@ -43,6 +46,11 @@ export default function CardView({
   const unplayable = disabled || (playable === false);
 
   return (
+    <div
+      className="relative"
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
     <button
       type="button"
       onClick={onClick}
@@ -92,5 +100,7 @@ export default function CardView({
         </p>
       )}
     </button>
+      {hover && <CardTooltip card={card} />}
+    </div>
   );
 }

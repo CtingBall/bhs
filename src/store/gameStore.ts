@@ -35,11 +35,11 @@ type BattleKind = 'normal' | 'elite' | 'boss' | 'prison';
 
 interface ShopStock {
   cards: { card: Card; price: number }[];
-  relic: Relic | null;
-  relicPrice: number;
+  relics: (Relic | null)[];
+  relicPrices: number[];
   removePrice: number;
   boughtCards: number[];
-  relicBought: boolean;
+  boughtRelics: boolean[];
   removed: boolean;
 }
 
@@ -78,6 +78,7 @@ interface GameStore {
   enterShop: () => void;
   buyShopCard: (i: number) => void;
   buyShopRelic: () => void;
+  buyShopRelic2: (i: number) => void;
   removeShopCard: (cardId: string) => void;
   reforgeCard: (cardId: string) => void;       // 卡牌升级（重铸）
   fuseSummons: (recipeId: string) => void;      // 召唤物融合
@@ -327,15 +328,18 @@ export const useGameStore = create<GameStore>((set, get) => ({
       cards.push({ card: c, price: cardPrice(c) });
     }
     const availRelics = RELICS.filter((r) => !run.relics.some((rr) => rr.id === r.id));
-    const relic = availRelics.length > 0 ? availRelics[Math.floor(Math.random() * availRelics.length)] : null;
+    // 随机选3件（打乱取前3）
+    const shuffled = [...availRelics].sort(() => Math.random() - 0.5);
+    const relics = shuffled.slice(0, 3);
+    while (relics.length < 3) relics.push(null);
     set({
       shop: {
         cards,
-        relic,
-        relicPrice: relic ? relicPrice(relic) : 0,
+        relics,
+        relicPrices: relics.map((r) => r ? relicPrice(r) : 0),
         removePrice: 2,
         boughtCards: [],
-        relicBought: false,
+        boughtRelics: [false, false, false],
         removed: false,
       },
       scene: 'shop',
@@ -358,17 +362,22 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set({ run: newRun, shop: { ...shop, boughtCards: [...shop.boughtCards, i] }, toast: `购入：${item.card.name}` });
   },
 
-  buyShopRelic: () => {
+  buyShopRelic: () => {}, // 兼容旧调用，使用 buyShopRelic2
+  buyShopRelic2: (i) => {
     const { run, shop } = get();
-    if (!run || !shop || !shop.relic || shop.relicBought) return;
+    if (!run || !shop || i < 0 || i >= shop.relics.length || shop.boughtRelics[i]) return;
+    const relic = shop.relics[i];
+    if (!relic) return;
     const discount = shopDiscount(run);
-    const finalPrice = Math.max(1, shop.relicPrice - discount);
+    const finalPrice = Math.max(1, shop.relicPrices[i] - discount);
     if (run.amber < finalPrice) {
       set({ toast: '琥珀不够。' });
       return;
     }
-    const newRun = { ...run, amber: run.amber - finalPrice, relics: [...run.relics, shop.relic] };
-    set({ run: newRun, shop: { ...shop, relicBought: true }, toast: `获得遗物：${shop.relic.name}` });
+    const newBought = [...shop.boughtRelics];
+    newBought[i] = true;
+    const newRun = { ...run, amber: run.amber - finalPrice, relics: [...run.relics, relic] };
+    set({ run: newRun, shop: { ...shop, boughtRelics: newBought }, toast: `获得遗物：${relic.name}` });
   },
 
   removeShopCard: (cardId) => {
@@ -563,6 +572,8 @@ function handleBattleEnd(get: () => GameStore, set: (p: Partial<GameStore>) => v
         }
       }
     }
+    // 战斗奖励琥珀：普通1/精英2
+    newRun.amber = (newRun.amber ?? 0) + (isElite ? 2 : 1);
     set({
       run: newRun,
       reward: {

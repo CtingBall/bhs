@@ -2084,6 +2084,738 @@ export const EVENTS: GameEvent[] = [
       },
     ],
   },
+  // ===== 事件·扩展 v3（25 个群聊梗事件） =====
+  {
+    id: 'all-in-gamble-wave',
+    title: '全群梭哈某因子',
+    emoji: '🎲',
+    text: '「全部梭哈幸运」「先梭哈五贼」「梭哈是种智慧」\n群里爆发了梭哈狂潮，所有人都在压注同一个因子。你跟不跟？',
+    options: [
+      {
+        label: '跟了！梭哈全部身家（50% 大奖 / 50% 血亏）',
+        resultText: '',
+        effects: [],
+        gamble: {
+          chance: 0.5,
+          winText: '梭哈大成功！获得随机遗物和随机卡牌。',
+          loseText: '梭哈血亏，掉 15 点血还被塞了「金色大便」。',
+          win: [
+            { kind: 'randomRelic', value: 1 },
+            { kind: 'randomCard', value: 1 },
+          ],
+          lose: [
+            { kind: 'hp', value: -15 },
+            { kind: 'addCurse', cardId: 'golden-poop' },
+          ],
+        },
+      },
+      {
+        label: '小赌怡情，压一半（+随机卡）',
+        resultText: '你压了一半资源，出货了一张随机卡。',
+        effects: [{ kind: 'randomCard', value: 1 }],
+      },
+      {
+        label: '不跟，等下一波',
+        resultText: '「没存粮你拿什么梭哈」你冷静观望，获得 12 根绳子。',
+        effects: [{ kind: 'rope', value: 12 }],
+      },
+    ],
+  },
+  {
+    id: 'cd-spreadsheet-master',
+    title: 'CD计算器大师',
+    emoji: '📊',
+    text: '「你支援我点，我做个4巨塔或者让5巨塔」——飞鱼娘\n飞鱼娘又开了她的CD计算器，精确到毫秒。你也想学这手艺。',
+    options: [
+      {
+        label: '拜师飞鱼娘（-绳子 获得塔主徽章）',
+        resultText: '你交了 12 根绳子当学费，飞鱼娘传你「塔主徽章」遗物。',
+        effects: [
+          { kind: 'rope', value: -12 },
+          { kind: 'relic', cardId: 't-lords-badge' },
+        ],
+      },
+      {
+        label: '自己手算（+意志 +琥珀）',
+        resultText: '你拿出纸笔自己推演，获得 3 点意志和 3 点琥珀。',
+        effects: [
+          { kind: 'will', value: 3 },
+          { kind: 'amber', value: 3 },
+        ],
+      },
+      {
+        label: '懒得算，直接莽',
+        resultText: '「这样伤害不就有了」你放弃计算，直接莽，获得 6 根绳子。',
+        effects: [{ kind: 'rope', value: 6 }],
+      },
+    ],
+  },
+  {
+    id: 'three-minute-cycle',
+    title: '三分钟标准循环',
+    emoji: '⏱️',
+    text: '「光明决心一开就不会死→职责+R→继续决心」\n群里大佬在教标准三分钟输出循环，看着好复杂。学会能质变吗？',
+    options: [
+      {
+        label: '苦练循环（-血 +光明决心卡）',
+        resultText: '你木桩打到手抽筋，掉了 8 点血但习得「光明决心」。',
+        effects: [
+          { kind: 'hp', value: -8 },
+          { kind: 'addCard', cardId: 'light-resolve' },
+        ],
+      },
+      {
+        label: '简化成两分钟循环（+意志）',
+        resultText: '你自创了简化版循环，效果也不差，获得 4 点意志。',
+        effects: [{ kind: 'will', value: 4 }],
+      },
+      {
+        label: '循环是什么，我按技能就完事了',
+        resultText: '你放弃循环选择了快乐脸滚键盘，回复 8 点生命。',
+        effects: [{ kind: 'hp', value: 8 }],
+      },
+    ],
+  },
+  {
+    id: 'full-crit-burst',
+    title: '满暴击爆发期',
+    emoji: '💥',
+    text: '「赤红是不是后面可以双暴击加急速词条」\n你终于凑满了暴击词条，爆发期到了。怎么利用这段黄金窗口？',
+    options: [
+      {
+        label: '全力爆发（下一战加强 奖励翻倍）',
+        resultText: '你开启全部爆发技能，下一场战斗更艰难但奖励更丰厚。',
+        effects: [{ kind: 'nextBattleHarder', value: 1 }],
+      },
+      {
+        label: '稳扎稳打（+琥珀 +意志）',
+        resultText: '你不贪爆发，稳健输出，获得 3 点琥珀和 3 点意志。',
+        effects: [
+          { kind: 'amber', value: 3 },
+          { kind: 'will', value: 3 },
+        ],
+      },
+      {
+        label: '截图发群炫耀（+绳子）',
+        resultText: '你把暴击面板截图发群，群友一阵惊叹，获得 15 根绳子。',
+        effects: [{ kind: 'rope', value: 15 }],
+      },
+    ],
+  },
+  {
+    id: 'delta-force-squad',
+    title: '三角洲行动集结',
+    emoji: '🎖️',
+    text: '「你们都不陪我三角洲」——夕\n「三角洲不是要刷吗」——沫\n群里有人喊组三角洲小队，跨游戏作战。去不去？',
+    options: [
+      {
+        label: '响应号召，加入三角洲（+临时盟友 +意志）',
+        resultText: '你加入三角洲行动小队，获得 1 层临时盟友和 2 点意志。',
+        effects: [
+          { kind: 'tempAlly', value: 1 },
+          { kind: 'will', value: 2 },
+        ],
+      },
+      {
+        label: '不去，我要打本',
+        resultText: '你婉拒了三角洲邀请，专心打本，获得一张随机卡。',
+        effects: [{ kind: 'randomCard', value: 1 }],
+      },
+      {
+        label: '假装去三角洲，实则摸鱼',
+        resultText: '你嘴上答应，实际在钓鱼，获得 8 根绳子。',
+        effects: [{ kind: 'rope', value: 8 }],
+      },
+    ],
+  },
+  {
+    id: 'capsule-toy-frenzy',
+    title: '扭蛋机狂热',
+    emoji: '🔮',
+    text: '「追精炼不如追幻想」「满精炼打印机」\n群友发现了一台新的扭蛋机，里面可能有极品。但扭一次好贵……',
+    options: [
+      {
+        label: '扭三连！（40% 遗物 / 60% 诅咒）',
+        resultText: '',
+        effects: [],
+        gamble: {
+          chance: 0.4,
+          winText: '扭蛋出货！获得一件随机遗物。',
+          loseText: '全沉了……被塞了一张「没用的虫」。',
+          win: [{ kind: 'randomRelic', value: 1 }],
+          lose: [{ kind: 'addCurse', cardId: 'useless-bug' }],
+        },
+      },
+      {
+        label: '只扭一发试试水（-绳子 +随机卡）',
+        resultText: '你花 6 根绳子扭了一发，获得一张随机卡。',
+        effects: [
+          { kind: 'rope', value: -6 },
+          { kind: 'randomCard', value: 1 },
+        ],
+      },
+      {
+        label: '不扭，攒着等保底',
+        resultText: '「保底了，追幻想也太贵了」你决定攒保底，获得 5 点琥珀。',
+        effects: [{ kind: 'amber', value: 5 }],
+      },
+    ],
+  },
+  {
+    id: 'ah-price-war',
+    title: '拍卖行价格大战',
+    emoji: '📉',
+    text: '「精炼便宜了」「买重铸石吗」\n拍卖行有人开始疯狂压价，价格战一触即发。是抄底还是观望？',
+    options: [
+      {
+        label: '抄底扫货（-琥珀 获得两件随机遗物）',
+        resultText: '你花 8 点琥珀扫了一批低价货，获得两件随机遗物。',
+        effects: [
+          { kind: 'amber', value: -8 },
+          { kind: 'randomRelic', value: 1 },
+          { kind: 'randomRelic', value: 1 },
+        ],
+      },
+      {
+        label: '跟着压价，清库存（+大量绳子）',
+        resultText: '你把仓库清空低价抛售，换回 20 根绳子。',
+        effects: [{ kind: 'rope', value: 20 }],
+      },
+      {
+        label: '等价格触底（+琥珀）',
+        resultText: '你耐心等待价格触底，获得 4 点琥珀。',
+        effects: [{ kind: 'amber', value: 4 }],
+      },
+      {
+        label: '举报恶意压价（+意志）',
+        resultText: '你举报了压价行为，获得 3 点意志。',
+        effects: [{ kind: 'will', value: 3 }],
+      },
+    ],
+  },
+  {
+    id: 'refine-25-grind',
+    title: '精炼冲25',
+    emoji: '🔨',
+    text: '「精炼防御25了不用追了」「追精炼不如追幻想」\n你的装备停在+23，就差最后两步。冲不冲？失败可是会炸的。',
+    options: [
+      {
+        label: '冲！炸了也认（50% 成功 / 50% 炸）',
+        resultText: '',
+        effects: [],
+        gamble: {
+          chance: 0.5,
+          winText: '+25成功！获得「N20通关证」遗物，这就是毕业的力量！',
+          loseText: '炸了……装备归零，掉了 18 点血。',
+          win: [{ kind: 'relic', cardId: 'n20-clear-cert' }],
+          lose: [{ kind: 'hp', value: -18 }],
+        },
+      },
+      {
+        label: '用保护符（花琥珀 安全+24）',
+        resultText: '你用了保护符花 5 点琥珀，稳妥升到+24，获得 3 点意志。',
+        effects: [
+          { kind: 'amber', value: -5 },
+          { kind: 'will', value: 3 },
+        ],
+      },
+      {
+        label: '不冲了，+23够用',
+        resultText: '「精炼防御25了不用追了」你选择收手，回复 10 点生命。',
+        effects: [{ kind: 'hp', value: 10 }],
+      },
+    ],
+  },
+  {
+    id: 'ilvl-entry-inspect',
+    title: '装等入队审核',
+    emoji: '📏',
+    text: '「240装等」「这n20数值太高了」\n野队队长开组，设了严格的装等门槛。你刚好擦线。能不能混过去？',
+    options: [
+      {
+        label: '强行凑到门槛（-绳子 获得随机卡）',
+        resultText: '你花 14 根绳子临时凑了装等，混进队伍获得一张随机卡。',
+        effects: [
+          { kind: 'rope', value: -14 },
+          { kind: 'randomCard', value: 1 },
+        ],
+      },
+      {
+        label: '找亲友开组无视门槛（获得遗物「氏族徽章」）',
+        resultText: '你叫来亲友团开组，获得「氏族徽章」遗物。',
+        effects: [{ kind: 'relic', cardId: 'clan-emblem' }],
+      },
+      {
+        label: '不进了，继续沉淀',
+        resultText: '「等我六件套」你决定自己沉淀提升，获得 4 点琥珀。',
+        effects: [{ kind: 'amber', value: 4 }],
+      },
+    ],
+  },
+  {
+    id: 'raid-wipe-finger-slip',
+    title: '手滑灭团惨案',
+    emoji: '💀',
+    text: '「炮台跟着我！」——某群友手滑拉了一群怪\n全团就一个奶，有人手滑引到了不该引的……灭团了。',
+    options: [
+      {
+        label: '背锅，扣血换意志',
+        resultText: '你主动背锅，被群友骂了一顿掉 10 点血，但也赢得了尊重获得 5 点意志。',
+        effects: [
+          { kind: 'hp', value: -10 },
+          { kind: 'will', value: 5 },
+        ],
+      },
+      {
+        label: '甩锅给奶妈',
+        resultText: '「就我一个奶吗哈哈」你把锅甩给奶妈，获得 8 根绳子。',
+        effects: [{ kind: 'rope', value: 8 }],
+      },
+      {
+        label: '全员复盘，再来一次（下一战加强）',
+        resultText: '「没准我们晚上还会出个分」你们重新整队，下一战更认真了。',
+        effects: [{ kind: 'nextBattleHarder', value: 1 }],
+      },
+    ],
+  },
+  {
+    id: 'producer-inspection',
+    title: '制作人路过巡查',
+    emoji: '👀',
+    text: '群友上班摸鱼刚好被制作人路过看到，急喊「这是借鉴美术风格！」\n制作人在群里潜水看到了你们的聊天，气氛微妙。',
+    options: [
+      {
+        label: '假装在讨论工作（+意志）',
+        resultText: '「这是在搞风格调研」你反应极快，制作人满意地离开了，获得 4 点意志。',
+        effects: [{ kind: 'will', value: 4 }],
+      },
+      {
+        label: '趁机提建议（获得遗物「加班提灯」）',
+        resultText: '你鼓起勇气向制作人提了合理建议，获得「加班提灯」遗物。',
+        effects: [{ kind: 'relic', cardId: 'overtime-lantern' }],
+      },
+      {
+        label: '继续摸鱼，爱咋咋地',
+        resultText: '你无视制作人继续摸鱼，获得 6 根绳子和 2 点琥珀。',
+        effects: [
+          { kind: 'rope', value: 6 },
+          { kind: 'amber', value: 2 },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'last-seat-sprint',
+    title: '团本末班车抢位',
+    emoji: '🏃',
+    text: '「八点团本末班车！@全体成员」\n薄荷色小搞发车了，但只剩最后一个位置。你和另一个群友同时申请了。',
+    options: [
+      {
+        label: '手速抢位（50% 抢到 / 50% 被挤掉）',
+        resultText: '',
+        effects: [],
+        gamble: {
+          chance: 0.5,
+          winText: '你抢到了末班车！获得一层临时盟友。',
+          loseText: '被挤掉了……掉了 5 点血，但捡到 10 根绳子。',
+          win: [{ kind: 'tempAlly', value: 1 }],
+          lose: [
+            { kind: 'hp', value: -5 },
+            { kind: 'rope', value: 10 },
+          ],
+        },
+      },
+      {
+        label: '叫大佬来加车（-绳子 +意志）',
+        resultText: '你花 8 根绳子请了个大佬来加开一车，获得 3 点意志。',
+        effects: [
+          { kind: 'rope', value: -8 },
+          { kind: 'will', value: 3 },
+        ],
+      },
+      {
+        label: '算了，打下趟',
+        resultText: '你佛系等下一班，回复 8 点生命。',
+        effects: [{ kind: 'hp', value: 8 }],
+      },
+    ],
+  },
+  {
+    id: 's3-season-kickoff',
+    title: 'S3赛季揭幕',
+    emoji: '🏁',
+    text: '「刚刚在做S3的问卷」「S3初期不是有人测过」\n新赛季终于开了，排行榜清零，又是一轮新的冲分潮。你的策略？',
+    options: [
+      {
+        label: '首日冲分！肝到天亮（-血 +大量琥珀和遗物）',
+        resultText: '你连夜冲分，掉了 15 点血但获得 6 点琥珀和一件随机遗物。',
+        effects: [
+          { kind: 'hp', value: -15 },
+          { kind: 'amber', value: 6 },
+          { kind: 'randomRelic', value: 1 },
+        ],
+      },
+      {
+        label: '先观望meta再看（+意志）',
+        resultText: '你没有盲目冲分而是研究S3新meta，获得 5 点意志。',
+        effects: [{ kind: 'will', value: 5 }],
+      },
+      {
+        label: '等第一波削弱再打（跳过一战）',
+        resultText: '「无所谓我会选择不打等削弱」你跳过一场战斗等环境稳定。',
+        effects: [{ kind: 'skipNextBattle', value: 1 }],
+      },
+    ],
+  },
+  {
+    id: 'guild-war-declared',
+    title: '工会战全面开启',
+    emoji: '⚔️',
+    text: '「军事化领主」「军事化管理是这样的」\n工会战公告已发，全群进入军事化管理。出勤表、配队图全部拉满。',
+    options: [
+      {
+        label: '服从指挥（+意志 +琥珀 +获得「全押」）',
+        resultText: '你严格服从工会指挥，获得 3 点意志、3 点琥珀和「全押」卡。',
+        effects: [
+          { kind: 'will', value: 3 },
+          { kind: 'amber', value: 3 },
+          { kind: 'addCard', cardId: 'all-in' },
+        ],
+      },
+      {
+        label: '请战先锋（下一战加强）',
+        resultText: '你主动申请打头阵，下一场战斗奖励翻倍。',
+        effects: [{ kind: 'nextBattleHarder', value: 1 }],
+      },
+      {
+        label: '摸鱼后勤（+绳子 +琥珀）',
+        resultText: '你退到后勤摸鱼，获得 10 根绳子和 3 点琥珀。',
+        effects: [
+          { kind: 'rope', value: 10 },
+          { kind: 'amber', value: 3 },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'undersea-cable-down',
+    title: '海底光缆断了',
+    emoji: '🌊',
+    text: '全员突然掉线，群里哀嚎一片。\n「我掉线了！」「我也掉线了！」「海底光缆被鲨鱼咬了？」',
+    options: [
+      {
+        label: '疯狂重连（50% 连上 / 50% 继续掉）',
+        resultText: '',
+        effects: [],
+        gamble: {
+          chance: 0.5,
+          winText: '重连成功！队友都掉线你独享了掉落，获得随机遗物。',
+          loseText: '怎么都连不上，心态爆炸掉了 8 点血。',
+          win: [{ kind: 'randomRelic', value: 1 }],
+          lose: [{ kind: 'hp', value: -8 }],
+        },
+      },
+      {
+        label: '趁机休息（回满血）',
+        resultText: '你干脆关了游戏去休息，回复 20 点生命。',
+        effects: [{ kind: 'hp', value: 20 }],
+      },
+      {
+        label: '用手机热点硬撑（-血 +绳子）',
+        resultText: '你开手机热点顶着高延迟打，掉了 6 点血但捡到 12 根绳子。',
+        effects: [
+          { kind: 'hp', value: -6 },
+          { kind: 'rope', value: 12 },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'optimized-out-of-raid',
+    title: '被优化出队',
+    emoji: '😞',
+    text: '「弱的是职业不是玩家」——三百一十页\n「xhgm要jb完蛋了」\n团长说你的职业这版本不太行，把你移出了队伍。',
+    options: [
+      {
+        label: '转职重新来过（阶级+1 -血）',
+        resultText: '你一怒之下转了强势职业，阶级提升但掉了 12 点血。',
+        effects: [
+          { kind: 'casteUp', value: 1 },
+          { kind: 'hp', value: -12 },
+        ],
+      },
+      {
+        label: '坚持本命职业（+意志 获得「磨刀石」）',
+        resultText: '「弱的是职业不是玩家」你坚持本命，获得 5 点意志和「磨刀石」卡。',
+        effects: [
+          { kind: 'will', value: 5 },
+          { kind: 'addCard', cardId: 'sharpen' },
+        ],
+      },
+      {
+        label: '发帖挂人（+绳子）',
+        resultText: '你到论坛发帖吐槽团长歧视弱势职业，获得 15 根绳子。',
+        effects: [{ kind: 'rope', value: 15 }],
+      },
+    ],
+  },
+  {
+    id: 'midnight-ping-storm',
+    title: '深夜炸群风暴',
+    emoji: '🌙',
+    text: '凌晨两点，群消息突然99+。\n「你们睡了没？」「还没睡？」「夜班打卡」——深夜炸群开始了。',
+    options: [
+      {
+        label: '加入炸群聊天（+绳子 +意志）',
+        resultText: '你加入深夜话题，聊到天亮，获得 8 根绳子和 2 点意志。',
+        effects: [
+          { kind: 'rope', value: 8 },
+          { kind: 'will', value: 2 },
+        ],
+      },
+      {
+        label: '开免打扰睡觉（回血）',
+        resultText: '你开了免打扰安心睡觉，回复 15 点生命。',
+        effects: [{ kind: 'hp', value: 15 }],
+      },
+      {
+        label: '半夜爬起来打本（获得随机卡）',
+        resultText: '你被炸醒后干脆起来打本，获得一张随机卡。',
+        effects: [{ kind: 'randomCard', value: 1 }],
+      },
+    ],
+  },
+  {
+    id: 'dps-check-wall',
+    title: '卡DPS检查线',
+    emoji: '📈',
+    text: '「260这n20数值太高了」——水千夏\n「甚至没人伤害高过我的全自动」——Ephyra\nBOSS的DPS检查线卡住了所有人，你刚好差一点。',
+    options: [
+      {
+        label: '吃药硬撸（-琥珀 +意志 挑战高难）',
+        resultText: '你嗑药把DPS顶上去，花 3 点琥珀换来了下一场高难战。',
+        effects: [
+          { kind: 'amber', value: -3 },
+          { kind: 'nextBattleHarder', value: 1 },
+        ],
+      },
+      {
+        label: '换装备优化手法（+意志）',
+        resultText: '你花时间调整配装和循环，获得 4 点意志。',
+        effects: [{ kind: 'will', value: 4 }],
+      },
+      {
+        label: '放弃，等dps更高的来带',
+        resultText: '「220先带我」你放弃了，等着被带，获得 8 根绳子。',
+        effects: [{ kind: 'rope', value: 8 }],
+      },
+    ],
+  },
+  {
+    id: 'guide-vs-homework',
+    title: '看攻略还是抄作业',
+    emoji: '📖',
+    text: '「等inf下班一脚踢死N5煌墓了」——Ephyra\n群里大佬发了详细攻略，但也有人说「直接抄作业就行了」。你选哪个？',
+    options: [
+      {
+        label: '认真看攻略（+意志 +琥珀）',
+        resultText: '你仔细研读了攻略，获得了 3 点意志和 4 点琥珀。',
+        effects: [
+          { kind: 'will', value: 3 },
+          { kind: 'amber', value: 4 },
+        ],
+      },
+      {
+        label: '直接抄作业（获得随机卡）',
+        resultText: '你直接复制了大佬的配装，获得一张随机卡。',
+        effects: [{ kind: 'randomCard', value: 1 }],
+      },
+      {
+        label: '不看也不抄，自己摸索',
+        resultText: '「爱玩啥玩啥」你决定自己探索，获得 5 点意志。',
+        effects: [{ kind: 'will', value: 5 }],
+      },
+    ],
+  },
+  {
+    id: 'save-and-splurge',
+    title: '攒资源终极梭哈',
+    emoji: '💰',
+    text: '「我的梭哈是无～5」\n你攒了好几个版本的资源，今天终于要全部梭哈了。all or nothing？',
+    options: [
+      {
+        label: '梭哈！全压（50% 暴富 / 50% 归零）',
+        resultText: '',
+        effects: [],
+        gamble: {
+          chance: 0.5,
+          winText: '梭哈大获成功！获得两件随机遗物和一张随机卡。',
+          loseText: '全沉了……获得「烧尽的余烬」遗物作为安慰奖，掉 10 点血。',
+          win: [
+            { kind: 'randomRelic', value: 1 },
+            { kind: 'randomRelic', value: 1 },
+            { kind: 'randomCard', value: 1 },
+          ],
+          lose: [
+            { kind: 'relic', cardId: 'burned-out-ember' },
+            { kind: 'hp', value: -10 },
+          ],
+        },
+      },
+      {
+        label: '分批压注，稳一点（+琥珀 +意志）',
+        resultText: '你分了三次压注，获得 4 点琥珀和 3 点意志。',
+        effects: [
+          { kind: 'amber', value: 4 },
+          { kind: 'will', value: 3 },
+        ],
+      },
+      {
+        label: '不梭了，继续攒',
+        resultText: '「无～0就是梭哈」你觉得资源还不够多，继续攒，获得 10 根绳子。',
+        effects: [{ kind: 'rope', value: 10 }],
+      },
+    ],
+  },
+  {
+    id: 'glamour-contest',
+    title: '幻化大赛开赛',
+    emoji: '👗',
+    text: '「说起来现在的高定动作是不是可以排出这个效果来」——飞鱼娘\n「高定时装」群友发起了幻化大赛，比拼谁的装备最好看。',
+    options: [
+      {
+        label: '认真参赛（花琥珀 获得VIP陪酒卡）',
+        resultText: '你花 5 点琥珀精心搭配幻化，获得「高级VIP陪酒卡」遗物。',
+        effects: [
+          { kind: 'amber', value: -5 },
+          { kind: 'relic', cardId: 'wine-companion-vip' },
+        ],
+      },
+      {
+        label: '蹭朋友的时装参赛（+绳子 +意志）',
+        resultText: '你借了群友的时装参赛，居然还拿了奖，获得 8 根绳子和 2 点意志。',
+        effects: [
+          { kind: 'rope', value: 8 },
+          { kind: 'will', value: 2 },
+        ],
+      },
+      {
+        label: '当评委吃瓜（+琥珀）',
+        resultText: '你在旁边当评委打分，获得 3 点琥珀。',
+        effects: [{ kind: 'amber', value: 3 }],
+      },
+    ],
+  },
+  {
+    id: 'wipe-review-meeting',
+    title: '翻车复盘大会',
+    emoji: '📋',
+    text: '「s2的蛇，当时我用奶的罩子去挡」\n昨晚副本翻车了，群主主持复盘大会。你全程录像了，要不要出来自首？',
+    options: [
+      {
+        label: '主动复盘，承认失误（+意志 +琥珀）',
+        resultText: '你坦诚复盘了自己的失误，获得 4 点意志和 3 点琥珀。',
+        effects: [
+          { kind: 'will', value: 4 },
+          { kind: 'amber', value: 3 },
+        ],
+      },
+      {
+        label: '甩锅给机制（+绳子）',
+        resultText: '「加强 boss 也就你游策划做得出来惹」你把锅甩给策划，获得 12 根绳子。',
+        effects: [{ kind: 'rope', value: 12 }],
+      },
+      {
+        label: '装死等风头过去',
+        resultText: '你全程沉默假装掉线，回复 8 点生命。',
+        effects: [{ kind: 'hp', value: 8 }],
+      },
+    ],
+  },
+  {
+    id: 'emergency-rescue-call',
+    title: '群友紧急救场',
+    emoji: '🆘',
+    text: '「@零 救命！」「220先带我，240先带我」\n有人在副本里快团灭了，群里紧急呼叫救场。你去不去？',
+    options: [
+      {
+        label: '立刻救场（+意志 +临时盟友）',
+        resultText: '你火速赶去救场，获得 4 点意志和一层临时盟友。',
+        effects: [
+          { kind: 'will', value: 4 },
+          { kind: 'tempAlly', value: 1 },
+        ],
+      },
+      {
+        label: '远程指导（+琥珀 +绳子）',
+        resultText: '你在群里远程指挥，帮他们过了，获得 3 点琥珀和 6 根绳子。',
+        effects: [
+          { kind: 'amber', value: 3 },
+          { kind: 'rope', value: 6 },
+        ],
+      },
+      {
+        label: '装没看到，自己打自己的',
+        resultText: '「无所谓反正我打不过」你假装没看到消息，获得一张随机卡。',
+        effects: [{ kind: 'randomCard', value: 1 }],
+      },
+    ],
+  },
+  {
+    id: 'lucky-drop-jackpot',
+    title: '意外大出货',
+    emoji: '🎉',
+    text: '「我已经把300打平了」——Ephyra\n你在路边随手打了一只野怪，居然掉出了极品！群友都酸了。',
+    options: [
+      {
+        label: '低调出货，闷声发大财（+琥珀 +意志）',
+        resultText: '你低调地把装备穿上，获得 3 点琥珀和 3 点意志。',
+        effects: [
+          { kind: 'amber', value: 3 },
+          { kind: 'will', value: 3 },
+        ],
+      },
+      {
+        label: '发群炫耀（+大量绳子）',
+        resultText: '你截图发群里引来一片「？？？」，获得 20 根绳子。',
+        effects: [{ kind: 'rope', value: 20 }],
+      },
+      {
+        label: '趁欧气还在继续刷（获得随机遗物）',
+        resultText: '你趁欧气正旺继续刷本，又出了一件随机遗物。',
+        effects: [{ kind: 'randomRelic', value: 1 }],
+      },
+    ],
+  },
+  {
+    id: 'server-maintenance-despair',
+    title: '服务器维护中',
+    emoji: '🚧',
+    text: '「这周的xhgm已经没有上线的必要了」\n「bkl的所有产能都搞游星岛了」\n服务器突然宣布紧急维护，预计3小时。群友集体破防。',
+    options: [
+      {
+        label: '耐心等维护结束（+意志 +琥珀）',
+        resultText: '你放下游戏做了点别的事，获得 3 点意志和 3 点琥珀。',
+        effects: [
+          { kind: 'will', value: 3 },
+          { kind: 'amber', value: 3 },
+        ],
+      },
+      {
+        label: '去别的游戏转转（获得随机卡）',
+        resultText: '「你们都不陪我三角洲」你去玩了另一款游戏，获得一张随机卡。',
+        effects: [{ kind: 'randomCard', value: 1 }],
+      },
+      {
+        label: '怒骂运营（+绳子 被塞诅咒）',
+        resultText: '你冲进论坛怒喷运营，获得 15 根绳子但被塞了「魔鬼契约」。',
+        effects: [
+          { kind: 'rope', value: 15 },
+          { kind: 'addCurse', cardId: 'devil-curse' },
+        ],
+      },
+    ],
+  },
 ];
 
 export const EVENT_MAP: Record<string, GameEvent> = Object.fromEntries(
