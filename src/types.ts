@@ -79,6 +79,7 @@ export interface Card {
   classId?: ClassId;
   upgraded?: boolean;
   upgradeLevel?: number; // 0=基础, 1=升级, 2=精通
+  exhaust?: boolean;     // 消耗：打出后本场战斗不可再用
 }
 
 // ===== 星痕召唤物 =====

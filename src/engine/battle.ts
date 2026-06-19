@@ -397,8 +397,8 @@ export function playCard(
   }
   const firstAttack = st.cardsPlayedThisTurn === 0 && c.type === 'attack';
   for (const eff of c.effects) applyEffect(st, eff, c, targetIndex, firstAttack);
-  // 召唤牌消耗：本场战斗不可再用，进入消耗堆
-  if (c.type === 'summon') {
+  // 消耗牌：打出后进入消耗堆，本场不再可用
+  if (c.exhaust || c.type === 'summon') {
     st.exhaustedPile.push(c);
   } else {
     st.discardPile.push(c);

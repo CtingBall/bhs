@@ -142,7 +142,8 @@ export const CARDS: Card[] = [
     cost: 1,
     text: '抽 3 张牌。',
     flavor: '「化零为整」',
-    effects: [{ kind: 'draw', value: 3 }]
+    effects: [{ kind: 'draw', value: 3 }],
+    exhaust: true,
   },
   {
     id: 'sharpen',
@@ -417,7 +418,8 @@ export const CARDS: Card[] = [
     cost: 3,
     text: '造成 35 点伤害。',
     flavor: '当前 meta：惩击王朝',
-    effects: [{ kind: 'damage', value: 35 }]
+    effects: [{ kind: 'damage', value: 35 }],
+    exhaust: true,
   },
   {
     id: 'hana-auto-card',
@@ -427,7 +429,8 @@ export const CARDS: Card[] = [
     cost: 2,
     text: '造成 35 点伤害。',
     flavor: '「哈娜的自动就有 85w 了」',
-    effects: [{ kind: 'damage', value: 35 }]
+    effects: [{ kind: 'damage', value: 35 }],
+    exhaust: true,
   },
   {
     id: 'last-train-card',
@@ -763,7 +766,8 @@ export const CARDS: Card[] = [
     effects: [
       { kind: 'draw', value: 2 },
       { kind: 'energy', value: 1 },
-    ]
+    ],
+    exhaust: true,
   },
   {
     id: 'covenant-guard',
@@ -798,7 +802,7 @@ export const CARDS: Card[] = [
     flavor: '「保底了，追幻想也太贵了」',
     effects: [
       { kind: 'draw', value: 1 },
-      { kind: 'energy', value: 1 },
+      { kind: 'draw', value: 1 },
     ]
   },
   {
@@ -921,7 +925,8 @@ export const CARDS: Card[] = [
     cost: 3,
     text: '造成 35 点伤害。',
     flavor: '当前 meta：惩击王朝的终焉',
-    effects: [{ kind: 'damage', value: 35 }]
+    effects: [{ kind: 'damage', value: 35 }],
+    exhaust: true,
   },
   {
     id: 'starlight-apex',
@@ -934,7 +939,8 @@ export const CARDS: Card[] = [
     effects: [
       { kind: 'applyStatus', value: 4, status: 'strength', statusTarget: 'self' },
       { kind: 'draw', value: 3 },
-    ]
+    ],
+    exhaust: true,
   },
   {
     id: 'mist-buff-card',
@@ -1234,7 +1240,8 @@ export const CARDS: Card[] = [
       { kind: 'heal', value: -12 },
       { kind: 'damage', value: 45 },
       { kind: 'applyStatus', value: 4, status: 'strength', statusTarget: 'self' },
-    ]
+    ],
+    exhaust: true,
   },
   {
     id: 'ming-dao',
@@ -1292,7 +1299,8 @@ export const CARDS: Card[] = [
       { kind: 'maxHp', value: 10 },
       { kind: 'heal', value: 15 },
       { kind: 'block', value: 15 },
-    ]
+    ],
+    exhaust: true,
   },
 
   // ===== 能量主题（充能·循环·爆发期） =====
@@ -1304,7 +1312,7 @@ export const CARDS: Card[] = [
     cost: 0,
     text: '获得 1 点能量。',
     flavor: '「丹佛不是充能雷魔吗」',
-    effects: [{ kind: 'energy', value: 1 }]
+    effects: [{ kind: 'draw', value: 1 }]
   },
   {
     id: 'overload',
@@ -1315,7 +1323,7 @@ export const CARDS: Card[] = [
     text: '获得 3 点能量，失去 3 点生命。',
     flavor: '「300能量涨得飞快」——Ephyra',
     effects: [
-      { kind: 'energy', value: 3 },
+      { kind: 'draw', value: 1 },
       { kind: 'heal', value: -3 },
     ]
   },
@@ -1330,7 +1338,8 @@ export const CARDS: Card[] = [
     effects: [
       { kind: 'energy', value: 2 },
       { kind: 'draw', value: 2 },
-    ]
+    ],
+    exhaust: true,
   },
   {
     id: 'denver-charge',
@@ -1341,7 +1350,7 @@ export const CARDS: Card[] = [
     text: '获得 1 点能量，对所有敌人施加 1 层感电。',
     flavor: '「丹佛不是充能雷魔吗」',
     effects: [
-      { kind: 'energy', value: 1 },
+      { kind: 'draw', value: 1 },
       { kind: 'applyStatus', value: 1, status: 'shock', statusTarget: 'enemy', all: true },
     ]
   },
@@ -1353,7 +1362,8 @@ export const CARDS: Card[] = [
     cost: 1,
     text: '获得 2 点能量。',
     flavor: '「狂野呼唤现在可充能2层」',
-    effects: [{ kind: 'energy', value: 2 }]
+    effects: [{ kind: 'energy', value: 2 }],
+    exhaust: true,
   },
   {
     id: 'cd-reduce',
@@ -1366,7 +1376,8 @@ export const CARDS: Card[] = [
     effects: [
       { kind: 'draw', value: 2 },
       { kind: 'energy', value: 1 },
-    ]
+    ],
+    exhaust: true,
   },
   {
     id: 'cascade-cd',
@@ -1379,7 +1390,8 @@ export const CARDS: Card[] = [
     effects: [
       { kind: 'energy', value: 2 },
       { kind: 'block', value: 10 },
-    ]
+    ],
+    exhaust: true,
   },
   {
     id: 'quick-cd',
@@ -1391,7 +1403,7 @@ export const CARDS: Card[] = [
     flavor: '「我记得就一个缩减冷却能看看」',
     effects: [
       { kind: 'draw', value: 1 },
-      { kind: 'energy', value: 1 },
+      { kind: 'draw', value: 1 },
     ]
   },
   {
@@ -1405,7 +1417,8 @@ export const CARDS: Card[] = [
     effects: [
       { kind: 'energy', value: 2 },
       { kind: 'applyStatus', value: 3, status: 'strength', statusTarget: 'self' },
-    ]
+    ],
+    exhaust: true,
   },
   {
     id: 'blade-return',
@@ -1418,7 +1431,8 @@ export const CARDS: Card[] = [
     effects: [
       { kind: 'damage', value: 14 },
       { kind: 'energy', value: 2 },
-    ]
+    ],
+    exhaust: true,
   },
   {
     id: 'no-cd-boost',
@@ -1431,7 +1445,8 @@ export const CARDS: Card[] = [
     effects: [
       { kind: 'energy', value: 1 },
       { kind: 'applyStatus', value: 2, status: 'vuln', statusTarget: 'enemy', all: true },
-    ]
+    ],
+    exhaust: true,
   },
   {
     id: 'energy-gate',
@@ -1444,7 +1459,8 @@ export const CARDS: Card[] = [
     effects: [
       { kind: 'energy', value: 2 },
       { kind: 'damage', value: 22 },
-    ]
+    ],
+    exhaust: true,
   },
   {
     id: 'double-charge',
@@ -1454,7 +1470,8 @@ export const CARDS: Card[] = [
     cost: 1,
     text: '获得 2 点能量。',
     flavor: '「狂野呼唤现在可充能2层」',
-    effects: [{ kind: 'energy', value: 2 }]
+    effects: [{ kind: 'energy', value: 2 }],
+    exhaust: true,
   },
   {
     id: 'echo-energy',
@@ -1465,7 +1482,7 @@ export const CARDS: Card[] = [
     text: '获得 1 点能量，回复 5 点生命。',
     flavor: '「回响余音」收集机制',
     effects: [
-      { kind: 'energy', value: 1 },
+      { kind: 'draw', value: 1 },
       { kind: 'heal', value: 5 },
     ]
   },
@@ -1480,7 +1497,8 @@ export const CARDS: Card[] = [
     effects: [
       { kind: 'energy', value: 1 },
       { kind: 'draw', value: 1 },
-    ]
+    ],
+    exhaust: true,
   },
   {
     id: 'thunder-charge',
@@ -1493,7 +1511,8 @@ export const CARDS: Card[] = [
     effects: [
       { kind: 'energy', value: 1 },
       { kind: 'damage', value: 14 },
-    ]
+    ],
+    exhaust: true,
   },
   {
     id: 'energy-drain',
@@ -1506,7 +1525,8 @@ export const CARDS: Card[] = [
     effects: [
       { kind: 'damage', value: 14 },
       { kind: 'energy', value: 1 },
-    ]
+    ],
+    exhaust: true,
   },
   {
     id: 'nuclear-burst',
@@ -1517,10 +1537,11 @@ export const CARDS: Card[] = [
     text: '获得 3 点能量，抽 3 张牌，失去 5 点生命。',
     flavor: '「一套技能放完能不能有50能量」',
     effects: [
-      { kind: 'energy', value: 3 },
+      { kind: 'draw', value: 1 },
       { kind: 'draw', value: 3 },
       { kind: 'heal', value: -5 },
-    ]
+    ],
+    exhaust: true,
   },
   {
     id: 'audio-energy',
@@ -1531,7 +1552,7 @@ export const CARDS: Card[] = [
     text: '获得 1 点能量，抽 1 张牌。',
     flavor: '「不知道给的音响能量消耗情况」',
     effects: [
-      { kind: 'energy', value: 1 },
+      { kind: 'draw', value: 1 },
       { kind: 'draw', value: 1 },
     ]
   },
@@ -1543,7 +1564,7 @@ export const CARDS: Card[] = [
     cost: 1,
     text: '获得 3 点能量。',
     flavor: '「基本3秒就满300能量了」',
-    effects: [{ kind: 'energy', value: 3 }]
+    effects: [{ kind: 'draw', value: 1 }]
   },
 
   // ===== 强力单卡（一脚踢死·秒天秒地·不可战胜） =====
@@ -1555,7 +1576,8 @@ export const CARDS: Card[] = [
     cost: 3,
     text: '造成 50 点伤害。',
     flavor: '「等inf下班一脚踢死N5煌墓了」',
-    effects: [{ kind: 'damage', value: 50 }]
+    effects: [{ kind: 'damage', value: 50 }],
+    exhaust: true,
   },
   {
     id: 'heaven-earth',
@@ -1565,7 +1587,8 @@ export const CARDS: Card[] = [
     cost: 3,
     text: '对所有敌人造成 30 点伤害。',
     flavor: '「小吱秒天秒地」',
-    effects: [{ kind: 'damageAll', value: 30 }]
+    effects: [{ kind: 'damageAll', value: 30 }],
+    exhaust: true,
   },
   {
     id: 'one-punch',
@@ -1587,8 +1610,9 @@ export const CARDS: Card[] = [
     flavor: '「终极技能：施放后立即回满刀意值」',
     effects: [
       { kind: 'damage', value: 55 },
-      { kind: 'energy', value: 2 },
-    ]
+      { kind: 'block', value: 5 },
+    ],
+    exhaust: true,
   },
   {
     id: 'million-dps',
@@ -1601,7 +1625,8 @@ export const CARDS: Card[] = [
     effects: [
       { kind: 'damage', value: 38 },
       { kind: 'applyStatus', value: 3, status: 'strength', statusTarget: 'self' },
-    ]
+    ],
+    exhaust: true,
   },
   {
     id: 'unbeatable',
@@ -1639,7 +1664,7 @@ export const CARDS: Card[] = [
     flavor: '「尖兵还是太超模了」——夕',
     effects: [
       { kind: 'damage', value: 18 },
-      { kind: 'energy', value: 1 },
+      { kind: 'block', value: 5 },
     ]
   },
   {
@@ -1666,7 +1691,8 @@ export const CARDS: Card[] = [
     effects: [
       { kind: 'damage', value: 65 },
       { kind: 'heal', value: -8 },
-    ]
+    ],
+    exhaust: true,
   },
   {
     id: 'god-throne',
@@ -1728,7 +1754,8 @@ export const CARDS: Card[] = [
     effects: [
       { kind: 'damage', value: 35 },
       { kind: 'applyStatus', value: 3, status: 'vuln', statusTarget: 'enemy' },
-    ]
+    ],
+    exhaust: true,
   },
   {
     id: 'crush',
@@ -1762,7 +1789,8 @@ export const CARDS: Card[] = [
     cost: 4,
     text: '造成 59 点伤害。',
     flavor: '「n20都是一脚踢死」——坠明',
-    effects: [{ kind: 'damage', value: 59 }]
+    effects: [{ kind: 'damage', value: 59 }],
+    exhaust: true,
   },
   {
     id: 'seven-sec-burst',
@@ -1774,7 +1802,7 @@ export const CARDS: Card[] = [
     flavor: '「水千夏是7s爆发打完跑路的」',
     effects: [
       { kind: 'damage', value: 15 },
-      { kind: 'energy', value: 1 },
+      { kind: 'block', value: 5 },
     ]
   },
   {
@@ -1801,7 +1829,8 @@ export const CARDS: Card[] = [
     effects: [
       { kind: 'damage', value: 38 },
       { kind: 'applyStatus', value: 3, status: 'strength', statusTarget: 'self' },
-    ]
+    ],
+    exhaust: true,
   },
 
   // ===== 格挡主题（光盾·岩盾·防盾·决心循环） =====
@@ -1957,7 +1986,7 @@ export const CARDS: Card[] = [
     flavor: '「防盾没有弱势期啊」',
     effects: [
       { kind: 'block', value: 8 },
-      { kind: 'energy', value: 1 },
+      { kind: 'draw', value: 1 },
     ]
   },
   {
@@ -1997,7 +2026,8 @@ export const CARDS: Card[] = [
     effects: [
       { kind: 'block', value: 20 },
       { kind: 'heal', value: 8 },
-    ]
+    ],
+    exhaust: true,
   },
   {
     id: 'stand-firm',
@@ -2059,7 +2089,7 @@ export const CARDS: Card[] = [
     effects: [
       { kind: 'block', value: 12 },
       { kind: 'draw', value: 1 },
-      { kind: 'energy', value: 1 },
+      { kind: 'draw', value: 1 },
     ]
   },
 
@@ -2150,7 +2180,7 @@ export const CARDS: Card[] = [
     flavor: '「做个炎角就是惩击」',
     effects: [
       { kind: 'applyStatus', value: 2, status: 'burn', statusTarget: 'enemy' },
-      { kind: 'energy', value: 1 },
+      { kind: 'draw', value: 1 },
     ]
   },
   {
@@ -2305,7 +2335,7 @@ export const CARDS: Card[] = [
     flavor: '「一直触发10秒的炎舞增伤」',
     effects: [
       { kind: 'applyStatus', value: 5, status: 'burn', statusTarget: 'enemy', all: true },
-      { kind: 'energy', value: 2 },
+      { kind: 'draw', value: 1 },
     ]
   },
   {
@@ -2320,7 +2350,8 @@ export const CARDS: Card[] = [
       { kind: 'applyStatus', value: 9, status: 'burn', statusTarget: 'enemy', all: true },
       { kind: 'damageAll', value: 35 },
       { kind: 'heal', value: -6 },
-    ]
+    ],
+    exhaust: true,
   },
 
   // ===== 诅咒 =====
@@ -2813,7 +2844,7 @@ export const CARDS: Card[] = [
     flavor: '「冰魔领主降临」',
     effects: [
       { kind: 'applyStatus', value: 5, status: 'freeze', statusTarget: 'enemy' },
-      { kind: 'energy', value: 1 },
+      { kind: 'draw', value: 1 },
     ],
     classId: 'icepearl'
   },
@@ -2908,7 +2939,8 @@ export const CARDS: Card[] = [
     text: '对所有敌人造成 26 点伤害。',
     flavor: '「冰风暴席卷一切」',
     effects: [{ kind: 'damageAll', value: 26 }],
-    classId: 'icepearl'
+    classId: 'icepearl',
+    exhaust: true,
   },
   {
     id: 'icepearl-eternal-winter',
@@ -2922,7 +2954,8 @@ export const CARDS: Card[] = [
       { kind: 'damageAll', value: 42 },
       { kind: 'applyStatus', value: 5, status: 'freeze', statusTarget: 'enemy', all: true },
     ],
-    classId: 'icepearl'
+    classId: 'icepearl',
+    exhaust: true,
   },
   {
     id: 'icepearl-ice-god',
@@ -2936,7 +2969,8 @@ export const CARDS: Card[] = [
       { kind: 'damage', value: 52 },
       { kind: 'applyStatus', value: 6, status: 'freeze', statusTarget: 'enemy' },
     ],
-    classId: 'icepearl'
+    classId: 'icepearl',
+    exhaust: true,
   },
   {
     id: 'icepearl-zero-domain',
@@ -2950,7 +2984,8 @@ export const CARDS: Card[] = [
       { kind: 'applyStatus', value: 8, status: 'freeze', statusTarget: 'enemy', all: true },
       { kind: 'draw', value: 3 },
     ],
-    classId: 'icepearl'
+    classId: 'icepearl',
+    exhaust: true,
   },
   {
     id: 'icepearl-frozen-time',
@@ -2963,9 +2998,10 @@ export const CARDS: Card[] = [
     effects: [
       { kind: 'block', value: 20 },
       { kind: 'applyStatus', value: 5, status: 'freeze', statusTarget: 'enemy', all: true },
-      { kind: 'energy', value: 2 },
+      { kind: 'draw', value: 1 },
     ],
-    classId: 'icepearl'
+    classId: 'icepearl',
+    exhaust: true,
   },
   {
     id: 'icepearl-ice-descend',
@@ -2979,7 +3015,8 @@ export const CARDS: Card[] = [
       { kind: 'damage', value: 60 },
       { kind: 'applyStatus', value: 6, status: 'freeze', statusTarget: 'enemy', all: true },
     ],
-    classId: 'icepearl'
+    classId: 'icepearl',
+    exhaust: true,
   },
   {
     id: 'icepearl-frost-step',
@@ -3047,7 +3084,7 @@ export const CARDS: Card[] = [
     flavor: '「冰矛之星，充能完毕」',
     effects: [
       { kind: 'applyStatus', value: 4, status: 'freeze', statusTarget: 'enemy' },
-      { kind: 'energy', value: 2 },
+      { kind: 'draw', value: 1 },
     ],
     classId: 'icepearl'
   },
@@ -3110,7 +3147,7 @@ export const CARDS: Card[] = [
     flavor: '「刀意归来」',
     effects: [
       { kind: 'draw', value: 1 },
-      { kind: 'energy', value: 1 },
+      { kind: 'draw', value: 1 },
     ],
     classId: 'iaido'
   },
@@ -3161,7 +3198,7 @@ export const CARDS: Card[] = [
     cost: 0,
     text: '获得 1 点能量。',
     flavor: '「凝神一瞬，5.6居合」',
-    effects: [{ kind: 'energy', value: 1 }],
+    effects: [{ kind: 'draw', value: 1 }],
     classId: 'iaido'
   },
   {
@@ -3207,7 +3244,7 @@ export const CARDS: Card[] = [
     flavor: '「施放后立即回满刀意值」',
     effects: [
       { kind: 'damage', value: 14 },
-      { kind: 'energy', value: 2 },
+      { kind: 'block', value: 5 },
     ],
     classId: 'iaido'
   },
@@ -3262,7 +3299,8 @@ export const CARDS: Card[] = [
     text: '抽 3 张牌。',
     flavor: '「意清则刀快」',
     effects: [{ kind: 'draw', value: 3 }],
-    classId: 'iaido'
+    classId: 'iaido',
+    exhaust: true,
   },
   {
     id: 'iaido-break-slash',
@@ -3300,7 +3338,7 @@ export const CARDS: Card[] = [
     effects: [
       { kind: 'damage', value: 14 },
       { kind: 'draw', value: 1 },
-      { kind: 'energy', value: 1 },
+      { kind: 'block', value: 5 },
     ],
     classId: 'iaido'
   },
@@ -3388,10 +3426,11 @@ export const CARDS: Card[] = [
     text: '获得 3 点能量，抽 3 张牌。',
     flavor: '「刹那永恒」',
     effects: [
-      { kind: 'energy', value: 3 },
+      { kind: 'draw', value: 1 },
       { kind: 'draw', value: 3 },
     ],
-    classId: 'iaido'
+    classId: 'iaido',
+    exhaust: true,
   },
   {
     id: 'iaido-god-speed',
@@ -3415,7 +3454,7 @@ export const CARDS: Card[] = [
     effects: [
       { kind: 'damage', value: 22 },
       { kind: 'draw', value: 2 },
-      { kind: 'energy', value: 1 },
+      { kind: 'block', value: 5 },
     ],
     classId: 'iaido'
   },
@@ -3485,9 +3524,10 @@ export const CARDS: Card[] = [
     flavor: '「空明之境」',
     effects: [
       { kind: 'draw', value: 3 },
-      { kind: 'energy', value: 1 },
+      { kind: 'draw', value: 1 },
     ],
-    classId: 'iaido'
+    classId: 'iaido',
+    exhaust: true,
   },
   {
     id: 'iaido-batto',
@@ -3510,7 +3550,7 @@ export const CARDS: Card[] = [
     flavor: '「这不就是经典的循环了吗」',
     effects: [
       { kind: 'draw', value: 2 },
-      { kind: 'energy', value: 2 },
+      { kind: 'draw', value: 1 },
     ],
     classId: 'iaido'
   },
@@ -3523,7 +3563,8 @@ export const CARDS: Card[] = [
     text: '造成 35 点伤害。',
     flavor: '「一刀入神」',
     effects: [{ kind: 'damage', value: 35 }],
-    classId: 'iaido'
+    classId: 'iaido',
+    exhaust: true,
   },
   {
     id: 'iaido-shadowless',
@@ -3580,7 +3621,8 @@ export const CARDS: Card[] = [
       { kind: 'damage', value: 50 },
       { kind: 'draw', value: 3 },
     ],
-    classId: 'iaido'
+    classId: 'iaido',
+    exhaust: true,
   },
   {
     id: 'iaido-god-blade',
@@ -3592,9 +3634,10 @@ export const CARDS: Card[] = [
     flavor: '「神之一刀，刹那永恒」',
     effects: [
       { kind: 'damage', value: 40 },
-      { kind: 'energy', value: 2 },
+      { kind: 'block', value: 5 },
     ],
-    classId: 'iaido'
+    classId: 'iaido',
+    exhaust: true,
   },
   {
     id: 'iaido-zenith',
@@ -3606,9 +3649,10 @@ export const CARDS: Card[] = [
     flavor: '「居合的至高境界」',
     effects: [
       { kind: 'draw', value: 5 },
-      { kind: 'energy', value: 3 },
+      { kind: 'draw', value: 1 },
     ],
-    classId: 'iaido'
+    classId: 'iaido',
+    exhaust: true,
   },
   {
     id: 'iaido-one-kick-n20',
@@ -3619,7 +3663,8 @@ export const CARDS: Card[] = [
     text: '造成 53 点伤害。',
     flavor: '「n20都是一脚踢死」——坠明',
     effects: [{ kind: 'damage', value: 53 }],
-    classId: 'iaido'
+    classId: 'iaido',
+    exhaust: true,
   },
   {
     id: 'iaido-blade-god',
@@ -3632,9 +3677,10 @@ export const CARDS: Card[] = [
     effects: [
       { kind: 'damage', value: 60 },
       { kind: 'draw', value: 3 },
-      { kind: 'energy', value: 2 },
+      { kind: 'block', value: 5 },
     ],
-    classId: 'iaido'
+    classId: 'iaido',
+    exhaust: true,
   },
   {
     id: 'iaido-parry',
@@ -3699,7 +3745,7 @@ export const CARDS: Card[] = [
     flavor: '「刀环护体」',
     effects: [
       { kind: 'block', value: 8 },
-      { kind: 'energy', value: 1 },
+      { kind: 'draw', value: 1 },
     ],
     classId: 'iaido'
   },
@@ -4200,7 +4246,7 @@ export const CARDS: Card[] = [
     flavor: '「战途漫漫」',
     effects: [
       { kind: 'applyStatus', value: 3, status: 'strength', statusTarget: 'self' },
-      { kind: 'energy', value: 1 },
+      { kind: 'draw', value: 1 },
     ],
     classId: 'twinaxe'
   },
@@ -4216,7 +4262,8 @@ export const CARDS: Card[] = [
       { kind: 'damage', value: 58 },
       { kind: 'applyStatus', value: 4, status: 'strength', statusTarget: 'self' },
     ],
-    classId: 'twinaxe'
+    classId: 'twinaxe',
+    exhaust: true,
   },
   {
     id: 'twinaxe-berserk-god',
@@ -4230,7 +4277,8 @@ export const CARDS: Card[] = [
       { kind: 'damage', value: 48 },
       { kind: 'applyStatus', value: 4, status: 'strength', statusTarget: 'self' },
     ],
-    classId: 'twinaxe'
+    classId: 'twinaxe',
+    exhaust: true,
   },
   {
     id: 'twinaxe-endless-rage',
@@ -4244,7 +4292,8 @@ export const CARDS: Card[] = [
       { kind: 'applyStatus', value: 6, status: 'strength', statusTarget: 'self' },
       { kind: 'draw', value: 2 },
     ],
-    classId: 'twinaxe'
+    classId: 'twinaxe',
+    exhaust: true,
   },
   {
     id: 'twinaxe-world-breaker',
@@ -4258,7 +4307,8 @@ export const CARDS: Card[] = [
       { kind: 'damageAll', value: 35 },
       { kind: 'applyStatus', value: 4, status: 'strength', statusTarget: 'self' },
     ],
-    classId: 'twinaxe'
+    classId: 'twinaxe',
+    exhaust: true,
   },
   {
     id: 'twinaxe-blood-god',
@@ -4272,7 +4322,8 @@ export const CARDS: Card[] = [
       { kind: 'damage', value: 55 },
       { kind: 'heal', value: 12 },
     ],
-    classId: 'twinaxe'
+    classId: 'twinaxe',
+    exhaust: true,
   },
   {
     id: 'twinaxe-shout',
@@ -4377,7 +4428,7 @@ export const CARDS: Card[] = [
     text: '获得 1 点能量，对所有敌人施加 1 层感电。',
     flavor: '「充能雷魔」',
     effects: [
-      { kind: 'energy', value: 1 },
+      { kind: 'draw', value: 1 },
       { kind: 'applyStatus', value: 1, status: 'shock', statusTarget: 'enemy', all: true },
     ],
     classId: 'thunder'
@@ -4401,7 +4452,7 @@ export const CARDS: Card[] = [
     cost: 0,
     text: '获得 1 点能量。',
     flavor: '「3秒就满300能量了」',
-    effects: [{ kind: 'energy', value: 1 }],
+    effects: [{ kind: 'draw', value: 1 }],
     classId: 'thunder'
   },
   {
@@ -4442,7 +4493,7 @@ export const CARDS: Card[] = [
     flavor: '「丹佛充能一击」',
     effects: [
       { kind: 'damage', value: 8 },
-      { kind: 'energy', value: 1 },
+      { kind: 'block', value: 3 },
     ],
     classId: 'thunder'
   },
@@ -4508,7 +4559,7 @@ export const CARDS: Card[] = [
     text: '获得 2 点能量，对敌人施加 2 层感电。',
     flavor: '「300能量涨得飞快」',
     effects: [
-      { kind: 'energy', value: 2 },
+      { kind: 'draw', value: 1 },
       { kind: 'applyStatus', value: 2, status: 'shock', statusTarget: 'enemy' },
     ],
     classId: 'thunder'
@@ -4565,7 +4616,7 @@ export const CARDS: Card[] = [
     flavor: '「伏特冲锋」',
     effects: [
       { kind: 'damage', value: 16 },
-      { kind: 'energy', value: 1 },
+      { kind: 'block', value: 5 },
     ],
     classId: 'thunder'
   },
@@ -4603,7 +4654,7 @@ export const CARDS: Card[] = [
     text: '获得 1 点能量，对敌人施加 3 层感电。',
     flavor: '「丹佛不是充能雷魔吗」',
     effects: [
-      { kind: 'energy', value: 1 },
+      { kind: 'draw', value: 1 },
       { kind: 'applyStatus', value: 3, status: 'shock', statusTarget: 'enemy' },
     ],
     classId: 'thunder'
@@ -4670,7 +4721,7 @@ export const CARDS: Card[] = [
     text: '获得 2 点能量，抽 1 张牌。',
     flavor: '「能量涌动」',
     effects: [
-      { kind: 'energy', value: 2 },
+      { kind: 'draw', value: 1 },
       { kind: 'draw', value: 1 },
     ],
     classId: 'thunder'
@@ -4699,7 +4750,7 @@ export const CARDS: Card[] = [
     flavor: '「EMP全屏感电」',
     effects: [
       { kind: 'applyStatus', value: 5, status: 'shock', statusTarget: 'enemy', all: true },
-      { kind: 'energy', value: 1 },
+      { kind: 'draw', value: 1 },
     ],
     classId: 'thunder'
   },
@@ -4726,7 +4777,7 @@ export const CARDS: Card[] = [
     text: '获得 2 点能量，对所有敌人施加 4 层感电。',
     flavor: '「丹佛不是充能雷魔吗，充到极」',
     effects: [
-      { kind: 'energy', value: 2 },
+      { kind: 'draw', value: 1 },
       { kind: 'applyStatus', value: 4, status: 'shock', statusTarget: 'enemy', all: true },
     ],
     classId: 'thunder'
@@ -4769,7 +4820,7 @@ export const CARDS: Card[] = [
     flavor: '「能量炸弹，炸了」',
     effects: [
       { kind: 'damage', value: 32 },
-      { kind: 'energy', value: 1 },
+      { kind: 'block', value: 5 },
     ],
     classId: 'thunder'
   },
@@ -4810,7 +4861,7 @@ export const CARDS: Card[] = [
     text: '获得 2 点能量，抽 2 张牌。',
     flavor: '「暴风充能，能量爆表」',
     effects: [
-      { kind: 'energy', value: 2 },
+      { kind: 'draw', value: 1 },
       { kind: 'draw', value: 2 },
     ],
     classId: 'thunder'
@@ -4850,7 +4901,7 @@ export const CARDS: Card[] = [
     flavor: '「过载爆发充能」',
     effects: [
       { kind: 'damage', value: 25 },
-      { kind: 'energy', value: 2 },
+      { kind: 'block', value: 5 },
     ],
     classId: 'thunder'
   },
@@ -4864,7 +4915,7 @@ export const CARDS: Card[] = [
     flavor: '「雷电场域」',
     effects: [
       { kind: 'applyStatus', value: 5, status: 'shock', statusTarget: 'enemy', all: true },
-      { kind: 'energy', value: 1 },
+      { kind: 'draw', value: 1 },
     ],
     classId: 'thunder'
   },
@@ -4894,7 +4945,8 @@ export const CARDS: Card[] = [
       { kind: 'damageAll', value: 40 },
       { kind: 'applyStatus', value: 5, status: 'shock', statusTarget: 'enemy', all: true },
     ],
-    classId: 'thunder'
+    classId: 'thunder',
+    exhaust: true,
   },
   {
     id: 'thunder-god-spear',
@@ -4908,7 +4960,8 @@ export const CARDS: Card[] = [
       { kind: 'damage', value: 48 },
       { kind: 'applyStatus', value: 4, status: 'shock', statusTarget: 'enemy' },
     ],
-    classId: 'thunder'
+    classId: 'thunder',
+    exhaust: true,
   },
   {
     id: 'thunder-overload-god',
@@ -4919,10 +4972,11 @@ export const CARDS: Card[] = [
     text: '获得 4 点能量，对所有敌人施加 6 层感电。',
     flavor: '「基本3秒就满300能量了」',
     effects: [
-      { kind: 'energy', value: 4 },
+      { kind: 'draw', value: 1 },
       { kind: 'applyStatus', value: 6, status: 'shock', statusTarget: 'enemy', all: true },
     ],
-    classId: 'thunder'
+    classId: 'thunder',
+    exhaust: true,
   },
   {
     id: 'thunder-storm-king',
@@ -4936,7 +4990,8 @@ export const CARDS: Card[] = [
       { kind: 'damage', value: 56 },
       { kind: 'applyStatus', value: 5, status: 'shock', statusTarget: 'enemy', all: true },
     ],
-    classId: 'thunder'
+    classId: 'thunder',
+    exhaust: true,
   },
   {
     id: 'thunder-apocalypse',
@@ -4950,7 +5005,8 @@ export const CARDS: Card[] = [
       { kind: 'damageAll', value: 35 },
       { kind: 'applyStatus', value: 4, status: 'shock', statusTarget: 'enemy', all: true },
     ],
-    classId: 'thunder'
+    classId: 'thunder',
+    exhaust: true,
   },
   {
     id: 'thunder-flash',
@@ -4973,7 +5029,7 @@ export const CARDS: Card[] = [
     flavor: '「护盾充能」',
     effects: [
       { kind: 'block', value: 8 },
-      { kind: 'energy', value: 1 },
+      { kind: 'draw', value: 1 },
     ],
     classId: 'thunder'
   },
@@ -5015,7 +5071,7 @@ export const CARDS: Card[] = [
     flavor: '「雷云密布，丹佛充能」',
     effects: [
       { kind: 'applyStatus', value: 3, status: 'shock', statusTarget: 'enemy', all: true },
-      { kind: 'energy', value: 1 },
+      { kind: 'draw', value: 1 },
       { kind: 'draw', value: 1 },
     ],
     classId: 'thunder'
@@ -5032,7 +5088,7 @@ export const CARDS: Card[] = [
     flavor: '「协奏还早就被开发出裁定玩法」',
     effects: [
       { kind: 'draw', value: 2 },
-      { kind: 'energy', value: 1 },
+      { kind: 'draw', value: 1 },
     ]
   },
   {
@@ -5082,7 +5138,7 @@ export const CARDS: Card[] = [
     cost: 0,
     text: '获得 1 点能量。',
     flavor: '「热情挥洒，安可！」',
-    effects: [{ kind: 'energy', value: 1 }]
+    effects: [{ kind: 'draw', value: 1 }]
   },
   {
     id: 'rhythm',
@@ -5127,7 +5183,7 @@ export const CARDS: Card[] = [
     flavor: '「调音准备」',
     effects: [
       { kind: 'heal', value: 5 },
-      { kind: 'energy', value: 1 },
+      { kind: 'draw', value: 1 },
     ]
   },
   {
@@ -5140,7 +5196,7 @@ export const CARDS: Card[] = [
     flavor: '「延音不止」',
     effects: [
       { kind: 'block', value: 6 },
-      { kind: 'energy', value: 1 },
+      { kind: 'draw', value: 1 },
     ]
   },
   {
@@ -5165,7 +5221,7 @@ export const CARDS: Card[] = [
     text: '获得 2 点能量，抽 2 张牌。',
     flavor: '「惩击和狂音一样，靠打伤害出奶量的」',
     effects: [
-      { kind: 'energy', value: 2 },
+      { kind: 'draw', value: 1 },
       { kind: 'draw', value: 2 },
     ]
   },
@@ -5179,7 +5235,7 @@ export const CARDS: Card[] = [
     flavor: '「安可流」',
     effects: [
       { kind: 'draw', value: 2 },
-      { kind: 'energy', value: 1 },
+      { kind: 'draw', value: 1 },
       { kind: 'heal', value: 5 },
     ]
   },
@@ -5205,7 +5261,7 @@ export const CARDS: Card[] = [
     text: '获得 2 点能量，抽 1 张牌。',
     flavor: '「激昂的协奏曲」',
     effects: [
-      { kind: 'energy', value: 2 },
+      { kind: 'draw', value: 1 },
       { kind: 'draw', value: 1 },
     ]
   },
@@ -5230,7 +5286,8 @@ export const CARDS: Card[] = [
     cost: 2,
     text: '抽 3 张牌。',
     flavor: '「二重奏，双倍快乐」',
-    effects: [{ kind: 'draw', value: 3 }]
+    effects: [{ kind: 'draw', value: 3 }],
+    exhaust: true,
   },
   {
     id: 'chorus',
@@ -5293,7 +5350,7 @@ export const CARDS: Card[] = [
     text: '获得 1 点能量，抽 2 张牌。',
     flavor: '「强音出击」',
     effects: [
-      { kind: 'energy', value: 1 },
+      { kind: 'draw', value: 1 },
       { kind: 'draw', value: 2 },
     ]
   },
@@ -5307,7 +5364,7 @@ export const CARDS: Card[] = [
     flavor: '「华彩乐章」',
     effects: [
       { kind: 'draw', value: 2 },
-      { kind: 'energy', value: 1 },
+      { kind: 'draw', value: 1 },
       { kind: 'block', value: 8 },
     ]
   },
@@ -5334,7 +5391,7 @@ export const CARDS: Card[] = [
     flavor: '「和音笼罩」',
     effects: [
       { kind: 'heal', value: 6 },
-      { kind: 'energy', value: 1 },
+      { kind: 'draw', value: 1 },
     ]
   },
   {
@@ -5348,7 +5405,8 @@ export const CARDS: Card[] = [
     effects: [
       { kind: 'draw', value: 3 },
       { kind: 'energy', value: 2 },
-    ]
+    ],
+    exhaust: true,
   },
   {
     id: 'wild-rhapsody',
@@ -5359,7 +5417,7 @@ export const CARDS: Card[] = [
     text: '获得 3 点能量，抽 2 张牌。',
     flavor: '「现在狂音焚诀」',
     effects: [
-      { kind: 'energy', value: 3 },
+      { kind: 'draw', value: 1 },
       { kind: 'draw', value: 2 },
     ]
   },
@@ -5374,7 +5432,8 @@ export const CARDS: Card[] = [
     effects: [
       { kind: 'draw', value: 3 },
       { kind: 'heal', value: 8 },
-    ]
+    ],
+    exhaust: true,
   },
   {
     id: 'passion-burst',
@@ -5385,7 +5444,7 @@ export const CARDS: Card[] = [
     text: '获得 2 点能量，获得 3 层力量，抽 1 张牌。',
     flavor: '「激昂爆发，协奏的最强音」',
     effects: [
-      { kind: 'energy', value: 2 },
+      { kind: 'draw', value: 1 },
       { kind: 'applyStatus', value: 3, status: 'strength', statusTarget: 'self' },
       { kind: 'draw', value: 1 },
     ]
@@ -5425,7 +5484,7 @@ export const CARDS: Card[] = [
     text: '获得 3 点能量，抽 1 张牌。',
     flavor: '「狂音的极致」',
     effects: [
-      { kind: 'energy', value: 3 },
+      { kind: 'draw', value: 1 },
       { kind: 'draw', value: 1 },
     ]
   },
@@ -5439,7 +5498,7 @@ export const CARDS: Card[] = [
     flavor: '「协奏领域展开」',
     effects: [
       { kind: 'draw', value: 2 },
-      { kind: 'energy', value: 2 },
+      { kind: 'draw', value: 1 },
       { kind: 'block', value: 10 },
     ]
   },
@@ -5466,7 +5525,7 @@ export const CARDS: Card[] = [
     flavor: '「灵魂都在合唱」',
     effects: [
       { kind: 'heal', value: 12 },
-      { kind: 'energy', value: 1 },
+      { kind: 'draw', value: 1 },
     ]
   },
   {
@@ -5479,8 +5538,9 @@ export const CARDS: Card[] = [
     flavor: '「掌握节奏，掌控全局」',
     effects: [
       { kind: 'draw', value: 3 },
-      { kind: 'energy', value: 1 },
-    ]
+      { kind: 'draw', value: 1 },
+    ],
+    exhaust: true,
   },
   {
     id: 'passion-field',
@@ -5491,7 +5551,7 @@ export const CARDS: Card[] = [
     text: '获得 2 点能量，回复 8 点生命，抽 1 张牌。',
     flavor: '「热情挥洒的领域」',
     effects: [
-      { kind: 'energy', value: 2 },
+      { kind: 'draw', value: 1 },
       { kind: 'heal', value: 8 },
       { kind: 'draw', value: 1 },
     ]
@@ -5504,7 +5564,8 @@ export const CARDS: Card[] = [
     cost: 3,
     text: '抽 4 张牌。',
     flavor: '「终曲响起，安可！」',
-    effects: [{ kind: 'draw', value: 4 }]
+    effects: [{ kind: 'draw', value: 4 }],
+    exhaust: true,
   },
   {
     id: 'encore-plus',
@@ -5516,8 +5577,9 @@ export const CARDS: Card[] = [
     flavor: '「安可plus，能量拉满」',
     effects: [
       { kind: 'draw', value: 3 },
-      { kind: 'energy', value: 1 },
-    ]
+      { kind: 'draw', value: 1 },
+    ],
+    exhaust: true,
   },
   {
     id: 'harmony-god',
@@ -5530,7 +5592,8 @@ export const CARDS: Card[] = [
     effects: [
       { kind: 'heal', value: 8 },
       { kind: 'draw', value: 3 },
-    ]
+    ],
+    exhaust: true,
   },
   {
     id: 'concerto-god',
@@ -5542,8 +5605,9 @@ export const CARDS: Card[] = [
     flavor: '「协奏之神的至高境界」',
     effects: [
       { kind: 'draw', value: 5 },
-      { kind: 'energy', value: 3 },
-    ]
+      { kind: 'draw', value: 1 },
+    ],
+    exhaust: true,
   },
   {
     id: 'mad-song-god',
@@ -5554,9 +5618,10 @@ export const CARDS: Card[] = [
     text: '获得 4 点能量，抽 3 张牌。',
     flavor: '「狂音之神，安可永不停歇」',
     effects: [
-      { kind: 'energy', value: 4 },
+      { kind: 'draw', value: 1 },
       { kind: 'draw', value: 3 },
-    ]
+    ],
+    exhaust: true,
   },
   {
     id: 'eternal-harmony',
@@ -5569,7 +5634,8 @@ export const CARDS: Card[] = [
     effects: [
       { kind: 'heal', value: 19 },
       { kind: 'block', value: 15 },
-    ]
+    ],
+    exhaust: true,
   },
   {
     id: 'passion-ultimate',
@@ -5580,10 +5646,11 @@ export const CARDS: Card[] = [
     text: '获得 3 点能量，获得 4 层力量，抽 3 张牌。',
     flavor: '「激昂的终焉，热情挥洒到极限」',
     effects: [
-      { kind: 'energy', value: 3 },
+      { kind: 'draw', value: 1 },
       { kind: 'applyStatus', value: 4, status: 'strength', statusTarget: 'self' },
       { kind: 'draw', value: 3 },
-    ]
+    ],
+    exhaust: true,
   },
   {
     id: 'encore-eternal',
@@ -5596,7 +5663,8 @@ export const CARDS: Card[] = [
     effects: [
       { kind: 'draw', value: 5 },
       { kind: 'heal', value: 10 },
-    ]
+    ],
+    exhaust: true,
   },
   {
     id: 'song-strike',
@@ -5643,7 +5711,7 @@ export const CARDS: Card[] = [
     text: '获得 1 点能量，抽 1 张牌。',
     flavor: '「号角吹响，安可！」',
     effects: [
-      { kind: 'energy', value: 1 },
+      { kind: 'draw', value: 1 },
       { kind: 'draw', value: 1 },
     ]
   },
@@ -5846,7 +5914,7 @@ export const CARDS: Card[] = [
     effects: [
       { kind: 'block', value: 10 },
       { kind: 'draw', value: 1 },
-      { kind: 'energy', value: 1 },
+      { kind: 'draw', value: 1 },
     ],
     classId: 'lightshield'
   },
@@ -5899,7 +5967,7 @@ export const CARDS: Card[] = [
     flavor: '「盾也能充能」',
     effects: [
       { kind: 'block', value: 8 },
-      { kind: 'energy', value: 1 },
+      { kind: 'draw', value: 1 },
     ],
     classId: 'lightshield'
   },
@@ -6023,7 +6091,7 @@ export const CARDS: Card[] = [
     flavor: '「思维减CD做到决心常驻」——星落',
     effects: [
       { kind: 'block', value: 14 },
-      { kind: 'energy', value: 1 },
+      { kind: 'draw', value: 1 },
       { kind: 'draw', value: 1 },
     ],
     classId: 'lightshield'
@@ -6082,7 +6150,8 @@ export const CARDS: Card[] = [
       { kind: 'block', value: 20 },
       { kind: 'heal', value: 8 },
     ],
-    classId: 'lightshield'
+    classId: 'lightshield',
+    exhaust: true,
   },
   {
     id: 'light-counter-all',
@@ -6123,7 +6192,7 @@ export const CARDS: Card[] = [
     flavor: '「决心循环不止」',
     effects: [
       { kind: 'block', value: 10 },
-      { kind: 'energy', value: 2 },
+      { kind: 'draw', value: 1 },
     ],
     classId: 'lightshield'
   },
@@ -6167,7 +6236,8 @@ export const CARDS: Card[] = [
       { kind: 'block', value: 10 },
       { kind: 'draw', value: 3 },
     ],
-    classId: 'lightshield'
+    classId: 'lightshield',
+    exhaust: true,
   },
   {
     id: 'shield-thunder',
@@ -6207,7 +6277,8 @@ export const CARDS: Card[] = [
     text: '获得 20 点格挡。',
     flavor: '「我就是终极坦克」——哎呦喂',
     effects: [{ kind: 'block', value: 20 }],
-    classId: 'lightshield'
+    classId: 'lightshield',
+    exhaust: true,
   },
   {
     id: 'light-sanctuary',
@@ -6222,7 +6293,8 @@ export const CARDS: Card[] = [
       { kind: 'heal', value: 12 },
       { kind: 'applyStatus', value: 4, status: 'regen', statusTarget: 'self' },
     ],
-    classId: 'lightshield'
+    classId: 'lightshield',
+    exhaust: true,
   },
   {
     id: 'shield-apocalypse',
@@ -6236,7 +6308,8 @@ export const CARDS: Card[] = [
       { kind: 'block', value: 16 },
       { kind: 'damage', value: 50 },
     ],
-    classId: 'lightshield'
+    classId: 'lightshield',
+    exhaust: true,
   },
   {
     id: 'eternal-resolve',
@@ -6248,10 +6321,11 @@ export const CARDS: Card[] = [
     flavor: '「永恒决心，循环不止」',
     effects: [
       { kind: 'block', value: 18 },
-      { kind: 'energy', value: 2 },
+      { kind: 'draw', value: 1 },
       { kind: 'draw', value: 2 },
     ],
-    classId: 'lightshield'
+    classId: 'lightshield',
+    exhaust: true,
   },
   {
     id: 'light-annihilation',
@@ -6266,7 +6340,8 @@ export const CARDS: Card[] = [
       { kind: 'damage', value: 45 },
       { kind: 'heal', value: 10 },
     ],
-    classId: 'lightshield'
+    classId: 'lightshield',
+    exhaust: true,
   },
   {
     id: 'shield-god-descend',
@@ -6280,7 +6355,8 @@ export const CARDS: Card[] = [
       { kind: 'block', value: 28 },
       { kind: 'maxHp', value: 8 },
     ],
-    classId: 'lightshield'
+    classId: 'lightshield',
+    exhaust: true,
   },
   {
     id: 'light-emergency',
@@ -6318,7 +6394,7 @@ export const CARDS: Card[] = [
     effects: [
       { kind: 'block', value: 10 },
       { kind: 'draw', value: 2 },
-      { kind: 'energy', value: 1 },
+      { kind: 'draw', value: 1 },
     ],
     classId: 'lightshield'
   },
@@ -6659,7 +6735,7 @@ export const CARDS: Card[] = [
     flavor: '「炎角的能量」',
     effects: [
       { kind: 'applyStatus', value: 3, status: 'burn', statusTarget: 'enemy' },
-      { kind: 'energy', value: 2 },
+      { kind: 'draw', value: 1 },
     ],
     classId: 'flame'
   },
@@ -6743,7 +6819,7 @@ export const CARDS: Card[] = [
     flavor: '「炎舞增伤没有内置CD」',
     effects: [
       { kind: 'applyStatus', value: 6, status: 'burn', statusTarget: 'enemy', all: true },
-      { kind: 'energy', value: 2 },
+      { kind: 'block', value: 5 },
     ],
     classId: 'flame'
   },
@@ -6899,7 +6975,7 @@ export const CARDS: Card[] = [
     effects: [
       { kind: 'damageAll', value: 22 },
       { kind: 'applyStatus', value: 6, status: 'burn', statusTarget: 'enemy', all: true },
-      { kind: 'energy', value: 1 },
+      { kind: 'block', value: 5 },
     ],
     classId: 'flame'
   },
@@ -6914,9 +6990,10 @@ export const CARDS: Card[] = [
     effects: [
       { kind: 'applyStatus', value: 9, status: 'burn', statusTarget: 'enemy', all: true },
       { kind: 'damageAll', value: 35 },
-      { kind: 'energy', value: 3 },
+      { kind: 'block', value: 5 },
     ],
-    classId: 'flame'
+    classId: 'flame',
+    exhaust: true,
   },
   {
     id: 'hellfire-legend',
@@ -6931,7 +7008,8 @@ export const CARDS: Card[] = [
       { kind: 'heal', value: -10 },
       { kind: 'applyStatus', value: 8, status: 'burn', statusTarget: 'enemy' },
     ],
-    classId: 'flame'
+    classId: 'flame',
+    exhaust: true,
   },
   {
     id: 'flame-god-descend',
@@ -6945,7 +7023,8 @@ export const CARDS: Card[] = [
       { kind: 'damage', value: 60 },
       { kind: 'applyStatus', value: 6, status: 'burn', statusTarget: 'enemy', all: true },
     ],
-    classId: 'flame'
+    classId: 'flame',
+    exhaust: true,
   },
   {
     id: 'eternal-burn',
@@ -6959,7 +7038,8 @@ export const CARDS: Card[] = [
       { kind: 'applyStatus', value: 9, status: 'burn', statusTarget: 'enemy', all: true },
       { kind: 'applyStatus', value: 4, status: 'strength', statusTarget: 'self' },
     ],
-    classId: 'flame'
+    classId: 'flame',
+    exhaust: true,
   },
   {
     id: 'flame-apocalypse',
@@ -6974,7 +7054,8 @@ export const CARDS: Card[] = [
       { kind: 'applyStatus', value: 8, status: 'burn', statusTarget: 'enemy' },
       { kind: 'heal', value: 10 },
     ],
-    classId: 'flame'
+    classId: 'flame',
+    exhaust: true,
   },
   {
     id: 'flame-spark-zero',
@@ -7011,7 +7092,7 @@ export const CARDS: Card[] = [
     flavor: '「做个炎角就是惩击」',
     effects: [
       { kind: 'applyStatus', value: 1, status: 'burn', statusTarget: 'enemy' },
-      { kind: 'energy', value: 1 },
+      { kind: 'draw', value: 1 },
     ],
     classId: 'flame'
   },
@@ -7130,7 +7211,7 @@ export const CARDS: Card[] = [
     cost: 0,
     text: '获得 1 点能量。',
     flavor: '「聚气于无形」',
-    effects: [{ kind: 'energy', value: 1 }]
+    effects: [{ kind: 'draw', value: 1 }]
   },
   {
     id: 'no-phase-dual',
@@ -7312,7 +7393,7 @@ export const CARDS: Card[] = [
     text: '获得 2 点能量，回复 5 点生命。',
     flavor: '「虚空中汲取能量」',
     effects: [
-      { kind: 'energy', value: 2 },
+      { kind: 'draw', value: 1 },
       { kind: 'heal', value: 5 },
     ]
   },
@@ -7465,7 +7546,7 @@ export const CARDS: Card[] = [
     text: '获得 2 点能量，抽 2 张牌，获得 10 点格挡。',
     flavor: '「流转万象」',
     effects: [
-      { kind: 'energy', value: 2 },
+      { kind: 'draw', value: 1 },
       { kind: 'draw', value: 2 },
       { kind: 'block', value: 10 },
     ]
@@ -7548,7 +7629,8 @@ export const CARDS: Card[] = [
       { kind: 'damage', value: 45 },
       { kind: 'block', value: 15 },
       { kind: 'draw', value: 1 },
-    ]
+    ],
+    exhaust: true,
   },
   {
     id: 'void-annihilation',
@@ -7561,7 +7643,8 @@ export const CARDS: Card[] = [
     effects: [
       { kind: 'damage', value: 60 },
       { kind: 'heal', value: -8 },
-    ]
+    ],
+    exhaust: true,
   },
   {
     id: 'ego-less-ultimate',
@@ -7575,7 +7658,8 @@ export const CARDS: Card[] = [
       { kind: 'damage', value: 48 },
       { kind: 'heal', value: 12 },
       { kind: 'applyStatus', value: 4, status: 'strength', statusTarget: 'self' },
-    ]
+    ],
+    exhaust: true,
   },
   {
     id: 'no-phase-eternal',
@@ -7588,8 +7672,9 @@ export const CARDS: Card[] = [
     effects: [
       { kind: 'block', value: 18 },
       { kind: 'draw', value: 3 },
-      { kind: 'energy', value: 2 },
-    ]
+      { kind: 'draw', value: 1 },
+    ],
+    exhaust: true,
   },
   {
     id: 'form-apotheosis',
@@ -7603,7 +7688,8 @@ export const CARDS: Card[] = [
       { kind: 'block', value: 22 },
       { kind: 'applyStatus', value: 4, status: 'strength', statusTarget: 'self' },
       { kind: 'applyStatus', value: 4, status: 'dexterity', statusTarget: 'self' },
-    ]
+    ],
+    exhaust: true,
   },
   {
     id: 'no-phase-instant',
@@ -7641,7 +7727,7 @@ export const CARDS: Card[] = [
     flavor: '「献祭以获能量」',
     effects: [
       { kind: 'heal', value: -4 },
-      { kind: 'energy', value: 3 },
+      { kind: 'draw', value: 1 },
     ]
   },
   {
@@ -7747,7 +7833,7 @@ export const CARDS: Card[] = [
     flavor: '「痛苦即力量」',
     effects: [
       { kind: 'heal', value: -3 },
-      { kind: 'energy', value: 1 },
+      { kind: 'draw', value: 1 },
     ]
   },
   {
@@ -7862,7 +7948,7 @@ export const CARDS: Card[] = [
     flavor: '「血之记忆永不灭」',
     effects: [
       { kind: 'heal', value: -3 },
-      { kind: 'energy', value: 2 },
+      { kind: 'draw', value: 1 },
       { kind: 'draw', value: 1 },
     ]
   },
@@ -7943,7 +8029,7 @@ export const CARDS: Card[] = [
     flavor: '「血液涌动」',
     effects: [
       { kind: 'heal', value: -2 },
-      { kind: 'energy', value: 2 },
+      { kind: 'draw', value: 1 },
       { kind: 'draw', value: 1 },
     ]
   },
@@ -7999,7 +8085,8 @@ export const CARDS: Card[] = [
     effects: [
       { kind: 'heal', value: -2 },
       { kind: 'draw', value: 3 },
-    ]
+    ],
+    exhaust: true,
   },
   {
     id: 'crimson-apotheosis',
@@ -8068,7 +8155,7 @@ export const CARDS: Card[] = [
     effects: [
       { kind: 'heal', value: -6 },
       { kind: 'applyStatus', value: 4, status: 'strength', statusTarget: 'self' },
-      { kind: 'energy', value: 2 },
+      { kind: 'draw', value: 1 },
     ]
   },
   {
@@ -8097,7 +8184,8 @@ export const CARDS: Card[] = [
       { kind: 'heal', value: 16 },
       { kind: 'block', value: 10 },
       { kind: 'heal', value: -3 },
-    ]
+    ],
+    exhaust: true,
   },
   {
     id: 'blood-scorch',
@@ -8178,7 +8266,8 @@ export const CARDS: Card[] = [
     effects: [
       { kind: 'damage', value: 36 },
       { kind: 'heal', value: -8 },
-    ]
+    ],
+    exhaust: true,
   },
   {
     id: 'blood-fortress',
@@ -8205,7 +8294,8 @@ export const CARDS: Card[] = [
     effects: [
       { kind: 'heal', value: 18 },
       { kind: 'applyStatus', value: 3, status: 'regen', statusTarget: 'self' },
-    ]
+    ],
+    exhaust: true,
   },
   {
     id: 'crimson-legend',
@@ -8219,7 +8309,8 @@ export const CARDS: Card[] = [
       { kind: 'damage', value: 50 },
       { kind: 'heal', value: -10 },
       { kind: 'applyStatus', value: 4, status: 'strength', statusTarget: 'self' },
-    ]
+    ],
+    exhaust: true,
   },
   {
     id: 'blood-apocalypse',
@@ -8232,7 +8323,8 @@ export const CARDS: Card[] = [
     effects: [
       { kind: 'damage', value: 60 },
       { kind: 'heal', value: 15 },
-    ]
+    ],
+    exhaust: true,
   },
   {
     id: 'crimson-god',
@@ -8247,7 +8339,8 @@ export const CARDS: Card[] = [
       { kind: 'heal', value: -8 },
       { kind: 'heal', value: 12 },
       { kind: 'applyStatus', value: 4, status: 'strength', statusTarget: 'self' },
-    ]
+    ],
+    exhaust: true,
   },
   {
     id: 'blood-eternal',
@@ -8261,7 +8354,8 @@ export const CARDS: Card[] = [
       { kind: 'maxHp', value: 10 },
       { kind: 'heal', value: 18 },
       { kind: 'heal', value: -6 },
-    ]
+    ],
+    exhaust: true,
   },
   {
     id: 'crimson-sacrifice-ultimate',
@@ -8275,7 +8369,8 @@ export const CARDS: Card[] = [
       { kind: 'damage', value: 65 },
       { kind: 'heal', value: -12 },
       { kind: 'applyStatus', value: 4, status: 'strength', statusTarget: 'self' },
-    ]
+    ],
+    exhaust: true,
   },
   {
     id: 'crimson-bloodlet',
@@ -8287,7 +8382,7 @@ export const CARDS: Card[] = [
     flavor: '「放血换取资源」',
     effects: [
       { kind: 'heal', value: -2 },
-      { kind: 'energy', value: 1 },
+      { kind: 'draw', value: 1 },
       { kind: 'draw', value: 1 },
     ]
   },
@@ -8301,7 +8396,7 @@ export const CARDS: Card[] = [
     flavor: '「血液即货币」',
     effects: [
       { kind: 'heal', value: -3 },
-      { kind: 'energy', value: 2 },
+      { kind: 'draw', value: 1 },
     ]
   },
   {
@@ -8328,7 +8423,7 @@ export const CARDS: Card[] = [
     flavor: '「血涌如潮」',
     effects: [
       { kind: 'heal', value: -5 },
-      { kind: 'energy', value: 3 },
+      { kind: 'draw', value: 1 },
     ]
   },
   {
@@ -8374,7 +8469,7 @@ export const CARDS: Card[] = [
     cost: 1,
     text: '获得 1 点能量。',
     flavor: '「百搭充能」',
-    effects: [{ kind: 'energy', value: 1 }]
+    effects: [{ kind: 'draw', value: 1 }]
   },
   {
     id: 'universal-strength',
@@ -8467,7 +8562,8 @@ export const CARDS: Card[] = [
     cost: 1,
     text: '抽 3 张牌。',
     flavor: '「工具人弃牌抽牌」',
-    effects: [{ kind: 'draw', value: 3 }]
+    effects: [{ kind: 'draw', value: 3 }],
+    exhaust: true,
   },
   {
     id: 'universal-search',
@@ -8479,7 +8575,7 @@ export const CARDS: Card[] = [
     flavor: '「检索一切」',
     effects: [
       { kind: 'draw', value: 2 },
-      { kind: 'energy', value: 1 },
+      { kind: 'draw', value: 1 },
     ]
   },
   {
@@ -8583,7 +8679,7 @@ export const CARDS: Card[] = [
     text: '获得 1 点能量，抽 2 张牌。',
     flavor: '「能量加抽牌」',
     effects: [
-      { kind: 'energy', value: 1 },
+      { kind: 'draw', value: 1 },
       { kind: 'draw', value: 2 },
     ]
   },
@@ -8692,10 +8788,11 @@ export const CARDS: Card[] = [
     text: '获得 1 点能量，抽 3 张牌，获得 10 点格挡。',
     flavor: '「万金油循环」',
     effects: [
-      { kind: 'energy', value: 1 },
+      { kind: 'draw', value: 1 },
       { kind: 'draw', value: 3 },
       { kind: 'block', value: 10 },
-    ]
+    ],
+    exhaust: true,
   },
   {
     id: 'universal-spike',
@@ -8744,7 +8841,8 @@ export const CARDS: Card[] = [
     cost: 3,
     text: '获得 20 点格挡。',
     flavor: '「万金油巨盾」',
-    effects: [{ kind: 'block', value: 20 }]
+    effects: [{ kind: 'block', value: 20 }],
+    exhaust: true,
   },
   {
     id: 'universal-double-hit',
@@ -8775,7 +8873,7 @@ export const CARDS: Card[] = [
     text: '获得 3 点能量，回复 8 点生命。',
     flavor: '「能量爆炸」',
     effects: [
-      { kind: 'energy', value: 3 },
+      { kind: 'draw', value: 1 },
       { kind: 'heal', value: 8 },
     ]
   },
@@ -8789,8 +8887,9 @@ export const CARDS: Card[] = [
     flavor: '「疯狂抽牌」',
     effects: [
       { kind: 'draw', value: 4 },
-      { kind: 'energy', value: 2 },
-    ]
+      { kind: 'draw', value: 1 },
+    ],
+    exhaust: true,
   },
   {
     id: 'universal-max-buff',
@@ -8817,7 +8916,8 @@ export const CARDS: Card[] = [
       { kind: 'damage', value: 40 },
       { kind: 'heal', value: 12 },
       { kind: 'draw', value: 2 },
-    ]
+    ],
+    exhaust: true,
   },
   {
     id: 'universal-calamity',
@@ -8830,7 +8930,8 @@ export const CARDS: Card[] = [
     effects: [
       { kind: 'damageAll', value: 35 },
       { kind: 'block', value: 15 },
-    ]
+    ],
+    exhaust: true,
   },
   {
     id: 'universal-overdraft',
@@ -8841,9 +8942,10 @@ export const CARDS: Card[] = [
     text: '获得 4 点能量，抽 4 张牌。',
     flavor: '「透支一切」',
     effects: [
-      { kind: 'energy', value: 4 },
+      { kind: 'draw', value: 1 },
       { kind: 'draw', value: 4 },
-    ]
+    ],
+    exhaust: true,
   },
   {
     id: 'universal-apotheosis',
@@ -8857,7 +8959,8 @@ export const CARDS: Card[] = [
       { kind: 'maxHp', value: 12 },
       { kind: 'heal', value: 20 },
       { kind: 'applyStatus', value: 4, status: 'dexterity', statusTarget: 'self' },
-    ]
+    ],
+    exhaust: true,
   },
   {
     id: 'universal-nova',
@@ -8870,7 +8973,8 @@ export const CARDS: Card[] = [
     effects: [
       { kind: 'damage', value: 50 },
       { kind: 'applyStatus', value: 4, status: 'strength', statusTarget: 'self' },
-    ]
+    ],
+    exhaust: true,
   },
   {
     id: 'universal-quick-block',
