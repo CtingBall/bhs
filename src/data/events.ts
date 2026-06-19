@@ -1785,6 +1785,305 @@ export const EVENTS: GameEvent[] = [
       },
     ],
   },
+  // ===== 事件·群成员零、jk、UK、星落 =====
+  {
+    id: 'zero-revive-order',
+    title: '零总下令复活',
+    emoji: '📢',
+    text: '「命你速速复活！你也复活！」\n零总在群里发号施令，气场拉满。怎么响应？',
+    options: [
+      {
+        label: '排队复活（回复20HP）',
+        resultText: '你乖乖排队复活，回复了 20 点生命。',
+        effects: [{ kind: 'hp', value: 20 }],
+      },
+      {
+        label: '装死等零总亲自来（+10HP +随机遗物，50%失败扣5HP）',
+        resultText: '',
+        effects: [],
+        gamble: {
+          chance: 0.5,
+          winText: '零总亲自来踹了你一脚，你弹起来顺手摸到一件遗物。',
+          loseText: '零总没来……你装死太久血掉光了。',
+          win: [
+            { kind: 'hp', value: 10 },
+            { kind: 'randomRelic', value: 1 },
+          ],
+          lose: [{ kind: 'hp', value: -5 }],
+        },
+      },
+      {
+        label: '自己站起来（+15HP +1力量）',
+        resultText: '你一个鲤鱼打挺站了起来，获得 15 点生命和 1 点力量。',
+        effects: [
+          { kind: 'hp', value: 15 },
+          { kind: 'will', value: 1 },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'zero-sec-kill',
+    title: '零总の秒杀流',
+    emoji: '⚡',
+    text: '你偶然发现了零的秒杀秘籍流，上面写着「一踢秒杀」。\n太诱人了，但总感觉身体吃不消……',
+    options: [
+      {
+        label: '学秒杀流（获得「一踢秒杀」，扣5HP）',
+        resultText: '你强行学了秒杀流，获得「一踢秒杀」，但太贪了身体扛不住，扣了 5 点血。',
+        effects: [
+          { kind: 'addCard', cardId: 'one-kick-kill' },
+          { kind: 'hp', value: -5 },
+        ],
+      },
+      {
+        label: '保守观望（+8HP）',
+        resultText: '你觉得小命要紧，乖乖缩回去，回复 8 点生命。',
+        effects: [{ kind: 'hp', value: 8 }],
+      },
+      {
+        label: '请零总亲自示范（获得临时盟友）',
+        resultText: '零总亲自下场示范秒杀，顺带帮你清了一层。',
+        effects: [{ kind: 'tempAlly', value: 1 }],
+      },
+    ],
+  },
+  {
+    id: 'jk-xhgm-boot',
+    title: 'jkのxhgm启动！（）',
+    emoji: '🏃',
+    text: '「xhgm启动！」\njk大喊一声冲进了副本，你甚至来不及反应。',
+    options: [
+      {
+        label: '跟着jk冲（获得「血战」，+5HP）',
+        resultText: '你热血上头跟着jk冲进副本，获得「血战」并回复 5 点血。',
+        effects: [
+          { kind: 'addCard', cardId: 'blood-battle' },
+          { kind: 'hp', value: 5 },
+        ],
+      },
+      {
+        label: '给jk递鸡胸肉（+10HP）',
+        resultText: '你递过去一块鸡胸肉，jk开心地接过去，你也觉得暖心，回复 10 点血。',
+        effects: [{ kind: 'hp', value: 10 }],
+      },
+      {
+        label: '提醒jk该减肥了（最大HP+4，+5HP）',
+        resultText: '「jk你已经吃过几十袋鸡胸肉了，该减肥了」jk愣了一下，你趁机获得最大HP+4并回复 5 点血。',
+        effects: [
+          { kind: 'maxHp', value: 4 },
+          { kind: 'hp', value: 5 },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'moonblade-memory',
+    title: '月刃的回忆',
+    emoji: '🌙',
+    text: '「月刃在洛克王国」\njk突然想起了旧爱月刃，语气有点低落。',
+    options: [
+      {
+        label: '怀念月刃，精炼一把（获得「过载」）',
+        resultText: '你和jk一起怀念月刃，精炼了一把旧装备，获得「过载」。',
+        effects: [{ kind: 'addCard', cardId: 'overload' }],
+      },
+      {
+        label: '劝jk回归月刃（获得遗物「jk月刃」）',
+        resultText: '你劝jk回归月刃，jk送了你一把月刃作为谢礼。',
+        effects: [{ kind: 'relic', cardId: 'jk-moonblade' }],
+      },
+      {
+        label: '向前看，新的总比旧的好（获得「首波」）',
+        resultText: '你劝jk向前看，自己也想通了，获得「首波」。',
+        effects: [{ kind: 'addCard', cardId: 'first-wave' }],
+      },
+    ],
+  },
+  {
+    id: 'uk-red-fury-bite',
+    title: '红怒三连咬',
+    emoji: '😡',
+    text: 'UK突然对你使出连招：红怒咬住→红怒q→死亡缠绕！\n你被三连打得晕头转向。',
+    options: [
+      {
+        label: '硬接三连（获得「全押」，扣8HP）',
+        resultText: '你硬吃了UK的三连，不愧是好汉，获得「全押」但扣了 8 点血。',
+        effects: [
+          { kind: 'addCard', cardId: 'all-in' },
+          { kind: 'hp', value: -8 },
+        ],
+      },
+      {
+        label: '赶紧@零总救命（获得临时盟友，+3HP）',
+        resultText: '「@零总 救命！」零总出现帮你挡了UK，获得一层临时盟友和 3 点血。',
+        effects: [
+          { kind: 'tempAlly', value: 1 },
+          { kind: 'hp', value: 3 },
+        ],
+      },
+      {
+        label: '反咬回去！（50%获得遗物「UK红怒」/50%失败扣5HP）',
+        resultText: '',
+        effects: [],
+        gamble: {
+          chance: 0.5,
+          winText: '你一口咬回去，UK反而服了，丢给你一件「UK红怒」遗物。',
+          loseText: '你没咬到，被UK补了一脚，扣了 5 点血。',
+          win: [{ kind: 'relic', cardId: 'uk-red-fury' }],
+          lose: [{ kind: 'hp', value: -5 }],
+        },
+      },
+    ],
+  },
+  {
+    id: 'uk-feelings-zero',
+    title: 'UK好感度清零',
+    emoji: '💔',
+    text: '因为你没理他，UK对你的好感度归零了！\n群里弥漫着一股尴尬的气息。',
+    options: [
+      {
+        label: '赶紧哄（+5HP，获得「群疗」）',
+        resultText: '你陪UK聊了半小时，好感度回暖，回复 5 点血并获得「群疗」。',
+        effects: [
+          { kind: 'hp', value: 5 },
+          { kind: 'addCard', cardId: 'team-heal' },
+        ],
+      },
+      {
+        label: '不管（最大HP+3，但被塞「没用的虫」）',
+        resultText: '「好感度归零就归零吧」你觉得无所谓，最大HP+3，但被UK塞了「没用的虫」。',
+        effects: [
+          { kind: 'maxHp', value: 3 },
+          { kind: 'addCurse', cardId: 'useless-bug' },
+        ],
+      },
+      {
+        label: '我专卖家队友（随机遗物，扣5HP）',
+        resultText: '你选择专卖家队友，获得随机遗物但被UK揍了一下，扣 5 点血。',
+        effects: [
+          { kind: 'randomRelic', value: 1 },
+          { kind: 'hp', value: -5 },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'xingluo-resolve-cycle',
+    title: '星落の决心循环',
+    emoji: '🛡️',
+    text: '「光明决心一开就不会死→职责+R→继续决心」\n星落在群里教你光盾循环，看起来好复杂。',
+    options: [
+      {
+        label: '认真学循环（获得「光明决心」，+8HP）',
+        resultText: '你认真学完了光盾循环，获得「光明决心」并回复 8 点血。',
+        effects: [
+          { kind: 'addCard', cardId: 'light-resolve' },
+          { kind: 'hp', value: 8 },
+        ],
+      },
+      {
+        label: '请星落当面演示（获得遗物「星落决心」，+3HP）',
+        resultText: '星落当面给你演示了一遍，你拿到「星落决心」遗物并回了 3 点血。',
+        effects: [
+          { kind: 'relic', cardId: 'xingluo-resolve' },
+          { kind: 'hp', value: 3 },
+        ],
+      },
+      {
+        label: '我是DPS，不需要学T的循环（随机遗物）',
+        resultText: '你理直气壮地拒绝了，但星落还是丢了一件随机遗物给你。',
+        effects: [{ kind: 'randomRelic', value: 1 }],
+      },
+    ],
+  },
+  {
+    id: 'xingluo-slack-caught',
+    title: '星落摸鱼被抓',
+    emoji: '🐟',
+    text: '星落上班摸鱼刚好被制作人路过看到，急喊「这是借鉴美术风格！」\n气氛一度非常微妙。',
+    options: [
+      {
+        label: '帮星落圆谎（获得遗物「星落摸鱼」，+2HP）',
+        resultText: '「对，他是在做风格调研」你帮忙圆谎成功，获得「星落摸鱼」遗物并回复 2 点血。',
+        effects: [
+          { kind: 'relic', cardId: 'xingluo-slack' },
+          { kind: 'hp', value: 2 },
+        ],
+      },
+      {
+        label: '揭穿星落（获得「追幻想」，扣3HP）',
+        resultText: '「他就是想打游戏！」星落被当场拆穿，你获得「追幻想」但被星落锤了一下扣 3 点血。',
+        effects: [
+          { kind: 'addCard', cardId: 'chase-fantasy' },
+          { kind: 'hp', value: -3 },
+        ],
+      },
+      {
+        label: '一起摸鱼（被塞「没用的虫」，随机遗物）',
+        resultText: '你和星落一起摸鱼，制作人也加入了，你获得随机遗物但被塞了「没用的虫」。',
+        effects: [
+          { kind: 'addCurse', cardId: 'useless-bug' },
+          { kind: 'randomRelic', value: 1 },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'jk-breakdown',
+    title: 'jk破防时刻',
+    emoji: '😢',
+    text: 'jk在尖沙咀星光大道吹了3小时海风。\n「感觉最近人状态不太对劲」——jk',
+    options: [
+      {
+        label: '陪jk聊天疗愈（+15HP，随机卡牌）',
+        resultText: '你陪jk聊了很久，jk开心了，你回复 15 点血并获得一张随机卡。',
+        effects: [
+          { kind: 'hp', value: 15 },
+          { kind: 'randomCard', value: 1 },
+        ],
+      },
+      {
+        label: '介绍新的鸡胸肉口味（+20HP）',
+        resultText: '你掏出新口味的鸡胸肉，jk大喜，你回复 20 点血。',
+        effects: [{ kind: 'hp', value: 20 }],
+      },
+      {
+        label: '喊UK来咬jk转移注意力（遗物「jk启动」，被塞「金色大便」）',
+        resultText: 'UK冲过来咬了jk，jk注意力转移了，你获得「jk-xhgm-start」遗物但被塞了「金色大便」。',
+        effects: [
+          { kind: 'relic', cardId: 'jk-xhgm-start' },
+          { kind: 'addCurse', cardId: 'golden-poop' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'betray-moonblade',
+    title: '背叛月刃之人',
+    emoji: '⚖️',
+    text: '「大家都背叛了月刃！」\n零总在群里公开指责，群内气氛凝重。',
+    options: [
+      {
+        label: '公开承认：是的我是叛徒（阶级+1）',
+        resultText: '你公开承认了背叛月刃，阶级提升一级。',
+        effects: [{ kind: 'casteUp', value: 1 }],
+      },
+      {
+        label: '保持沉默（随机遗物）',
+        resultText: '你选择了沉默，零总叹了口气丢给你一件随机遗物。',
+        effects: [{ kind: 'randomRelic', value: 1 }],
+      },
+      {
+        label: '反驳零总：是月刃先背叛我的！（获得「一击」，扣3HP）',
+        resultText: '你激烈反驳「是月刃先背叛我的！」，获得「一击」但情绪激动扣了 3 点血。',
+        effects: [
+          { kind: 'addCard', cardId: 'one-punch' },
+          { kind: 'hp', value: -3 },
+        ],
+      },
+    ],
+  },
 ];
 
 export const EVENT_MAP: Record<string, GameEvent> = Object.fromEntries(
