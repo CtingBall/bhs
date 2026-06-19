@@ -111,6 +111,7 @@ export type PassiveKind =
   | 'burnAll'           // 每回合开始全敌施加X燃烧
   | 'blockLife'         // 回合末若格挡>0就回血
   | 'rampStrength'      // 每回合开始永久力量+1
+  | 'attackStrength';   // 每使用X次攻击牌+1力量
 
 export interface PassiveEffect {
   kind: PassiveKind;
@@ -338,6 +339,7 @@ export interface BattleState {
   turn: number;
   cardsPlayedThisTurn: number;
   combo: number;
+  attackCombo: number; // 维被动计数：攻击牌计数器
   isPlayerTurn: boolean;
   over: 'win' | 'lose' | null;
   relics: Relic[];

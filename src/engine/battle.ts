@@ -188,6 +188,7 @@ export function createBattle(
     turn: 0,
     cardsPlayedThisTurn: 0,
     combo: 0,
+    attackCombo: 0,
     isPlayerTurn: true,
     over: null,
     relics: run.relics,
@@ -386,6 +387,13 @@ export function playCard(
   // 被动：打出第X张牌+1能量（Ephyra卷王）
   if (st.character.passive.kind === 'comboEnergy' && st.combo % (st.character.passive.value ?? 3) === 0) {
     st.player.energy += 1;
+  }
+  // 被动：每X次攻击牌+1力量（维）
+  if (c.type === 'attack') {
+    st.attackCombo += 1;
+    if (st.character.passive.kind === 'attackStrength' && st.attackCombo % (st.character.passive.value ?? 3) === 0) {
+      addStatus(st.player.statuses, 'strength', 1);
+    }
   }
   const firstAttack = st.cardsPlayedThisTurn === 0 && c.type === 'attack';
   for (const eff of c.effects) applyEffect(st, eff, c, targetIndex, firstAttack);
