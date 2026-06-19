@@ -28,8 +28,10 @@ export function addStatus(
 }
 
 // 回合结束衰减：易伤/虚弱/冰冻/燃烧/感电/回复 各 -1
-export function decayStatuses(statuses: StatusInstance[]): void {
+// 玩家力量/敏捷不衰减（正面永久buff）
+export function decayStatuses(statuses: StatusInstance[], isPlayer?: boolean): void {
   for (let i = statuses.length - 1; i >= 0; i--) {
+    if (isPlayer && (statuses[i].type === 'strength' || statuses[i].type === 'dexterity')) continue;
     statuses[i].amount -= 1;
     if (statuses[i].amount <= 0) statuses.splice(i, 1);
   }

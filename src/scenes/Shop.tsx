@@ -15,10 +15,16 @@ export default function Shop() {
   const removeCard = useGameStore((s) => s.removeShopCard);
   const reforgeCard = useGameStore((s) => s.reforgeCard);
   const fuseSummons = useGameStore((s) => s.fuseSummons);
-  const leave = useGameStore((s) => s.leaveShop);
+  const leaveShop = useGameStore((s) => s.leaveShop);
   const [tab, setTab] = useState<'cards' | 'relic' | 'reforge' | 'fuse'>('cards');
 
   if (!run || !shop) return null;
+
+  // 计算商店折扣
+  const discount = run.relics.reduce((s, r) => s + (r.effect.kind === 'shopDiscount' ? (r.effect.value ?? 0) : 0), 0);
+  const cardPrices = shop.cards.map((item) => Math.max(1, item.price - discount));
+  const relicFinalPrice = Math.max(1, shop.relicPrice - discount);
+  const removeFinalPrice = Math.max(1, shop.removePrice - discount);
 
   return (
     <div className="grid-bg relative min-h-screen overflow-y-auto px-6 py-6">
@@ -75,7 +81,7 @@ export default function Shop() {
             <div className="flex justify-center gap-4">
               {shop.cards.map((item, i) => {
                 const bought = shop.boughtCards.includes(i);
-                const afford = run.rope >= item.price;
+                const afford = run.rope >= cardPrices[i];
                 return (
                   <div key={i} className="flex flex-col items-center gap-1">
                     <CardView
@@ -90,7 +96,7 @@ export default function Shop() {
                         bought ? 'text-slate-500 line-through' : afford ? 'text-gold' : 'text-danger',
                       )}
                     >
-                      {bought ? '已售' : `${item.price} 绳`}
+                      {bought ? '已售' : `${cardPrices[i]} 绳`}
                     </span>
                   </div>
                 );
@@ -107,12 +113,12 @@ export default function Shop() {
               {shop.relic && !shop.relicBought ? (
                 <button
                   onClick={buyRelic}
-                  disabled={run.amber < shop.relicPrice}
+                  disabled={run.amber < relicFinalPrice}
                   className="w-full text-left rounded-lg border border-amber/40 bg-amber/5 p-3 hover:border-amber transition-all disabled:opacity-40"
                 >
                   <div className="font-display text-amber">✦ {shop.relic.name}</div>
                   <div className="text-[11px] text-slate-300 mt-0.5">{shop.relic.text}</div>
-                  <div className="text-xs text-amber font-mono mt-1">{shop.relicPrice} 琥珀</div>
+                  <div className="text-xs text-amber font-mono mt-1">{relicFinalPrice} 琥珀</div>
                 </button>
               ) : (
                 <div className="text-slate-500 text-sm py-4 text-center">
@@ -124,7 +130,7 @@ export default function Shop() {
             <div className="glass rounded-xl p-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs text-willow/70 font-mono flex items-center gap-1">
-                  <Scissors className="w-3 h-3" /> 删卡台（{shop.removePrice} 意志/次，仅一次）
+                  <Scissors className="w-3 h-3" /> 删卡台（{removeFinalPrice} 意志/次，仅一次）
                 </span>
               </div>
               {shop.removed ? (
@@ -135,7 +141,7 @@ export default function Shop() {
                     <button
                       key={i}
                       onClick={() => removeCard(c.id)}
-                      disabled={run.will < shop.removePrice}
+                      disabled={run.will < removeFinalPrice}
                       className="text-[10px] px-1.5 py-0.5 rounded bg-ink-lighter border border-willow/20 text-slate-300 hover:border-willow hover:text-willow disabled:opacity-30"
                       title={c.text}
                     >
@@ -244,7 +250,7 @@ export default function Shop() {
         )}
 
         <div className="mt-6 flex justify-center">
-          <button className="btn-ghost" onClick={leave}>
+          <button className="btn-ghost" onClick={leaveShop}>
             <span className="inline-flex items-center gap-1">
               <LogOut className="w-4 h-4" /> 离开商店
             </span>

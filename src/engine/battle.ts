@@ -455,7 +455,7 @@ export function endPlayerTurn(s: BattleState): BattleState {
     log(st, '💃 奉献之舞结束……', 'system');
     st.battleEvent = { kind: null };
   }
-  decayStatuses(st.player.statuses);
+  decayStatuses(st.player.statuses, true);
   // 遗物：回合结束回复
   const teHeal = relicValue(st, 'turnEndHeal');
   if (teHeal > 0) st.player.hp = Math.min(st.player.maxHp, st.player.hp + teHeal);

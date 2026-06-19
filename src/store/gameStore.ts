@@ -372,7 +372,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
   removeShopCard: (cardId) => {
     const { run, shop } = get();
     if (!run || !shop || shop.removed) return;
-    if (run.will < shop.removePrice) {
+    const discount = shopDiscount(run);
+    const finalPrice = Math.max(1, shop.removePrice - discount);
+    if (run.will < finalPrice) {
       set({ toast: '意志不够。' });
       return;
     }
@@ -380,7 +382,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (idx < 0) return;
     const newDeck = [...run.deck];
     newDeck.splice(idx, 1);
-    set({ run: { ...run, will: run.will - shop.removePrice, deck: newDeck }, shop: { ...shop, removed: true }, toast: '移除了一张牌。' });
+    set({ run: { ...run, will: run.will - finalPrice, deck: newDeck }, shop: { ...shop, removed: true }, toast: '移除了一张牌。' });
   },
 
   // ===== 卡牌升级（重铸） =====
@@ -424,15 +426,15 @@ export const useGameStore = create<GameStore>((set, get) => ({
       set({ toast: '材料不足！需要对应的召唤牌。' });
       return;
     }
-    let removedCount = 0;
+    const consumed = new Array(recipe.materials.length).fill(false);
     const newDeck = run.deck.filter((c) => {
-      if (removedCount >= recipe.materials.length) return true;
-      const matIndex = recipe.materials.findIndex(
-        (matId) => c.id === `summon-${matId}` || c.id === matId,
-      );
-      if (matIndex >= 0) {
-        removedCount++;
-        return false;
+      for (let mi = 0; mi < recipe.materials.length; mi++) {
+        if (consumed[mi]) continue;
+        const matId = recipe.materials[mi];
+        if (c.id === `summon-${matId}` || c.id === matId) {
+          consumed[mi] = true;
+          return false;
+        }
       }
       return true;
     });
