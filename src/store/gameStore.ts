@@ -40,7 +40,7 @@ import {
 import { buildDeck, generateMap, getReachableIds } from '@/engine/map';
 import { useMetaStore } from './metaStore';
 
-type BattleKind = 'normal' | 'elite' | 'boss' | 'prison' | 'dimension';
+type BattleKind = 'normal' | 'elite' | 'boss' | 'prison';
 
 interface ShopStock {
   cards: { card: Card; price: number }[];
@@ -95,6 +95,9 @@ interface GameStore {
   acquireFactor: (factorId: string) => void;    // 获取因子
   leaveShop: () => void;
   returnToMenu: () => void;
+  // 维度相关
+  startDimensionFloor: () => void;
+  retreatDimension: () => void;
 }
 
 const ZONE_BOSS: Record<Zone, string> = {
@@ -296,6 +299,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       enemiesDefeated: [],
       pityCounter: 0,
       reforgeStones: 0,
+      dimensionState: null,
     };
     set({ run, character: ch, scene: 'map', battle: null, reward: null, toast: '欢迎来到星痕大陆，薄荷色氏族的家伙。' });
   },
@@ -342,51 +346,122 @@ export const useGameStore = create<GameStore>((set, get) => ({
       return;
     }
     if (node.type === 'dimension') {
-      // 独立维度：一场特殊战斗，胜利获得稀有遗物+因子
-      const dimEnemies = pickElite(zone, node.floor);
-      dimEnemies.forEach((e) => { e.isBoss = true; e.hp = Math.floor(e.hp * 0.8); }); // 略弱于真Boss
-      return startCombat(get, set, dimEnemies, 'dimension');
+      // 维度裂隙：进入多层随机难度地下城
+      const floors = 3 + Math.floor(Math.random() * 3); // 3-5层
+      const floorTypes: ('battle' | 'elite' | 'boss')[] = [];
+      for (let f = 0; f < floors - 1; f++) {
+        floorTypes.push(Math.random() < 0.4 ? 'elite' : 'battle');
+      }
+      floorTypes.push('boss'); // 最终层必为Boss
+      newRun.dimensionState = {
+        totalFloors: floors,
+        currentFloor: 0,
+        floorTypes,
+        clearedFloors: new Array(floors).fill(false),
+        rewardTier: 0,
+      };
+      set({ run: newRun, scene: 'dimension' });
+      return;
     }
     if (node.type === 'treasure') {
-      // 宝箱：免费获得一件遗物或一张稀有卡
-      if (Math.random() < 0.5) {
-        const avail = RELICS.filter((r) => !newRun.relics.some((rr) => rr.id === r.id));
-        if (avail.length > 0) {
-          const relic = avail[Math.floor(Math.random() * avail.length)];
-          const updated = applyRelicGain(newRun, relic);
-          set({ run: updated, scene: 'map', toast: `宝箱开出遗物：${relic.name}！` });
-        } else {
-          set({ run: newRun, scene: 'map', toast: '宝箱打开了，但你已经拥有所有遗物……' });
-        }
+      // 宝箱事件：与事件互动
+      const treasureEvents = EVENTS.filter((e) => e.id.startsWith('treasure-'));
+      if (treasureEvents.length > 0) {
+        const ev = treasureEvents[Math.floor(Math.random() * treasureEvents.length)];
+        set({ pendingEvent: ev, scene: 'event', run: newRun });
       } else {
-        const c = rollRewardCard(newRun.zoneIndex, rareChanceValue(newRun), 'rare', run.classId);
-        set({ run: { ...newRun, deck: [...newRun.deck, c] }, scene: 'map', toast: `宝箱开出卡牌：${c.name}！` });
+        // 兜底
+        const ev = EVENTS[Math.floor(Math.random() * EVENTS.length)];
+        set({ pendingEvent: ev, scene: 'event', run: newRun });
       }
       return;
     }
     if (node.type === 'mystery') {
-      // 秘闻：随机好/坏结果
-      const roll = Math.random();
-      if (roll < 0.35) {
-        // 好事：免费遗物
-        const avail = RELICS.filter((r) => !newRun.relics.some((rr) => rr.id === r.id));
-        if (avail.length > 0) {
-          const relic = avail[Math.floor(Math.random() * avail.length)];
-          const updated = applyRelicGain(newRun, relic);
-          set({ run: updated, scene: 'map', toast: `秘闻揭示：获得遗物「${relic.name}」！` });
-        } else {
-          set({ run: newRun, scene: 'map', toast: '秘闻揭示：一段古老的记忆……但你已经无所不知。' });
-        }
-      } else if (roll < 0.65) {
-        // 中性：获得绳子和意志
-        set({ run: { ...newRun, rope: newRun.rope + 15, will: newRun.will + 2 }, scene: 'map', toast: '秘闻揭示：一段被遗忘的历史……获得了绳子和意志。' });
+      // 秘闻事件：与事件互动
+      const mysteryEvents = EVENTS.filter((e) => e.id.startsWith('mystery-'));
+      if (mysteryEvents.length > 0) {
+        const ev = mysteryEvents[Math.floor(Math.random() * mysteryEvents.length)];
+        set({ pendingEvent: ev, scene: 'event', run: newRun });
       } else {
-        // 坏事：失去HP
-        const loss = Math.floor(newRun.maxHp * 0.15);
-        set({ run: { ...newRun, hp: Math.max(1, newRun.hp - loss) }, scene: 'map', toast: `秘闻揭示：一段可怕的真相……失去了 ${loss} 点生命。` });
+        // 兜底
+        const ev = EVENTS[Math.floor(Math.random() * EVENTS.length)];
+        set({ pendingEvent: ev, scene: 'event', run: newRun });
       }
       return;
     }
+  },
+
+  // ===== 维度系统 =====
+  startDimensionFloor: () => {
+    const { run } = get();
+    if (!run || !run.dimensionState) return;
+    const ds = run.dimensionState;
+    const zone = ZONE_LIST[run.zoneIndex];
+    let floor = ds.currentFloor + 1;
+    // 跳过已清除的层
+    while (floor <= ds.totalFloors && ds.clearedFloors[floor - 1]) floor++;
+    if (floor > ds.totalFloors) {
+      // 全部清完了，给大奖励走人
+      get().retreatDimension();
+      return;
+    }
+    const ft = ds.floorTypes[floor - 1];
+    const newDs = { ...ds, currentFloor: floor };
+
+    // 敌人随层数递增难度
+    const floorMult = 1 + (floor - 1) * 0.15;
+    let enemies: Enemy[];
+    if (ft === 'boss') {
+      enemies = [scaleEnemy(ENEMY_MAP[ZONE_BOSS[zone]] ?? ENEMIES[0], run.zoneIndex, floor * 3, true)];
+    } else if (ft === 'elite') {
+      enemies = pickElite(zone, floor * 2);
+    } else {
+      enemies = pickNormal(zone, floor * 2);
+    }
+    // 维度内敌人额外强化
+    enemies = enemies.map((e) => ({ ...e, hp: Math.floor(e.hp * floorMult) }));
+
+    set({ run: { ...run, dimensionState: newDs } });
+    startCombat(get, set, enemies, ft === 'boss' ? 'boss' : ft === 'elite' ? 'elite' : 'normal');
+  },
+
+  retreatDimension: () => {
+    const { run } = get();
+    if (!run) return;
+    const ds = run.dimensionState;
+    if (!ds) {
+      set({ run: { ...run, dimensionState: null }, scene: 'map' });
+      return;
+    }
+    const cleared = ds.clearedFloors.filter(Boolean).length;
+    if (cleared === 0) {
+      set({ run: { ...run, dimensionState: null }, scene: 'map', toast: '你转身离开了维度裂隙。' });
+      return;
+    }
+    // 每清1层：+1重铸石 +2琥珀；全部清完额外给遗物+因子
+    let extraToast = '';
+    const newRun = { ...run, dimensionState: null };
+    newRun.reforgeStones = (newRun.reforgeStones ?? 0) + cleared;
+    newRun.amber = (newRun.amber ?? 0) + cleared * 2;
+    if (cleared >= ds.totalFloors) {
+      const avail = RELICS.filter((r) => !newRun.relics.some((rr) => rr.id === r.id));
+      if (avail.length > 0) {
+        const relic = avail[Math.floor(Math.random() * avail.length)];
+        Object.assign(newRun, applyRelicGain(newRun, relic));
+        extraToast += ` 获得遗物：${relic.name}！`;
+      }
+      const factorDrop = FACTORS[Math.floor(Math.random() * FACTORS.length)];
+      if (!newRun.factors.some((f) => f.id === factorDrop.id)) {
+        newRun.factors = [...newRun.factors.filter((f) => f.kind !== factorDrop.kind), factorDrop];
+        extraToast += ` 获得因子：${factorDrop.name}！`;
+      }
+      newRun.reforgeStones = (newRun.reforgeStones ?? 0) + 2;
+    }
+    set({
+      run: newRun,
+      scene: 'map',
+      toast: `维度裂隙关闭。清除了 ${cleared}/${ds.totalFloors} 层。+${cleared}石 +${cleared * 2}琥珀${extraToast}`,
+    });
   },
 
   setTarget: (uid) => set({ targetEnemyUid: uid }),
@@ -743,7 +818,7 @@ function handleBattleEnd(get: () => GameStore, set: (p: Partial<GameStore>) => v
 
   if (battle.over === 'win') {
     const newRun: RunState = { ...run, hp: Math.max(1, battle.player.hp), tempAlly: false, battlesWon: run.battlesWon + 1 };
-    newRun.castePoints = run.castePoints + (battleKind === 'elite' || battleKind === 'prison' || battleKind === 'boss' || battleKind === 'dimension' ? 2 : 1);
+    newRun.castePoints = run.castePoints + (battleKind === 'elite' || battleKind === 'prison' || battleKind === 'boss' ? 2 : 1);
     newRun.enemiesDefeated = [...run.enemiesDefeated, ...currentEnemyDefIds];
     // 战斗内事件奖励结算
     if (battle.eventRewards) {
@@ -760,6 +835,22 @@ function handleBattleEnd(get: () => GameStore, set: (p: Partial<GameStore>) => v
     if (upCaste) toast += ` 阶级提升至「${upCaste}」！`;
 
     if (battleKind === 'boss') {
+      // 维度Boss：不推进区域，返回维度界面
+      if (newRun.dimensionState) {
+        const ds = newRun.dimensionState;
+        const floor = ds.currentFloor;
+        if (floor > 0) ds.clearedFloors[floor - 1] = true;
+        newRun.reforgeStones = (newRun.reforgeStones ?? 0) + 3;
+        toast += ` 维度BOSS击败！`;
+        set({
+          run: newRun,
+          scene: 'dimension',
+          toast,
+          battle: null,
+          targetEnemyUid: null,
+        });
+        return;
+      }
       if (newRun.zoneIndex >= 6) {
         meta.recordRun(true, 7);
         meta.addSediment(40 + newRun.battlesWon * 2);
@@ -781,25 +872,20 @@ function handleBattleEnd(get: () => GameStore, set: (p: Partial<GameStore>) => v
       return;
     }
 
-    // 维度战：胜利获得稀有遗物+因子+2重铸石+3琥珀
-    if (battleKind === 'dimension') {
-      newRun.reforgeStones = (newRun.reforgeStones ?? 0) + 2;
-      newRun.amber = (newRun.amber ?? 0) + 3;
-      const availDimRelics = RELICS.filter((r) => !newRun.relics.some((rr) => rr.id === r.id));
-      if (availDimRelics.length > 0) {
-        const relic = availDimRelics[Math.floor(Math.random() * availDimRelics.length)];
-        Object.assign(newRun, applyRelicGain(newRun, relic));
-        toast += ` 获得遗物：${relic.name}！`;
-      }
-      const factorDimDrop = FACTORS[Math.floor(Math.random() * FACTORS.length)];
-      if (!newRun.factors.some((f) => f.id === factorDimDrop.id)) {
-        newRun.factors = [...newRun.factors.filter((f) => f.kind !== factorDimDrop.kind), factorDimDrop];
-        toast += ` 获得因子：${factorDimDrop.name}！`;
+    // 维度战斗结算（日常层，Boss层已在上面处理）
+    if (newRun.dimensionState) {
+      const ds = newRun.dimensionState;
+      const floor = ds.currentFloor;
+      if (floor > 0) {
+        ds.clearedFloors[floor - 1] = true;
+        newRun.reforgeStones = (newRun.reforgeStones ?? 0) + 1;
+        newRun.amber = (newRun.amber ?? 0) + 1;
+        toast += ` 维度第${floor}层突破！`;
       }
       set({
         run: newRun,
-        scene: 'map',
-        toast: `${toast} 维度空间已征服！`,
+        scene: 'dimension',
+        toast,
         battle: null,
         targetEnemyUid: null,
       });

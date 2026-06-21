@@ -2998,6 +2998,157 @@ export const EVENTS: GameEvent[] = [
       },
     ],
   },
+
+  // ===== 宝箱事件（treasure节点触发） =====
+  {
+    id: 'treasure-ancient-chest',
+    title: '远古宝箱',
+    emoji: '💎',
+    text: '一个古老的宝箱静静地躺在废墟中。箱体上铭刻着薄荷色氏族的符文——似乎有两种打开方式。',
+    options: [
+      {
+        label: '用力砸开（获得稀有卡牌 + 绳子）',
+        resultText: '你用力砸开了宝箱！里面躺着一张闪耀的稀有卡牌和一把绳子。',
+        effects: [
+          { kind: 'randomCard' },
+          { kind: 'rope', value: 10 },
+        ],
+      },
+      {
+        label: '仔细撬锁（概率获得遗物，失败则触发陷阱扣血）',
+        resultText: '',
+        effects: [],
+        gamble: {
+          chance: 0.55,
+          winText: '你成功撬开了锁！获得一件稀有遗物。',
+          loseText: '陷阱触发！你被毒针刺中，扣了 15 点血。',
+          win: [{ kind: 'randomRelic' }],
+          lose: [{ kind: 'hp', value: -15 }],
+        },
+      },
+      {
+        label: '不打开，只搜刮周围（获得绳子和意志）',
+        resultText: '你搜刮了宝箱周围的杂物，找到了一些有用的东西。',
+        effects: [
+          { kind: 'rope', value: 20 },
+          { kind: 'will', value: 2 },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'treasure-mimic',
+    title: '可疑的宝箱',
+    emoji: '📦',
+    text: '这个宝箱的铰链有点不对劲……它在微微颤动。群友们说过：「那不是宝箱，是宝箱怪！」',
+    options: [
+      {
+        label: '战斗！打败宝箱怪（胜利获遗物+琥珀，失败扣血）',
+        resultText: '',
+        effects: [],
+        gamble: {
+          chance: 0.6,
+          winText: '你成功打败了宝箱怪！腹中居然藏着一件遗物和 3 颗琥珀。',
+          loseText: '宝箱怪咬了你一口，扣了 12 点血。',
+          win: [
+            { kind: 'randomRelic' },
+            { kind: 'amber', value: 3 },
+          ],
+          lose: [{ kind: 'hp', value: -12 }],
+        },
+      },
+      {
+        label: '悄悄绕开，捡掉在外面的东西（获得绳子和意志）',
+        resultText: '你小心翼翼地绕开了宝箱怪，捡起了它掉在外面的食物。',
+        effects: [
+          { kind: 'rope', value: 12 },
+          { kind: 'will', value: 1 },
+        ],
+      },
+    ],
+  },
+
+  // ===== 秘闻事件（mystery节点触发） =====
+  {
+    id: 'mystery-forgotten-lore',
+    title: '被遗忘的传说',
+    emoji: '🔮',
+    text: '你在墙壁上发现了一段古老的文字：「星痕大陆的初代勇者们，曾将力量封印于此……」\n是否继续阅读？',
+    options: [
+      {
+        label: '潜心研读（消耗3HP，随机升级一张卡+获得意志）',
+        resultText: '你耗费心血研读了全文，知识涌入脑海，一张卡牌得到了强化。',
+        effects: [
+          { kind: 'hp', value: -3 },
+          { kind: 'upgradeRandomCard' },
+          { kind: 'will', value: 3 },
+        ],
+      },
+      {
+        label: '快速浏览（获得绳子和意志）',
+        resultText: '你快速扫了一眼，记住了一些要点。',
+        effects: [
+          { kind: 'rope', value: 15 },
+          { kind: 'will', value: 1 },
+        ],
+      },
+      {
+        label: '无视它，继续前行',
+        resultText: '你转身继续赶路，但脑海中隐约还回荡着那段文字……',
+        effects: [{ kind: 'rope', value: 5 }],
+      },
+    ],
+  },
+  {
+    id: 'mystery-echo',
+    title: '群聊回响',
+    emoji: '📱',
+    text: '你感受到了一阵奇异的共振——这是来自其他平行宇宙的薄荷色氏族成员的群聊回响。\n「无所谓我会选择不打等削弱」\n「弱的是职业不是玩家」\n「那你还是牢。」',
+    options: [
+      {
+        label: '接入回响（回复15HP，获得5绳子）',
+        resultText: '群聊的温暖能量涌入你的身体，疲惫消散了不少。',
+        effects: [
+          { kind: 'hp', value: 15 },
+          { kind: 'rope', value: 5 },
+        ],
+      },
+      {
+        label: '记录回响（获得大量绳子和1点意志）',
+        resultText: '你拿出笔记本匆匆记录下这些经典语录，感觉值了。',
+        effects: [
+          { kind: 'rope', value: 25 },
+          { kind: 'will', value: 1 },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'mystery-dark-omen',
+    title: '不祥之兆',
+    emoji: '🌑',
+    text: '风向突然改变，天空暗了下来。你听见远处传来低沉的呢喃：「下一场战斗……会很恐怖。」\n这是一种预警，也是一种赌注。',
+    options: [
+      {
+        label: '接受挑战（下一场战斗变成精英难度，但奖励翻倍）',
+        resultText: '你挺起胸膛面对黑暗的前方。下一场将是对你真正的考验。',
+        effects: [{ kind: 'nextBattleHarder' }],
+      },
+      {
+        label: '绕道而行（跳过下一场战斗）',
+        resultText: '「无所谓我会选择不打等削弱」——你明智地把这场战斗跳过了。',
+        effects: [{ kind: 'skipNextBattle' }],
+      },
+      {
+        label: '献祭生命换取力量（扣10HP，获得遗物）',
+        resultText: '你向黑暗献上了鲜血，黑暗回馈了你力量。',
+        effects: [
+          { kind: 'hp', value: -10 },
+          { kind: 'randomRelic' },
+        ],
+      },
+    ],
+  },
 ];
 
 export const EVENT_MAP: Record<string, GameEvent> = Object.fromEntries(

@@ -15,7 +15,8 @@ export type Scene =
   | 'rest'
   | 'death'
   | 'victory'
-  | 'codex';
+  | 'codex'
+  | 'dimension';
 
 // ===== 职业 =====
 export type ClassId =
@@ -616,6 +617,15 @@ export interface MapNode {
   next: number[];
 }
 
+// ===== 维度状态 =====
+export interface DimensionState {
+  totalFloors: number;     // 3-5 层
+  currentFloor: number;    // 0 = 入口, 1..totalFloors = 各层
+  floorTypes: ('battle' | 'elite' | 'boss')[]; // 每层类型
+  clearedFloors: boolean[];
+  rewardTier: number;      // 0-3 根据已清层数
+}
+
 // ===== 局内运行状态 =====
 export interface RunState {
   characterId: string;
@@ -640,6 +650,7 @@ export interface RunState {
   enemiesDefeated: string[];
   pityCounter: number;
   reforgeStones: number;
+  dimensionState: DimensionState | null;
 }
 
 // ===== 因子系统 =====

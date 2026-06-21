@@ -10,6 +10,7 @@ import Reward from '@/scenes/Reward';
 import Rest from '@/scenes/Rest';
 import End from '@/scenes/End';
 import Codex from '@/scenes/Codex';
+import Dimension from '@/scenes/Dimension';
 
 export default function App() {
   const scene = useGameStore((s) => s.scene);
@@ -24,6 +25,7 @@ export default function App() {
       {scene === 'shop' && <Shop />}
       {scene === 'reward' && <Reward />}
       {scene === 'rest' && <Rest />}
+      {scene === 'dimension' && <Dimension />}
       {(scene === 'death' || scene === 'victory') && <End />}
       {scene === 'codex' && <Codex />}
       <Toast />
