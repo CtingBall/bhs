@@ -14,6 +14,9 @@ const NODE_ICON: Record<NodeType, string> = {
   event: '❓',
   shop: '🛒',
   rest: '🏕️',
+  dimension: '🌀',
+  treasure: '💎',
+  mystery: '🔮',
 };
 const NODE_LABEL: Record<NodeType, string> = {
   battle: '战斗',
@@ -22,6 +25,9 @@ const NODE_LABEL: Record<NodeType, string> = {
   event: '事件',
   shop: '商店',
   rest: '休息',
+  dimension: '维度',
+  treasure: '宝箱',
+  mystery: '秘闻',
 };
 const NODE_COLOR: Record<NodeType, string> = {
   battle: 'border-mint/50 text-mint',
@@ -30,12 +36,15 @@ const NODE_COLOR: Record<NodeType, string> = {
   event: 'border-willow/50 text-willow',
   shop: 'border-amber/50 text-amber',
   rest: 'border-cyan-400/50 text-cyan-300',
+  dimension: 'border-purple-400/60 text-purple-300',
+  treasure: 'border-yellow-400/60 text-yellow-300',
+  mystery: 'border-pink-400/50 text-pink-300',
 };
 
 // 节点尺寸 & 布局参数
-const NODE_SIZE = 52;
-const FLOOR_HEIGHT = 80;
-const COL_WIDTH = 90;
+const NODE_SIZE = 48;
+const FLOOR_HEIGHT = 68;
+const COL_WIDTH = 85;
 const MAP_PADDING_X = 40;
 const MAP_PADDING_Y = 30;
 
@@ -98,6 +107,9 @@ export default function MapView() {
             </div>
             <div className="text-[10px] text-slate-400">
               第 {run.zoneIndex + 1} / 7 区 · 探索 {visitedCount}/{zoneNodes.length}
+            </div>
+            <div className="text-[10px] text-danger/80 font-mono mt-0.5">
+              怪物强度 ×{(1 + run.zoneIndex * 0.25).toFixed(2)} · 越往高层敌人越强
             </div>
           </div>
           <div className="w-20" />

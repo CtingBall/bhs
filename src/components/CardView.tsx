@@ -1,6 +1,7 @@
 import type { Card } from '@/types';
 import { cn } from '@/lib/utils';
 import CardTooltip from '@/components/CardTooltip';
+import { formatKeywordLine } from '@/data/keywords';
 import { useState } from 'react';
 
 const TYPE_STYLE: Record<Card['type'], { ring: string; tag: string; label: string }> = {
@@ -85,10 +86,24 @@ export default function CardView({
         </span>
       </div>
 
-      {/* 类型标签 */}
-      <span className={cn('mb-1.5 inline-block w-fit rounded px-1.5 py-0.5 text-[9px] font-bold', ts.tag)}>
-        {ts.label}
-      </span>
+      {/* 类型标签 + 养成等级 */}
+      <div className="mb-1.5 flex flex-wrap items-center gap-1">
+        <span className={cn('inline-block w-fit rounded px-1.5 py-0.5 text-[9px] font-bold', ts.tag)}>
+          {ts.label}
+        </span>
+        {card.nurtureLevel > 0 && (
+          <span className="rounded bg-gold/15 px-1 py-0.5 text-[8px] font-mono text-gold">
+            Lv.{card.nurtureLevel}
+          </span>
+        )}
+      </div>
+
+      {/* 词条摘要 */}
+      {formatKeywordLine(card.keywords) && (
+        <p className="mb-1 text-[8px] text-cyan-300/80 line-clamp-2">
+          {formatKeywordLine(card.keywords)}
+        </p>
+      )}
 
       {/* 描述 */}
       <p className="flex-1 overflow-hidden text-slate-200/90 leading-snug">{card.text}</p>

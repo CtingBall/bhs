@@ -63,7 +63,7 @@ export default function Battle() {
                 />
               ))}
             </div>
-            {battle.enemies.length > 1 && (
+            {battle.enemies.length > 1 && battle.isPlayerTurn && !battle.over && (
               <p className="text-[10px] text-mint/50 mt-1">点击敌人选择目标</p>
             )}
           </div>
@@ -151,7 +151,7 @@ export default function Battle() {
                 battle.player.energy < card.cost;
               return (
                 <CardView
-                  key={`${card.id}-${i}`}
+                  key={card.instanceId}
                   card={card}
                   size="md"
                   playable={!unplayable && battle.isPlayerTurn && !battle.over}

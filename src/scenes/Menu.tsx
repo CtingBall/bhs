@@ -1,10 +1,12 @@
 import { useGameStore } from '@/store/gameStore';
 import { useMetaStore } from '@/store/metaStore';
+import { ZONE_LIST, ZONE_NAME } from '@/types';
 import ParticleBg from '@/components/ParticleBg';
 
 export default function Menu() {
   const goScene = useGameStore((s) => s.goScene);
   const meta = useMetaStore();
+  const bestZoneName = meta.bestZone > 0 ? (ZONE_NAME[ZONE_LIST[Math.min(meta.bestZone, 6)]] ?? '—') : '—';
 
   return (
     <div className="grid-bg relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6">
@@ -41,7 +43,7 @@ export default function Menu() {
         <div className="mt-8 flex gap-6 font-mono text-xs text-slate-400">
           <span>沉淀 <span className="text-mint">{meta.sediment}</span></span>
           <span>
-            最佳 <span className="text-gold">{meta.bestZone === 0 ? '强袭区' : meta.bestZone === 1 ? '厄运区' : meta.bestZone >= 2 ? '惩戒区' : '—'}</span>
+            最佳 <span className="text-gold">{bestZoneName}</span>
           </span>
           <span>胜场 <span className="text-willow">{meta.totalWins}</span></span>
           <span>出征 <span className="text-slate-300">{meta.runs}</span></span>

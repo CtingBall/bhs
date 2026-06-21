@@ -63,8 +63,8 @@ export default function DeckViewer() {
           {/* 卡牌列表 */}
           <div className="flex-1 overflow-y-auto p-3">
             <div className="flex flex-wrap gap-2 justify-center content-start">
-              {deck.map((card, i) => (
-                <CardView key={`${card.id}-${i}`} card={card} size="sm" playable={false} />
+              {deck.map((card) => (
+                <CardView key={card.instanceId} card={card} size="sm" playable={false} />
               ))}
             </div>
             {deck.length === 0 && (

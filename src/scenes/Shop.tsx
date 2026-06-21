@@ -3,9 +3,12 @@ import CardView from '@/components/CardView';
 import ParticleBg from '@/components/ParticleBg';
 import { SUMMON_RECIPES } from '@/data/summonRecipes';
 import { SUMMON_MAP } from '@/data/summons';
+import { INSCRIBABLE_KEYWORDS, KEYWORD_MAP } from '@/data/keywords';
+import { inscribeWillCost, nurtureStoneCost } from '@/engine/cardResolver';
 import { Coins, Sparkles, Gem, LogOut, Scissors, Hammer, Dna, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
+import type { KeywordId } from '@/types';
 
 export default function Shop() {
   const run = useGameStore((s) => s.run);
@@ -14,9 +17,11 @@ export default function Shop() {
   const buyRelic = useGameStore((s) => s.buyShopRelic2);
   const removeCard = useGameStore((s) => s.removeShopCard);
   const reforgeCard = useGameStore((s) => s.reforgeCard);
+  const inscribeCard = useGameStore((s) => s.inscribeCard);
   const fuseSummons = useGameStore((s) => s.fuseSummons);
   const leaveShop = useGameStore((s) => s.leaveShop);
-  const [tab, setTab] = useState<'cards' | 'relic' | 'reforge' | 'fuse'>('cards');
+  const [tab, setTab] = useState<'cards' | 'relic' | 'reforge' | 'inscribe' | 'fuse'>('cards');
+  const [pickCard, setPickCard] = useState<string | null>(null);
 
   if (!run || !shop) return null;
 
@@ -58,7 +63,8 @@ export default function Shop() {
           {[
             { id: 'cards' as const, label: '抽卡台', icon: Coins },
             { id: 'relic' as const, label: '遗物/删卡', icon: Gem },
-            { id: 'reforge' as const, label: '重铸台', icon: Hammer },
+            { id: 'reforge' as const, label: '养成台', icon: Hammer },
+            { id: 'inscribe' as const, label: '铭刻台', icon: Star },
             { id: 'fuse' as const, label: '融合台', icon: Dna },
           ].map((t) => (
             <button
@@ -77,8 +83,8 @@ export default function Shop() {
         {/* 抽卡台 */}
         {tab === 'cards' && (
           <div className="mb-6">
-            <div className="text-xs text-mint/60 mb-2 font-mono">抽卡台（用绳子购买）· 保底 {3 - ((run.pityCounter ?? 0) % 3)}/3</div>
-            <div className="flex justify-center gap-4">
+            <div className="text-xs text-mint/60 mb-2 font-mono">抽卡台（用绳子购买）· {shop.cards.length}张可选 · 保底 {3 - ((run.pityCounter ?? 0) % 3)}/3</div>
+            <div className="flex flex-wrap justify-center gap-3">
               {shop.cards.map((item, i) => {
                 const bought = shop.boughtCards.includes(i);
                 const afford = run.rope >= cardPrices[i];
@@ -109,10 +115,10 @@ export default function Shop() {
         {tab === 'relic' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="glass rounded-xl p-4 col-span-full">
-              <div className="text-xs text-amber/70 mb-2 font-mono">遗物（用琥珀购买，每人限1件）</div>
-              <div className="flex gap-3">
+              <div className="text-xs text-amber/70 mb-2 font-mono">遗物（用琥珀购买，每人限1件）· {shop.relics.filter(Boolean).length}件可选</div>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
                 {shop.relics.map((relic, i) => (
-                  <div key={i} className="flex-1">
+                  <div key={i}>
                     {relic && !shop.boughtRelics[i] ? (
                       <button
                         onClick={() => buyRelic(i)}
@@ -143,10 +149,10 @@ export default function Shop() {
                 <div className="text-slate-500 text-sm py-4 text-center">已使用</div>
               ) : (
                 <div className="max-h-40 overflow-y-auto flex flex-wrap gap-1">
-                  {run.deck.map((c, i) => (
+                  {run.deck.map((c) => (
                     <button
-                      key={i}
-                      onClick={() => removeCard(c.id)}
+                      key={c.instanceId}
+                      onClick={() => removeCard(c.instanceId)}
                       disabled={run.will < removeFinalPrice}
                       className="text-[10px] px-1.5 py-0.5 rounded bg-ink-lighter border border-willow/20 text-slate-300 hover:border-willow hover:text-willow disabled:opacity-30"
                       title={c.text}
@@ -164,43 +170,119 @@ export default function Shop() {
         {tab === 'reforge' && (
           <div className="glass rounded-xl p-4">
             <div className="text-xs text-cyan-300/70 mb-3 font-mono flex items-center gap-1">
-              <Hammer className="w-3 h-3" /> 重铸台（消耗重铸石升级卡牌）
-              <span className="ml-auto">当前重铸石：{run.reforgeStones ?? 0}</span>
+              <Hammer className="w-3 h-3" /> 养成台（每级核心数值+1，无上限。Lv.5/10/15解锁额外词条）
+              <span className="ml-auto">重铸石：{run.reforgeStones ?? 0}</span>
             </div>
-            <div className="max-h-60 overflow-y-auto grid grid-cols-2 md:grid-cols-3 gap-2">
-              {run.deck.filter((c) => c.type !== 'curse').map((c, i) => {
-                const level = c.upgradeLevel ?? 0;
-                const cost = level === 0 ? 2 : 4;
-                const maxed = level >= 2;
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-72 overflow-y-auto">
+              {run.deck.filter((c) => c.type !== 'curse').map((c) => {
+                const cost = nurtureStoneCost(c.nurtureLevel);
                 const afford = (run.reforgeStones ?? 0) >= cost;
+                const nextMilestone = c.nurtureLevel < 5 ? 5 : c.nurtureLevel < 10 ? 10 : 15;
+                const milestoneText = c.nurtureLevel >= 15 ? '已满' : `Lv.${nextMilestone} 解锁词条`;
                 return (
                   <button
-                    key={i}
-                    onClick={() => !maxed && afford && reforgeCard(c.id)}
-                    disabled={maxed || !afford}
+                    key={c.instanceId}
+                    onClick={() => afford && reforgeCard(c.instanceId)}
+                    disabled={!afford}
                     className={cn(
-                      'text-left rounded-lg border p-2 transition-all',
-                      maxed
-                        ? 'border-gold/40 bg-gold/5 opacity-60'
-                        : afford
-                          ? 'border-cyan-400/30 bg-cyan-400/5 hover:border-cyan-400'
-                          : 'border-slate-700 opacity-40',
+                      'text-left rounded-lg border p-3 transition-all flex items-start gap-3',
+                      afford
+                        ? 'border-cyan-400/30 bg-cyan-400/5 hover:border-cyan-400'
+                        : 'border-slate-700 opacity-40',
                     )}
                   >
-                    <div className="flex items-center gap-1">
-                      <span className="text-[11px] text-slate-200 font-body">{c.name}</span>
-                      {level > 0 && (
-                        <span className="text-[8px] text-gold flex">
-                          {Array(level).fill('★').map((s, j) => <Star key={j} className="w-2 h-2" />)}
+                    <div className="flex-1">
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs text-slate-200 font-body font-bold">{c.name}</span>
+                        <span className={cn(
+                          'text-[8px] font-mono px-1 rounded',
+                          c.nurtureLevel >= 15 ? 'bg-purple-500/20 text-purple-300' :
+                          c.nurtureLevel >= 10 ? 'bg-amber/20 text-amber' :
+                          c.nurtureLevel >= 5 ? 'bg-cyan-400/20 text-cyan-300' :
+                          'bg-gold/10 text-gold',
+                        )}>
+                          Lv.{c.nurtureLevel}
                         </span>
-                      )}
+                        {cost <= 1 && (
+                          <span className="text-[7px] text-gold/80 font-mono animate-pulseGlow">超值!</span>
+                        )}
+                      </div>
+                      <div className="text-[9px] text-slate-500 mt-0.5">
+                        下一级需 {cost} 石 · {milestoneText}
+                      </div>
+                      {/* 养成进度条 */}
+                      <div className="mt-1 h-1 rounded-full bg-ink-lighter overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-cyan-200 transition-all"
+                          style={{ width: `${Math.min(100, (c.nurtureLevel % 5) * 20)}%` }}
+                        />
+                      </div>
                     </div>
-                    <div className="text-[9px] text-slate-400 mt-0.5">
-                      {maxed ? '已精通' : `升级需 ${cost} 石头`}
-                    </div>
+                    <span className={cn(
+                      'text-[10px] font-mono shrink-0',
+                      afford ? 'text-gold' : 'text-slate-600',
+                    )}>
+                      {cost}⚒️
+                    </span>
                   </button>
                 );
               })}
+            </div>
+          </div>
+        )}
+
+        {tab === 'inscribe' && (
+          <div className="glass rounded-xl p-4">
+            <div className="text-xs text-willow/70 mb-3 font-mono">
+              铭刻台（消耗意志为卡牌附加/升级词条）· 意志 {run.will}
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="max-h-52 overflow-y-auto space-y-1">
+                {run.deck.filter((c) => c.type !== 'curse').map((c) => (
+                  <button
+                    key={c.instanceId}
+                    onClick={() => setPickCard(c.instanceId)}
+                    className={cn(
+                      'w-full text-left rounded-lg border px-2 py-1.5 text-[11px]',
+                      pickCard === c.instanceId ? 'border-willow bg-willow/10' : 'border-slate-700',
+                    )}
+                  >
+                    {c.name} <span className="text-gold">Lv.{c.nurtureLevel}</span>
+                  </button>
+                ))}
+              </div>
+              <div>
+                {pickCard ? (
+                  <div className="space-y-1">
+                    {INSCRIBABLE_KEYWORDS.map((kwId) => {
+                      const def = KEYWORD_MAP[kwId];
+                      const card = run.deck.find((c) => c.instanceId === pickCard)!;
+                      const lv = card.keywords[kwId] ?? 0;
+                      const max = def.maxLevel ?? 5;
+                      const cost = inscribeWillCost(lv);
+                      const afford = run.will >= cost && lv < max;
+                      return (
+                        <button
+                          key={kwId}
+                          disabled={!afford}
+                          onClick={() => inscribeCard(pickCard, kwId as KeywordId)}
+                          className={cn(
+                            'w-full text-left rounded border px-2 py-1.5 text-[10px]',
+                            afford ? 'border-willow/40 hover:bg-willow/5' : 'border-slate-700 opacity-40',
+                          )}
+                        >
+                          <span className="text-willow">{def.name}</span>
+                          <span className="text-slate-500 ml-1">Lv.{lv}{max < 99 ? `/${max}` : ''}</span>
+                          <span className="float-right text-slate-400">{cost} 意志</span>
+                          <div className="text-slate-500">{def.desc}</div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="text-xs text-slate-500">← 先选择一张牌</p>
+                )}
+              </div>
             </div>
           </div>
         )}
@@ -214,7 +296,7 @@ export default function Shop() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {SUMMON_RECIPES.map((recipe) => {
                 const hasMaterials = recipe.materials.every((matId) =>
-                  run.deck.some((c) => c.id === `summon-${matId}` || c.id === matId),
+                  run.deck.some((c) => c.effects[0]?.summonId === matId),
                 );
                 const result = SUMMON_MAP[recipe.resultSummonId];
                 return (
@@ -240,7 +322,7 @@ export default function Shop() {
                       <span>材料：</span>
                       {recipe.materials.map((matId) => {
                         const mat = SUMMON_MAP[matId];
-                        const has = run.deck.some((c) => c.id === `summon-${matId}` || c.id === matId);
+                        const has = run.deck.some((c) => c.effects[0]?.summonId === matId);
                         return (
                           <span key={matId} className={has ? 'text-mint' : 'text-danger'}>
                             {mat?.emoji ?? matId} {mat?.name ?? matId}

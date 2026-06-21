@@ -1,7 +1,7 @@
 import { useGameStore } from '@/store/gameStore';
 import { CHARACTERS } from '@/data/characters';
 import { CLASS_NAME } from '@/types';
-import { CARD_MAP } from '@/data/cards';
+import { buildDeckFromIds } from '@/data/cards';
 import ParticleBg from '@/components/ParticleBg';
 import { cn } from '@/lib/utils';
 import { ArrowLeft } from 'lucide-react';
@@ -13,7 +13,7 @@ export default function Select() {
   const goScene = useGameStore((s) => s.goScene);
 
   const ch = CHARACTERS.find((c) => c.id === selectedId) ?? CHARACTERS[0];
-  const deck = ch.initialDeck.map((id) => CARD_MAP[id]).filter(Boolean);
+  const deck = buildDeckFromIds(ch.initialDeck);
 
   return (
     <div className="grid-bg relative min-h-screen overflow-y-auto px-6 py-8">

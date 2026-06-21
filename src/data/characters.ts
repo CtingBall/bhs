@@ -1,6 +1,10 @@
 import type { Character } from '@/types';
 
-// 12 位主角：均为「薄荷色氏族公约」群成员化身，被动天赋化用其名场面，每个人完全不同
+const UNIVERSAL = {
+  guard: ['core-guard', 'core-guard'] as const,
+  support: ['core-draw', 'core-heal'] as const,
+};
+
 export const CHARACTERS: Character[] = [
   {
     id: 'answer',
@@ -14,10 +18,10 @@ export const CHARACTERS: Character[] = [
     passive: { kind: 'turnDraw', value: 1 },
     desc: '公会头号话痨与防御专家，扛伤理论之王，每回合多一手决策空间。',
     initialDeck: [
-      'twinaxe-spin', 'twinaxe-spin', 'twinaxe-spin', 'twinaxe-spin',
-      'mint-shield', 'mint-shield',
-      'chase-fantasy', 'team-heal',
-      'twinaxe-heavysplit', 'red-q',
+      'core-strike', 'core-strike', 'core-strike',
+      ...UNIVERSAL.guard,
+      ...UNIVERSAL.support,
+      'sig-twinaxe', 'arch-tempo-strike', 'arch-overdraw',
     ],
   },
   {
@@ -32,10 +36,10 @@ export const CHARACTERS: Character[] = [
     passive: { kind: 'freezeReduceAtk', value: 2 },
     desc: '忧郁人设的冰矛主玩，技改公告转发狂魔，冰冻控场无人能及。',
     initialDeck: [
-      'icepearl-thrust', 'icepearl-thrust', 'icepearl-thrust', 'icepearl-thrust',
-      'mint-shield', 'mint-shield',
-      'chase-fantasy', 'team-heal',
-      'icepearl-freeze', 'icepearl-shard',
+      'sig-icepearl', 'sig-icepearl', 'sig-icepearl',
+      ...UNIVERSAL.guard,
+      ...UNIVERSAL.support,
+      'arch-shatter', 'arch-cold-snap', 'core-vuln',
     ],
   },
   {
@@ -50,10 +54,10 @@ export const CHARACTERS: Character[] = [
     passive: { kind: 'comboEnergy', value: 3 },
     desc: '双斧卷王，燃尽梗核心人物，连击不停能量不断。',
     initialDeck: [
-      'twinaxe-spin', 'twinaxe-spin', 'twinaxe-spin', 'twinaxe-spin',
-      'mint-shield', 'mint-shield',
-      'chase-fantasy', 'evade',
-      'twinaxe-whirl', 'twinaxe-heavysplit',
+      'core-strike', 'core-strike', 'core-strike', 'core-strike',
+      ...UNIVERSAL.guard,
+      'core-draw', 'core-evade',
+      'arch-combo-rush', 'arch-tempo-strike',
     ],
   },
   {
@@ -68,10 +72,10 @@ export const CHARACTERS: Character[] = [
     passive: { kind: 'attackStrength', value: 3 },
     desc: '居合职业代表，进度写进昵称，每一刀都积累更强的力量。',
     initialDeck: [
-      'iaido-strike', 'iaido-strike', 'iaido-strike', 'iaido-strike',
-      'mint-shield', 'mint-shield',
-      'chase-fantasy', 'will-transfer',
-      'iaido-flash', 'iaido-multislash',
+      'core-strike', 'core-strike', 'core-strike',
+      ...UNIVERSAL.guard,
+      'core-draw', 'core-empower',
+      'arch-blade-dance', 'arch-iaido-stance', 'sig-iaido',
     ],
   },
   {
@@ -86,10 +90,10 @@ export const CHARACTERS: Character[] = [
     passive: { kind: 'turnBlock', value: 5 },
     desc: '光盾坦克，喵喵车启动，每回合铁壁护体，防御反击流。',
     initialDeck: [
-      'shield-bash', 'shield-bash', 'shield-bash', 'shield-bash',
-      'mint-shield', 'mint-shield',
-      'team-heal', 'chase-fantasy',
-      'shield-counter', 'shield-slam',
+      'sig-lightshield', 'sig-lightshield', 'sig-lightshield',
+      ...UNIVERSAL.guard,
+      ...UNIVERSAL.support,
+      'arch-retaliation', 'arch-counter-bash', 'core-guard',
     ],
   },
   {
@@ -104,10 +108,10 @@ export const CHARACTERS: Character[] = [
     passive: { kind: 'lowHpHealBoost', value: 3 },
     desc: 'T爷大姐头，嘴硬续航，残血时一口奶满，团本 cos 奶就是了。',
     initialDeck: [
-      'shield-bash', 'shield-bash', 'shield-bash',
-      'mint-shield', 'mint-shield',
-      'team-heal', 'team-heal', 'chase-fantasy',
-      'shield-counter', 'evade',
+      'sig-lightshield', 'sig-lightshield', 'sig-lightshield',
+      ...UNIVERSAL.guard,
+      'core-heal', 'core-heal', 'core-draw',
+      'arch-pain-trade', 'arch-last-stand',
     ],
   },
   {
@@ -122,10 +126,10 @@ export const CHARACTERS: Character[] = [
     passive: { kind: 'turnEndAoE', value: 5 },
     desc: '群梗发动机与团长，等inf下班一脚踢死，雷魔 AOE 全屏清场。',
     initialDeck: [
-      'thunder-strike', 'thunder-strike', 'thunder-strike', 'thunder-strike',
-      'mint-shield', 'mint-shield',
-      'chase-fantasy', 'will-transfer',
-      'thunder-storm', 'thunder-chain',
+      'sig-thunder', 'sig-thunder', 'sig-thunder', 'sig-thunder',
+      ...UNIVERSAL.guard,
+      'core-draw', 'core-empower',
+      'arch-chain-lightning', 'arch-storm-call',
     ],
   },
   {
@@ -140,13 +144,12 @@ export const CHARACTERS: Character[] = [
     passive: { kind: 'burnExtraDamage', value: 1 },
     desc: '「弱的是职业不是玩家」，燃烧每层双倍伤害，弱势职业的逆袭。',
     initialDeck: [
-      'flame-charge', 'flame-charge', 'flame-charge', 'flame-charge',
-      'mint-shield', 'mint-shield',
-      'chase-fantasy', 'intimidate',
-      'flame-burst', 'flame-ember',
+      'sig-flame', 'sig-flame', 'sig-flame',
+      ...UNIVERSAL.guard,
+      'core-draw', 'core-vuln',
+      'arch-ignite', 'arch-fire-bloom', 'core-empower',
     ],
   },
-  // ===== 角色扩展 =====
   {
     id: 'fander',
     name: 'fander',
@@ -159,10 +162,10 @@ export const CHARACTERS: Character[] = [
     passive: { kind: 'weakBoost', value: 1 },
     desc: '冰矛控制流理论家，「激化带威慑，难度降一半」，虚弱层层叠加让敌人无力还手。',
     initialDeck: [
-      'icepearl-thrust', 'icepearl-thrust', 'icepearl-thrust', 'icepearl-thrust',
-      'mint-shield', 'mint-shield',
-      'chase-fantasy', 'intimidate',
-      'icepearl-freeze', 'icepearl-shard',
+      'sig-icepearl', 'sig-icepearl', 'sig-icepearl',
+      ...UNIVERSAL.guard,
+      'core-draw', 'core-vuln',
+      'arch-intimidate', 'arch-exploit-weakness', 'core-heavy',
     ],
   },
   {
@@ -177,10 +180,10 @@ export const CHARACTERS: Character[] = [
     passive: { kind: 'killStrength', value: 2 },
     desc: 'PVP 连招大师，「红怒咬住、接红怒 q、死亡缠绕」，击杀越多越强。',
     initialDeck: [
-      'twinaxe-spin', 'twinaxe-spin', 'twinaxe-spin', 'twinaxe-spin',
-      'mint-shield', 'mint-shield',
-      'red-bite', 'red-q',
-      'death-coil', 'twinaxe-heavysplit',
+      'core-strike', 'core-strike', 'core-strike',
+      ...UNIVERSAL.guard,
+      'core-flurry', 'core-finisher',
+      'arch-blood-hunt', 'arch-blood-frenzy', 'sig-twinaxe',
     ],
   },
   {
@@ -195,10 +198,10 @@ export const CHARACTERS: Character[] = [
     passive: { kind: 'burnAll', value: 3 },
     desc: '龙系角色狂热爱好者，「我是龙性恋」，龙域炎息笼罩全场。',
     initialDeck: [
-      'flame-charge', 'flame-charge', 'flame-charge', 'flame-charge',
-      'mint-shield', 'mint-shield',
-      'chase-fantasy', 'sharpen',
-      'flame-burst', 'flame-ember',
+      'sig-flame', 'sig-flame', 'sig-flame',
+      ...UNIVERSAL.guard,
+      'core-draw', 'core-empower',
+      'arch-heat-wave', 'arch-dragon-breath', 'core-vuln',
     ],
   },
   {
@@ -213,10 +216,11 @@ export const CHARACTERS: Character[] = [
     passive: { kind: 'blockLife', value: 3 },
     desc: '光盾生存循环的发明者，「光明决心一开就不会死」，守护之盾持续回血。',
     initialDeck: [
-      'shield-bash', 'shield-bash', 'shield-bash',
-      'mint-shield', 'mint-shield',
-      'resolve', 'resolve',
-      'light-resolve', 'light-shield-basic', 'rock-solid',
+      'sig-lightshield', 'sig-lightshield', 'sig-lightshield',
+      ...UNIVERSAL.guard,
+      'core-guard', 'core-guard',
+      'core-heal', 'core-draw',
+      'arch-resolve-shield',
     ],
   },
   {
@@ -231,10 +235,10 @@ export const CHARACTERS: Character[] = [
     passive: { kind: 'rampStrength', value: 1 },
     desc: '多职业精通的全职糕手，「尖兵还是太超模了」，每回合越打越强。',
     initialDeck: [
-      'iaido-strike', 'iaido-strike', 'iaido-strike',
-      'mint-shield', 'mint-shield',
-      'chase-fantasy', 'sharpen',
-      'iaido-flash', 'one-punch', 'overload',
+      'core-strike', 'core-strike', 'core-strike',
+      ...UNIVERSAL.guard,
+      'core-draw', 'core-empower',
+      'arch-overwhelm', 'sig-iaido', 'core-finisher',
     ],
   },
 ];

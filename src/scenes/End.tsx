@@ -1,5 +1,6 @@
 import { useGameStore } from '@/store/gameStore';
 import { useMetaStore } from '@/store/metaStore';
+import { CASTE_NAME } from '@/types';
 import ParticleBg from '@/components/ParticleBg';
 
 export default function End() {
@@ -37,12 +38,12 @@ export default function End() {
         <div className="glass rounded-2xl p-5 mb-6 text-left">
           <div className="text-xs text-mint/60 font-mono mb-3">本局战绩</div>
           <div className="grid grid-cols-2 gap-3 text-sm">
-            <Stat label="推进大区" value={`${run.zoneIndex + (isWin ? 1 : 0)} / 3`} />
+            <Stat label="推进大区" value={`${run.zoneIndex + (isWin ? 1 : 0)} / 7`} />
             <Stat label="战斗胜利" value={`${run.battlesWon} 场`} />
             <Stat label="击败敌人" value={`${run.enemiesDefeated.length} 个`} />
             <Stat label="牌组规模" value={`${run.deck.length} 张`} />
             <Stat label="持有遗物" value={`${run.relics.length} 件`} />
-            <Stat label="最终阶级" value={run.caste} />
+            <Stat label="最终阶级" value={CASTE_NAME[run.caste] ?? run.caste} />
           </div>
         </div>
 

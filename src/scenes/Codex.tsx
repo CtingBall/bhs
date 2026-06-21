@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { useGameStore } from '@/store/gameStore';
 import { useMetaStore } from '@/store/metaStore';
-import { CARDS } from '@/data/cards';
+import { CARD_TEMPLATES, createCardInstance } from '@/data/cards';
+import { KEYWORDS } from '@/data/keywords';
 import { ENEMIES } from '@/data/enemies';
 import { RELICS } from '@/data/relics';
 import ParticleBg from '@/components/ParticleBg';
 import { ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { Card } from '@/types';
 
 type Tab = 'card' | 'enemy' | 'relic';
 
@@ -39,18 +39,19 @@ export default function Codex() {
                 tab === t ? 'bg-mint text-ink' : 'glass-light text-mint/70 hover:text-mint',
               )}
             >
-              {t === 'card' ? `卡牌 (${meta.unlockedCards.length}/${CARDS.length})` : t === 'enemy' ? `敌人 (${meta.unlockedEnemies.length}/${ENEMIES.length})` : `遗物 (${RELICS.length})`}
+              {t === 'card' ? `卡牌 (${meta.unlockedCards.length}/${CARD_TEMPLATES.length})` : t === 'enemy' ? `敌人 (${meta.unlockedEnemies.length}/${ENEMIES.length})` : `遗物 (${RELICS.length})`}
             </button>
           ))}
         </div>
 
         {tab === 'card' && (
           <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-            {CARDS.map((c: Card) => {
-              const unlocked = meta.unlockedCards.includes(c.id);
+            {CARD_TEMPLATES.map((t) => {
+              const c = createCardInstance(t);
+              const unlocked = meta.unlockedCards.includes(t.id);
               return (
                 <div
-                  key={c.id}
+                  key={t.id}
                   className={cn(
                     'glass-light rounded-lg p-2 border',
                     unlocked ? 'border-mint/30' : 'border-slate-700 opacity-40',
@@ -72,6 +73,19 @@ export default function Codex() {
                 </div>
               );
             })}
+          </div>
+        )}
+
+        {tab === 'card' && (
+          <div className="mt-4 glass-light rounded-lg p-3 border border-cyan-400/20">
+            <div className="text-xs text-cyan-300 font-mono mb-2">词条图鉴（模块化修饰）</div>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+              {KEYWORDS.map((k) => (
+                <div key={k.id} className="text-[10px] text-slate-300">
+                  <span className="text-cyan-300">{k.name}</span> — {k.desc}
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
