@@ -932,6 +932,9 @@ html, body {
 .sts-battle-screen .card.skill { border-top-color: #67aeca; }
 .sts-battle-screen .card.power { border-top-color: #b39a62; background: linear-gradient(180deg, #49413a, #26252a 72%, #18191d); }
 .sts-battle-screen .card:hover, .sts-battle-screen .card.focus { box-shadow: 0 12px 28px rgba(0,0,0,.72), 0 0 0 2px rgba(245,196,81,.72); }
+.sts-battle-screen .card .temporary-keyword { color: #e0b6ff; background: rgba(73, 42, 104, .78); border-color: rgba(224, 182, 255, .58); }
+.sts-battle-screen .enemy.target-highlight { box-shadow: 0 0 0 3px #f5c451, 0 0 28px rgba(245,196,81,.65); transform: translateY(-4px); }
+.sts-battle-screen .intent { border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,.4); }
 .sts-battle-screen .end-turn-btn { border-radius: 5px; background: linear-gradient(180deg, #b76045, #713526); border-color: rgba(244,171,113,.75); box-shadow: 0 4px 12px rgba(0,0,0,.4); }
 .sts-battle-screen .bottom-bar { background: linear-gradient(0deg, rgba(5,8,13,.82), transparent); }
 @media (max-width: 700px) {

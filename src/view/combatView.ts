@@ -460,6 +460,7 @@ function buildCardNode(v: CombatViewState, card: CardInstance): HTMLElement {
   desc.innerHTML = highlightNumbers(def.description);
   node.appendChild(desc);
   if (card.upgradeLevel > 0) node.appendChild(el('div', 'upgraded', card.upgradeLevel === 1 ? '✦A' : '✦B'));
+  if (card.temporary) node.appendChild(el('div', 'card-keyword temporary-keyword', '临时'));
   if (card.exhaust || def.cardType === 'Power') node.appendChild(el('div', 'card-keyword exhaust-keyword', '消耗'));
   else if (card.retain) node.appendChild(el('div', 'card-keyword retain-keyword', '保留'));
   if (def.unplayable || (def.requires && v.combat.getResource(v.combat.player, def.requires.resourceId) < def.requires.min) || cost > v.combat.energy) {
@@ -637,6 +638,7 @@ function showCardDetail(v: CombatViewState, card: CardInstance): void {
   desc.innerHTML = highlightNumbers(def.description);
   big.appendChild(desc);
   if (card.upgradeLevel > 0) big.appendChild(el('div', 'upgraded', card.upgradeLevel === 1 ? '✦A' : '✦B'));
+  if (card.temporary) big.appendChild(el('div', 'card-keyword temporary-keyword', '临时'));
   if (card.exhaust || def.cardType === 'Power') big.appendChild(el('div', 'card-keyword exhaust-keyword', '消耗'));
   else if (card.retain) big.appendChild(el('div', 'card-keyword retain-keyword', '保留'));
   body.appendChild(big);
