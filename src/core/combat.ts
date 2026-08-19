@@ -701,7 +701,9 @@ export class Combat {
       this.logText('本回合无法再抽牌（超高出力·蓄雷）');
       return;
     }
-    const drawn = this.piles.drawCards(amount);
+    const drawn = this.piles.drawCards(amount, () => {
+      this.hooks.trigger('OnDeckShuffled', { combat: this });
+    });
     for (const card of drawn) {
       // 临时费用只对本次抽牌生效；进入弃牌堆后不能把旧回合减费带回下一轮。
       card.tempCostOverride = null;

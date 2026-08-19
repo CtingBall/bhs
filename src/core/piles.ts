@@ -43,7 +43,7 @@ export class PileManager {
   }
 
   /** 抽牌；抽牌堆耗尽时把弃牌堆洗入。返回抽到的牌（溢出由调用方处理）。 */
-  drawCards(amount: number): CardInstance[] {
+  drawCards(amount: number, onDeckShuffled?: () => void): CardInstance[] {
     const drawn: CardInstance[] = [];
     for (let i = 0; i < amount; i++) {
       if (this.draw.length === 0) {
@@ -51,6 +51,7 @@ export class PileManager {
         this.draw = this.discard;
         this.discard = [];
         this.shuffleDraw();
+        onDeckShuffled?.();
       }
       const card = this.draw.pop()!;
       drawn.push(card);
