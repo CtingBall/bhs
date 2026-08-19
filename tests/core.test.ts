@@ -151,6 +151,32 @@ describe('弃牌生命周期钩子', () => {
   });
 });
 
+describe('临时生成牌生命周期', () => {
+  it('临时牌未打出时回合结束直接消耗', () => {
+    const run = Run.newRun('hero_sylvanguard', 'temporary-card-test');
+    run.enterNode(run.reachableNodes()[0].id);
+    const combat = run.startCombat();
+    combat.generateCard('card_slash_combo', 'hand', true);
+    const generated = combat.piles.hand.find((card) => card.temporary)!;
+    expect(generated).toBeDefined();
+    combat.endTurn();
+    expect(combat.piles.exhaust.some((card) => card.uid === generated.uid)).toBe(true);
+    expect(combat.piles.discard.some((card) => card.uid === generated.uid)).toBe(false);
+  });
+
+  it('临时牌打出后消耗，不会进入弃牌堆', () => {
+    const run = Run.newRun('hero_sylvanguard', 'temporary-play-test');
+    run.enterNode(run.reachableNodes()[0].id);
+    const combat = run.startCombat();
+    combat.generateCard('card_slash_combo', 'hand', true);
+    const generated = combat.piles.hand.find((card) => card.temporary)!;
+    const enemy = combat.aliveEnemies()[0];
+    expect(combat.playCard(generated.uid, enemy.id)).toBe(true);
+    expect(combat.piles.exhaust.some((card) => card.uid === generated.uid)).toBe(true);
+    expect(combat.piles.discard.some((card) => card.uid === generated.uid)).toBe(false);
+  });
+});
+
 describe('回合流程终止保护', () => {
   it('回合结束钩子结束战斗后，不再进入友军或敌人阶段', () => {
     const run = Run.newRun('hero_sylvanguard', 'turn-end-stop-test');

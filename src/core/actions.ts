@@ -96,7 +96,7 @@ export interface CombatApi {
   discardHand(): void;
   exileCard(uid: string): void;
   fetchFromPile(cardId: string, fromPile: 'draw' | 'discard' | 'exhaust', costOverride: number | null): boolean;
-  generateCard(cardId: string, destination: 'hand' | 'drawTop' | 'discard'): void;
+  generateCard(cardId: string, destination: 'hand' | 'drawTop' | 'discard', temporary?: boolean): void;
   applyBuff(target: Unit, buffId: string, stacks: number): void;
   consumeBuff(target: Unit, buffId: string, amount: number): number;
   clearBlock(target: Unit): void;
@@ -321,7 +321,11 @@ export function executeAction(node: ActionNode, env: ActionEnv): void {
 
     case 'GenerateCard': {
       const p = node.params ?? {};
-      api.generateCard(p.card_id as string, (p.destination as 'hand' | 'drawTop' | 'discard') ?? 'hand');
+      api.generateCard(
+        p.card_id as string,
+        (p.destination as 'hand' | 'drawTop' | 'discard') ?? 'hand',
+        p.temporary === true,
+      );
       break;
     }
 

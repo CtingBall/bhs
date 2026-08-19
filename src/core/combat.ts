@@ -278,12 +278,12 @@ export class Combat {
     // 去向
     if (def.cardType === 'Power') {
       this.piles.moveToExhaust(card);
-    } else if (card.exhaust) {
+    } else if (card.exhaust || card.temporary) {
       this.piles.moveToExhaust(card);
     } else {
       this.piles.moveToDiscard(card);
     }
-    this.emit('discard', { uid, to: def.cardType === 'Power' || card.exhaust ? 'exhaust' : 'discard' });
+    this.emit('discard', { uid, to: def.cardType === 'Power' || card.exhaust || card.temporary ? 'exhaust' : 'discard' });
 
     this.checkEnd();
     return true;
@@ -358,13 +358,21 @@ export class Combat {
     // 营地祭仪回合数递减
     const campRounds = this.player.state['campAttackRounds'] as number | undefined;
     if (campRounds !== undefined && campRounds > 0) this.player.state['campAttackRounds'] = campRounds - 1;
-    // 手牌清理：保留牌留下，其余逐张触发弃牌钩子，确保弃牌联动不漏算。
-    const discardedAtTurnEnd = this.piles.hand.filter((card) => !card.retain);
-    this.piles.discardHandAtTurnEnd();
+    // 手牌清理：保留牌留下；临时牌即使未打出也消耗，其余进入弃牌堆。
+    const discardedAtTurnEnd = this.piles.hand.filter((card) => !card.retain && !card.temporary);
+    const temporaryAtTurnEnd = this.piles.hand.filter((card) => card.temporary);
+    const retained = this.piles.hand.filter((card) => card.retain && !card.temporary);
+    this.piles.discard.push(...discardedAtTurnEnd);
+    this.piles.exhaust.push(...temporaryAtTurnEnd);
+    this.piles.hand = retained;
     for (const card of discardedAtTurnEnd) {
       this.hooks.trigger('OnCardDiscarded', { combat: this, card, reason: 'TurnEnd' });
     }
+    for (const card of temporaryAtTurnEnd) {
+      this.hooks.trigger('OnCardExiled', { combat: this, card, reason: 'TemporaryTurnEnd' });
+    }
     this.emit('discard', { to: 'discard', allHand: true, count: discardedAtTurnEnd.length });
+    if (temporaryAtTurnEnd.length > 0) this.emit('discard', { to: 'exhaust', count: temporaryAtTurnEnd.length });
 
     this.checkEnd();
     if (!this.ended) this.beginRound();
@@ -749,8 +757,9 @@ export class Combat {
     return true;
   }
 
-  generateCard(cardId: string, destination: 'hand' | 'drawTop' | 'discard'): void {
+  generateCard(cardId: string, destination: 'hand' | 'drawTop' | 'discard', temporary = false): void {
     const card = this.piles.createCard(cardId);
+    card.temporary = temporary;
     if (destination === 'hand') {
       this.piles.addToHand(card);
     } else if (destination === 'drawTop') {
