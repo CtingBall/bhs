@@ -9,6 +9,7 @@ import { generateMap } from '../src/core/map';
 import { Run } from '../src/core/run';
 import { getCardDef } from '../src/core/cards';
 import { PileManager } from '../src/core/piles';
+import { HookBus } from '../src/core/hooks';
 
 // 注册全部内容（副作用导入）
 import '../src/content/cards';
@@ -42,6 +43,25 @@ describe('五阶段数值管道', () => {
     expect(result.absorbedByRatio).toBeCloseTo(10);
     expect(result.fixed).toBeCloseTo(3);
     expect(result.remaining).toBeCloseTo(7);
+  });
+});
+
+describe('Hook 事件快照与优先级', () => {
+  it('回调内注销/新增不会改变当前事件遍历', () => {
+    const bus = new HookBus();
+    const calls: string[] = [];
+    let removeB: () => void = () => undefined;
+    bus.on('OnCardPlayed', 100, () => {
+      calls.push('A');
+      removeB();
+      bus.on('OnCardPlayed', 200, () => calls.push('C'));
+    });
+    removeB = bus.on('OnCardPlayed', 50, () => calls.push('B'));
+    bus.trigger('OnCardPlayed', {});
+    expect(calls).toEqual(['A', 'B']);
+    calls.length = 0;
+    bus.trigger('OnCardPlayed', {});
+    expect(calls).toEqual(['C', 'A']);
   });
 });
 

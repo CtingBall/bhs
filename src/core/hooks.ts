@@ -79,8 +79,10 @@ export class HookBus {
     }
     this.depth++;
     try {
+      // 使用快照：回调内注销/新增监听器只影响下一次触发，不改变本次事件遍历。
       const listeners = this.listeners
         .filter((l) => l.name === name)
+        .slice()
         .sort((a, b) => b.priority - a.priority);
       const ev: HookEvent<T> = { name, payload, depth: this.depth };
       for (const l of listeners) {
