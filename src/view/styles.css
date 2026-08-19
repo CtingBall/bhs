@@ -941,7 +941,12 @@ html, body {
 .sts-battle-screen .bottom-bar { background: linear-gradient(0deg, rgba(5,8,13,.82), transparent); }
 .sts-player-panel { min-width: 310px; }
 .sts-resource-panel { min-width: 260px; padding: 8px 14px; background: linear-gradient(180deg, rgba(21,31,39,.96), rgba(10,16,22,.96)); border-color: rgba(190,161,103,.42); box-shadow: 0 5px 16px rgba(0,0,0,.38); }
-.sts-battle-screen .pile-indicator { min-width: 42px; padding: 3px 6px; border: 1px solid rgba(190,161,103,.28); border-radius: 4px; background: rgba(12,18,26,.72); }
+.sts-battle-screen .pile-indicator { min-width: 58px; padding: 4px 6px; border: 1px solid rgba(190,161,103,.28); border-radius: 4px; background: rgba(12,18,26,.72); color: var(--text-dim); cursor: pointer; display: flex; flex-direction: column; align-items: center; line-height: 1.05; }
+.sts-battle-screen .pile-indicator:hover { border-color: var(--gold); filter: brightness(1.16); }
+.sts-battle-screen .pile-icon { font-size: 17px; }
+.sts-battle-screen .pile-label { font-size: 9px; margin-top: 2px; }
+.sts-battle-screen .pile-indicator .num { font-size: 14px; }
+.sts-pile-grid { max-height: 56vh; overflow-y: auto; }
 .sts-battle-screen .pile-indicator:first-child { color: #d3b46f; }
 .sts-battle-screen .pile-indicator:nth-child(2) { color: #9fb1c3; }
 @media (max-width: 700px) {

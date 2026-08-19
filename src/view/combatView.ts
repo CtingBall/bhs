@@ -988,14 +988,22 @@ function updateEnergy(v: CombatViewState): void {
   orbs.appendChild(energyText);
   const piles = v.screen.querySelector('.bottom-bar .pile-indicators') as HTMLElement;
   clear(piles);
-  const mkPile = (icon: string, n: number): HTMLElement => {
-    const p = el('div', 'pile-indicator');
-    p.appendChild(el('span', '', icon));
-    p.appendChild(el('span', 'num', String(n)));
+  const mkPile = (icon: string, label: string, cards: CardInstance[]): HTMLElement => {
+    const p = el('button', 'pile-indicator', '');
+    p.type = 'button';
+    p.title = `查看${label}`;
+    p.appendChild(el('span', 'pile-icon', icon));
+    p.appendChild(el('span', 'pile-label', label));
+    p.appendChild(el('span', 'num', String(cards.length)));
+    on(p, 'click', (event) => {
+      event.stopPropagation();
+      openPileOverlay(v, label, cards);
+    });
     return p;
   };
-  piles.appendChild(mkPile('🂠', v.combat.piles.draw.length));
-  piles.appendChild(mkPile('♻', v.combat.piles.discard.length));
+  piles.appendChild(mkPile('🂠', '抽牌堆', v.combat.piles.draw));
+  piles.appendChild(mkPile('♻', '弃牌堆', v.combat.piles.discard));
+  piles.appendChild(mkPile('✦', '消耗堆', v.combat.piles.exhaust));
   const end = v.screen.querySelector('.bottom-bar .end-turn-btn') as HTMLButtonElement | null;
   if (end && v.endBtn !== end) {
     v.endBtn = end;
@@ -1138,6 +1146,30 @@ function showEnemyDetail(v: CombatViewState, e: Unit): void {
 // ---------------------------------------------------------------------------
 // 牌组查看（战斗内图鉴）
 // ---------------------------------------------------------------------------
+
+function openPileOverlay(_v: CombatViewState, label: string, cards: CardInstance[]): void {
+  const body = el('div', 'deck-grid sts-pile-grid');
+  if (cards.length === 0) {
+    body.appendChild(el('div', 'empty-pile', '这里暂时没有卡牌'));
+  } else {
+    for (const card of [...cards].reverse()) {
+      const def = upgradeCardDef(getCardDef(card.defId), card.upgradeLevel);
+      const node = el('div', `card large ${def.cardType.toLowerCase()} sts-deck-card`);
+      node.appendChild(el('div', `cost${def.baseCost === 0 ? ' zero' : ''}`, String(def.baseCost)));
+      const ctype = def.cardType === 'Attack' ? '🗡️' : def.cardType === 'Skill' ? '🛡️' : def.cardType === 'Power' ? '✨' : '☠️';
+      node.appendChild(el('div', 'ctype', ctype));
+      node.appendChild(el('div', 'cname', def.name));
+      const desc = el('div', 'cdesc');
+      desc.innerHTML = highlightNumbers(def.description);
+      node.appendChild(desc);
+      if (card.temporary) node.appendChild(el('div', 'card-keyword temporary-keyword', '临时'));
+      if (card.exhaust || def.cardType === 'Power') node.appendChild(el('div', 'card-keyword exhaust-keyword', '消耗'));
+      if (card.upgradeLevel > 0) node.appendChild(el('div', 'upgraded', card.upgradeLevel === 1 ? '✦A' : '✦B'));
+      body.appendChild(node);
+    }
+  }
+  modal(label, body, [{ label: '关闭' }]);
+}
 
 function openDeckOverlay(v: CombatViewState): void {
   const deck = v.app.ctx?.run.state.deck ?? [];
