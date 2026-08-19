@@ -699,6 +699,8 @@ export class Combat {
     }
     const drawn = this.piles.drawCards(amount);
     for (const card of drawn) {
+      // 临时费用只对本次抽牌生效；进入弃牌堆后不能把旧回合减费带回下一轮。
+      card.tempCostOverride = null;
       this.piles.addToHand(card);
       // 诅咒牌：抽到即扣血
       if (getCardDef(card.defId).cardType === 'Curse') {
