@@ -42,11 +42,11 @@ export function renderCombatScreen(app: GameApp, ev: CombatViewEvent | null): vo
 }
 
 function buildView(app: GameApp, combat: Combat): CombatViewState {
-  const screen = el('div', 'screen combat-screen');
+  const screen = el('div', 'screen combat-screen sts-battle-screen');
   screen.appendChild(el('div', 'combat-bg'));
 
   // HUD
-  const hud = el('div', 'hud');
+  const hud = el('div', 'hud sts-topbar');
   const hudLeft = el('div', 'hud-left');
   hudLeft.appendChild(el('span', 'hud-chip', `第 ${combat.round} 回合`));
   hudLeft.appendChild(el('span', 'hud-chip', `📍 Act ${app.ctx?.run.state.act ?? 1}`));
@@ -63,7 +63,7 @@ function buildView(app: GameApp, combat: Combat): CombatViewState {
   const widget = el('div', 'class-widget');
 
   // 战场
-  const arena = el('div', 'arena');
+  const arena = el('div', 'arena sts-arena');
   const enemyRow = el('div', 'enemy-row');
   arena.appendChild(enemyRow);
   const playerZone = el('div', 'player-zone');
@@ -72,7 +72,7 @@ function buildView(app: GameApp, combat: Combat): CombatViewState {
 
   // 出牌分割线 + 手牌区
   screen.appendChild(el('div', 'cast-line'));
-  const handField = el('div', 'hand-field');
+  const handField = el('div', 'hand-field sts-hand-zone');
   const hand = el('div', 'hand');
   handField.appendChild(hand);
   screen.appendChild(handField);
@@ -945,7 +945,7 @@ function updateIntents(v: CombatViewState): void {
 function updateEnergy(v: CombatViewState): void {
   const bar = v.screen.querySelector('.bottom-bar');
   if (!bar) {
-    const b = el('div', 'bottom-bar');
+    const b = el('div', 'bottom-bar sts-command-bar');
     const orbs = el('div', 'energy-orbs');
     b.appendChild(orbs);
     const piles = el('div', 'pile-indicators');

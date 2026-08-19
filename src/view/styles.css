@@ -922,3 +922,25 @@ html, body {
   .draft-grid .card { width: 86px; height: 132px; margin: 0 auto; }
   .ed-k { min-width: 76px; }
 }
+
+/* 战斗 UI 重构：经典肉鸽卡牌信息层级（项目自有视觉，不使用原作素材） */
+.sts-battle-screen .enemy { background: linear-gradient(180deg, rgba(54,39,48,.98), rgba(20,17,25,.98)); border-color: rgba(190,106,91,.55); border-radius: 5px; box-shadow: 0 8px 18px rgba(0,0,0,.35), inset 0 1px rgba(255,255,255,.05); }
+.sts-battle-screen .player-unit { background: linear-gradient(180deg, rgba(42,57,70,.98), rgba(15,23,32,.98)); border-color: rgba(190,161,103,.55); border-radius: 5px; box-shadow: 0 8px 24px rgba(0,0,0,.4), inset 0 1px rgba(255,255,255,.06); }
+.sts-battle-screen .ally-unit { border-radius: 5px; border-color: rgba(110,190,145,.55); }
+.sts-battle-screen .card { border-radius: 7px; border-color: rgba(205,185,145,.38); box-shadow: 0 5px 14px rgba(0,0,0,.55), inset 0 1px rgba(255,255,255,.08); background: linear-gradient(180deg, #354356, #1b2430 72%, #131a23); }
+.sts-battle-screen .card.attack { border-top-color: #d96b5e; }
+.sts-battle-screen .card.skill { border-top-color: #67aeca; }
+.sts-battle-screen .card.power { border-top-color: #b39a62; background: linear-gradient(180deg, #49413a, #26252a 72%, #18191d); }
+.sts-battle-screen .card:hover, .sts-battle-screen .card.focus { box-shadow: 0 12px 28px rgba(0,0,0,.72), 0 0 0 2px rgba(245,196,81,.72); }
+.sts-battle-screen .end-turn-btn { border-radius: 5px; background: linear-gradient(180deg, #b76045, #713526); border-color: rgba(244,171,113,.75); box-shadow: 0 4px 12px rgba(0,0,0,.4); }
+.sts-battle-screen .bottom-bar { background: linear-gradient(0deg, rgba(5,8,13,.82), transparent); }
+@media (max-width: 700px) {
+  .sts-arena { bottom: calc(205px + var(--safe-bottom)); }
+  .sts-hand-zone, .sts-battle-screen .hand-field { height: 212px; }
+  .sts-battle-screen .cast-line { bottom: 212px; }
+  .sts-battle-screen .card { width: 82px; height: 132px; }
+  .sts-battle-screen .enemy { width: 100px; }
+  .sts-battle-screen .enemy .portrait { font-size: 32px; }
+  .sts-topbar { padding-inline: 8px; }
+  .sts-topbar .hud-chip { padding-inline: 7px; font-size: 10px; }
+}
