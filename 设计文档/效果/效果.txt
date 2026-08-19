@@ -1,0 +1,399 @@
+现在我们正式进入整个游戏最核心、最底层的物理引擎与逻辑胶水 —— 【效果】(Effect System) 模块。
+
+在我们的架构中，卡牌打出的伤害、遗物的被动、怪物的意图、甚至大天赋的规则重塑，在底层全部是统一的【效果】实例。
+
+为了便于我们逐步打磨确认，我将【效果】模块划分为 6 大核心子系统，并首先为你展开最基础、最关键的 前三大部分（核心拓扑、原子动作原语库、五阶段数值修正管道）
+进行深度设计与讨论。
+
+效果系统全景架构拓扑
+
+┌───────────────────────────────────────────────────────────────────────────────────┐
+│                           外部触发源容器 (Effect Containers)                       │
+│    【卡牌】(打出) │ 【遗物】(被动) │ 【大天赋】(规则) │ 【怪物意图】(行动) │ 【Buff】(跳字) │
+└─────────────────────────────────────────┬─────────────────────────────────────────┘
+                                          │ 触发事件 / 传递上下文 (Context)
+                                          ▼
+┌───────────────────────────────────────────────────────────────────────────────────┐
+│                       1. 目标选择与过滤管道 (Targeting Pipeline)                   │
+│   - Single / AllEnemies / Random(N) / LowestHP / HighestATK / AllAllies / Self    │
+└─────────────────────────────────────────┬─────────────────────────────────────────┘
+                                          │ 输出有效目标集合 Targets[]
+                                          ▼
+┌───────────────────────────────────────────────────────────────────────────────────┐
+│                       2. 条件判定树 (Condition Evaluator)                         │
+│   - 状态检查 (HasBuff) │ 资源阈值 (Resource>=X) │ 概率判定 (RNG) │ 手牌检查 (Hand<=N)│
+└─────────────────────────────────────────┬─────────────────────────────────────────┘
+                                          │ 判定通过 (True)
+                                          ▼
+┌───────────────────────────────────────────────────────────────────────────────────┐
+│                       3. 复合动作执行队列 (Action Queue & Primitives)             │
+│   - 数值动作 (Damage/Block/Heal) ──► 接入【五阶段数值计算管道 (Value Pipeline)】   │
+│   - 牌堆动作 (Draw/Discard/Exile/Fetch/Transform)                                 │
+│   - 状态动作 (ApplyBuff/ConsumeBuff/TransferBuff)                                 │
+│   - 元控制动作 (Repeat/ForEach/ScaleByContext/Branch)                             │
+└─────────────────────────────────────────┬─────────────────────────────────────────┘
+                                          │ 广播状态差量与触发 Hook
+                                          ▼
+┌───────────────────────────────────────────────────────────────────────────────────┐
+│                       4. 全局响应式钩子总线 (Global Hook Matrix)                  │
+│       OnCardPlayed │ BeforeDamageDealt │ AfterDamageReceived │ OnTurnEnd ...       │
+└───────────────────────────────────────────────────────────────────────────────────┘
+
+一、 原子动作原语库 (Atomic Action Primitives)
+
+任何复杂的卡牌或遗物机制，必须且只能由以下不可再分的**原子动作（Atomic Actions）**拼装而成。
+
+1. 数值类原语（Numerical Primitives）
+
+  - DealDamage：造成伤害。参数：base_damage, damage_type（物理/法术/真实神圣）, scaling_rules[],
+    can_lifesteal。
+  - GainBlock：获得护甲。参数：base_amount, scaling_rules[], retain_across_turns。
+  - Heal：恢复生命。参数：base_amount, overheal_mode（无/转化为护甲/转化为飞叶真伤）。
+  - ModifyEnergy：调整能量。参数：amount（可正可负）, is_temporary。
+  - ModifyResource：修改职业专属资源（种子/雷印/玄冰/魂槽/怒气/光能/音符/勇气/圣令）。参数：resource_id, amount,
+    operation（Add/Consume/Set/Multiply）。
+
+2. 牌堆流转原语（Deck & Pile Primitives）
+
+  - DrawCards：抽牌。参数：amount, filter_tag（可选特定标签检索）。
+  - DiscardCards：弃牌。参数：amount, mode（Random/PlayerChoice/AllNonAttack）。
+  - ExileCard：放逐/消耗卡牌。参数：target_pile, card_selector。
+  - FetchFromPile：定向检索。参数：from_pile（抽牌/弃牌/放逐堆）, to_pile（手牌）, cost_override（如 0
+    费）。
+  - GenerateCard：生成卡牌。参数：card_id, destination（手牌/抽牌堆顶/弃牌堆）, is_temporary。
+  - TransformCard：卡牌转化。参数：target_card, new_card_id。
+
+3. 状态与 Buff 原语（Buff & Status Primitives）
+
+  - ApplyBuff：附加状态。参数：buff_id, stacks, duration_turns。
+  - ConsumeBuff：消耗/引爆状态。参数：buff_id, consume_stacks, action_on_consumed。
+  - TransferBuff：状态转移。参数：buff_id, from_unit, to_unit。
+  - CleanseBuff：净化状态。参数：buff_type（AllDebuffs/SingleRandomDebuff）。
+
+4. 流程与元控制原语（Control Flow Primitives）
+
+  - Sequence：按顺序依次执行子动作数组。
+  - Parallel：并发执行子动作数组（表现层同时播放打击动效）。
+  - ConditionalBranch：If-Else 分支判定。
+  - ForEachTarget：遍历目标选择器筛选出的每一个实体并执行子动作。
+  - Repeat：重复执行 N 次（支持动态读取变量作为次数）。
+  - ScaleByContext：根据动态上下文（如“当前已损失血量”、“本场战斗打出卡牌数”）按比例缩放数值。
+
+二、 五阶段通用数值修正管道 (Universal Value Pipeline)
+
+为了杜绝“加法、乘法、易伤、减免、格挡吸收”谁先计算导致的混乱，引擎规定所有数值（伤害 Damage、护盾 Block、治疗 Heal）必须严格依次流经 5
+个计算阶段：
+
+[Stage 0: 基础面板] ──► [Stage 1: 发起方固定值加成] ──► [Stage 2: 发起方百分比倍率] 
+                                                                 │
+                                                                 ▼
+[Stage 5: 真实穿透与锁血] ◄── [Stage 4: 受击方吸收与抵扣] ◄── [Stage 3: 承受方反应与易伤]
+
+1. 伤害通用计算公式（Damage Formula）
+
+\text{FinalDamage} = \max\left(0, \left( (\text{Base} + \sum \text{Flat}_{\text{Attacker}}) \times \prod (1 + \text{Percent}_{\text{Attacker}}) \times \prod \text{Multiply}_{\text{Defender}} - \text{Reduction}_{\text{Defender}} - \text{Block} \right)\right)
+
+  - Stage 0: Base 面板：抓取卡牌基础伤害数值与升级增量。
+  - Stage 1: Attacker Flat（攻击方固定加成）：
+      - 力量（Strength）、锋锐度、武器附加固定伤害、连击点数加成。
+  - Stage 2: Attacker Percent（攻击方百分比放大）：
+      - 狂暴增伤（+50%）、光能重铸（+30%）、无相等级增伤（+15%~60%）。
+  - Stage 3: Defender Reaction（受击方状态与倍率）：
+      - 易伤（Vulnerable \times 1.5）、攻击方虚弱（Weak \times 0.75）、暴击倍率（Crit
+        \times 1.5 \sim 2.0）。
+  - Stage 4: Defender Reduction & Block（受击方吸收与护甲）：
+      - 神盾骑士【光铸身躯】（强制吸收 50% 伤害）、巨刃守护者【勇者壁垒】（物理减伤 50%）；
+      - 剩余伤害依次扣减【光铸屏障】 \rightarrow 【当前护甲 Block】 \rightarrow 【真实生命 HP】。
+  - Stage 5: Global Clamp & Lock（全局边界与免死锁血）：
+      - 若为真实伤害（True Damage）：跳过 Stage 3/4 直接扣减生命；
+      - 伤害保底判定（最低为 0，不产生负伤害）；
+      - 免死锁血判定（触发名刀、愈合流极境免死、锁 1 血并满血复活）。
+
+三、 目标选择与多重过滤管道 (Targeting Pipeline)
+
+目标选择器负责在动作执行前，从战场当前存活的所有实体中，筛选出合法的受影响目标阵列。
+
+[原始实体池 (全场单位)] ──► [基准选择器 (TargetSelector)] ──► [条件过滤器 (Filters[])] ──► [最终目标阵列]
+
+1. 基准选择器类型（Selector Types）
+
+  - Self：自身。
+  - SingleEnemy：玩家手动点击/光标选中的单一敌人。
+  - AllEnemies：全场所有存活敌人。
+  - RandomEnemy：从存活敌人中伪随机抽取 N 个（支持重复/不重复）。
+  - AllAllies：全场所有友方单位（包含玩家本体与所有召唤随从）。
+  - SingleAlly：手动选中的单一友方目标。
+  - LowestHpUnit：全场当前生命值最低的单位（用于斩杀、急救）。
+  - HighestAttackUnit：全场当前意图攻击力最高的敌人（用于精准虚弱、强控）。
+  - AdjacentEnemies：被选中目标相邻左右两侧的敌人（顺劈专用）。
+
+2. 链式过滤器（Chained Filters）
+
+可在选择器后挂载多个条件过滤器：
+
+  - ExcludeSelf：排除自身。
+  - FilterByTag：仅包含拥有特定标签（如 [Summon]、[Elite]）的单位。
+  - FilterByBuff：仅包含身上携带指定 Buff（如拥有 [燃烧]、[滋养]）的单位。
+  - FilterByHpPercent：生命值低于/高于 X\% 的单位。
+
+我们紧接着推进【效果】模块的下半部分核心系统：第四章（状态与 Buff 运行引擎）、第五章（全局响应式钩子总线） 与 第六章（效果 DSL 与数据配置
+Schema）。
+
+第四章：状态与 Buff 运行引擎 (Status & Buff Lifecycle Engine)
+
+在底层，所有增益（Buff）与减益（Debuff）均统一抽象为 BuffInstance。系统通过生命周期驱动 Buff
+的挂载、堆叠、数值修正、时钟跳字、衰减与销毁。
+
+┌───────────────────────────────────────────────────────────────────────────────────┐
+│                           Buff 实例生命周期状态机                                 │
+├───────────────────────────────────────────────────────────────────────────────────┤
+│ 1. 附加阶段 (OnApply): 校验抗性 ──► 判定堆叠模式 ──► 触发挂载 Hook                │
+│ 2. 生效阶段 (Active): 注册数值管道修饰器 / 监听全局 Hook                          │
+│ 3. 结算阶段 (OnTick): 在指定时钟点 (回合开始/回合结束/受击) 触发原子动作 (DOT/HOT) │
+│ 4. 衰减阶段 (OnDecay): 按衰减规则扣减层数/回合数 ──► 若归零则触发 OnRemove 销毁   │
+└───────────────────────────────────────────────────────────────────────────────────┘
+
+4.1 四大 Buff 堆叠与生命周期模型 (Stacking Models)
+
+所有 Buff 必须显式声明其属于以下 4 种堆叠模型之一：
+
+| 堆叠模型 (Stack Type)                  | 堆叠逻辑                             | 衰减与消除规则                       | 典型 Buff 案例                               |
+| :--------------------------------- | :------------------------------- | :---------------------------- | :--------------------------------------- |
+| **1. 强度堆叠型 (Intensity / Stacks)**  | 重复附加时**增加层数（数值强度增大）**，无回合持续时间概念。 | 回合结束衰减 1 层，或特定技能消耗全部层数。归零时销毁。 | 力量（Strength）、锋锐度（Sharpness）、自然之种、雷之印     |
+| **2. 持续回合型 (Duration / Turns)**    | 重复附加时**刷新或累加持续回合数**，数值效果恒定。      | 每个回合结束时持续回合 $-1$；回合归零时自动销毁。   | 易伤（Vulnerable）、虚弱（Weak）、冻结（Freeze）、致盲    |
+| **3. 计数引爆型 (Trigger / Threshold)** | 每次满足条件时计数 $+1$；**达到阈值自动引爆并清零**。  | 达到指定层数后触发复合动作树，随后层数清零或销毁。     | 感电（Shock 满层引爆）、无相等级（Lv.5 极境一击归零）         |
+| **4. 永久光环型 (Passive / Aura)**      | 无法重复叠加，挂载后**整场战斗永久生效**。          | 战斗结束前永不衰减，除非被特定“净化/驱散”技能清除。   | 炎魔化身（Flame Fiend）、光铸身躯（Lightforged Body） |
+
+4.2 全局标准 Buff / Debuff 字典全景
+
+系统内置了标准通用状态库，并完整覆盖 9 大职业的所有专属机制状态：
+
+1. 通用基础状态库（Universal Statuses）
+
+  - 【力量】(Strength - Buff)：每层使所有攻击卡牌在 Stage 1（固定加成）阶段伤害 +1。
+  - 【敏捷】(Dexterity - Buff)：每层使所有防御卡牌在 Stage 1 阶段获得的护甲 +1。
+  - 【易伤】(Vulnerable - Debuff)：在 Stage 3（受击反应）阶段，受到的所有伤害
+    \times 1.5（提升 50%）。回合结束持续时间 -1。
+  - 【虚弱】(Weak - Debuff)：在 Stage 3 阶段，造成的攻击伤害 \times 0.75（降低 25%）。回合结束持续时间 -1。
+  - 【脆弱】(Frail - Debuff)：打出防御技能获得的护甲降低 25%。回合结束持续时间 -1。
+  - 【冻结 / 眩晕】(Freeze / Stun - Hard CC)：跳过受影响实体的下一个行动回合。结算后销毁。
+
+2. 九大职业专属机制状态库（Class Specific Statuses）
+
+  - 【滋养】(Nourish - 森语者)：HOT 状态。携带者在回合开始时恢复等同于层数的生命值，随后层数衰减 1 层。
+  - 【燃烧】(Burn - 狂战士/乐手)：DOT 状态。携带者在回合结束时受到等同于层数的火焰真实伤害，随后层数衰减 1 层。
+  - 【锐利】(Sharpness - 青岚骑士)：每层提升 8% 穿刺伤害与 4% 暴击率。回合结束衰减 1 层。
+  - 【光铸身躯】(Lightforged Body - 神盾骑士)：减伤光环。受到伤害时，在 Stage 4 阶段强制吸收并减免 50%
+    伤害，受击消耗光明能量。
+  - 【感电】(Electrified - 雷影剑士)：受到攻击伤害时，额外向全场溅射等同于感电层数的雷电伤害，随后层数衰减 1。
+  - 【光能重铸】(Radiant Reforging - 神射手)：强化光环。光能 \ge 50 时激活，所有箭矢伤害 +30\% 且攻击段数 +1。
+  - 【生机旋律】(Life Melody - 灵魂乐手)：转化光环。将所有攻击造成的最终伤害的指定比例（25%~100%）同步反哺为全队生命治疗。
+
+第五章：全局响应式钩子总线 (Global Hook Matrix & Event Bus)
+
+任何遗物、被动能力（Power）、大天赋、Boss 被动机制，本质上都是一个向钩子总线注册了监听函数的事件订阅者。
+
+                    ┌─────────────────────────────────────────┐
+                    │      底层动作派发器 (Action Dispatcher) │
+                    └────────────────────┬────────────────────┘
+                                         │ 推进战斗时间轴
+                                         ▼
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                             全局响应式钩子总线 (Hook Bus)                           │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+│ • 战斗生命周期: OnCombatInit ──► OnCombatStart ──► OnCombatVictory / Defeat         │
+│ • 回合时钟轮转: OnRoundStart ──► OnPlayerTurnStart ──► OnTurnEnd ──► OnRoundEnd     │
+│ • 手牌与牌库流转: OnCardDrawn ──► OnCardPlayed ──► OnCardDiscarded ──► OnShuffle    │
+│ • 数值与伤害管道: BeforeDamageCalc ──► BeforeDamageReceived ──► AfterDamageDealt    │
+│ • 恢复与吸收交互: OnHealed ──► OnOverheal ──► OnBlockGained ──► OnShieldBroken      │
+│ • 生死与斩杀判定: OnFatalDamageTaken (免死判定) ──► OnUnitKilled (击杀收益)         │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+5.1 核心 Hook 点位触发时序与职责矩阵
+
+| Hook 点位标识              | 触发时机                 | 典型挂载机制                      | 拦截/修改能力                |
+| :--------------------- | :------------------- | :-------------------------- | :--------------------- |
+| `OnCombatStart`        | 战斗开始，牌库洗牌前           | 初始大天赋召唤随从、初始遗物发威、开局抽牌增益     | 可向动作队列压入入场动作           |
+| `OnPlayerTurnStart`    | 玩家回合开始，抽牌前           | 能量重置、愈合流指数阶梯自产种子、结算【滋养】HOT  | 可修改本回合初始抽牌数与能量         |
+| `OnCardPlayed`         | 卡牌打出并扣费成功的瞬间         | 累加无相流交替等级、生成音符、扣除雷之印触发灌注    | 可阻止卡牌进入弃牌堆（如回流）        |
+| `OnCalculateDamage`    | 伤害进入五阶段计算管道时         | 力量加成、易伤计算、锐利增伤、暴击倍率计算       | 可动态重写伤害公式中的修饰系数        |
+| `BeforeDamageReceived` | 护甲抵扣与扣血前的最后一刻        | 神盾骑士【光铸身躯】50%吸收、巨刃守护者【绝对招架】 | 可修改最终承受的伤害数值           |
+| `AfterDamageDealt`     | 伤害扣减真实生效后瞬间          | 狂战士【赤红魂槽】血气激荡、灵魂乐手攻击吸血反哺    | 传递实际造成的真实扣血量参数         |
+| `OnOverheal`           | 治疗量超出单位最大生命值时        | 森语者【狂野飞叶】真伤弹射、乐手【声波湮灭】满血音爆  | 捕获溢出治疗量数值作为动作参数        |
+| `OnFatalDamageTaken`   | 单位受到致死伤害（生命 $\le 0$） | 冰魔导师【碎冰涅槃】免死、神盾骑士【免死锁血】     | **具有绝对拦截权**：强制锁 1 血并回满 |
+| `OnUnitKilled`         | 场上任意单位确认死亡瞬间         | 雷影剑士【一闪】斩杀返还雷印、神射手狙击击杀返费    | 广播击杀者与受害者实体上下文         |
+| `OnPlayerTurnEnd`      | 玩家点击“结束回合”瞬间         | 巨刃守护者护盾保留判定、结算【燃烧】DOT、手牌丢弃  | 可阻止特定手牌丢弃（保留机制）        |
+
+5.2 优先级调度与死循环熔断机制 (Priority & Anti-Loop)
+
+为了保证商业级项目的绝对稳健，总线内置了两大核心安全机制：
+
+1.  优先级调度队列（Execution Priority Queue）：
+      - 当同一个 Hook（如 BeforeDamageReceived）被多个实体同时监听时，执行顺序严格按照权重排序：
+        \text{大天赋 (Priority 100)} > \text{遗物 (Priority 80)} > \text{能力牌 Buff (Priority 60)} > \text{卡牌自身效果 (Priority 40)} > \text{怪物被动 (Priority 20)}
+2.  递归调用深度熔断器（Recursion Circuit Breaker）：
+      - 防死锁设计：防止出现“伤害触发反伤 \rightarrow 反伤触发受击 \rightarrow 受击再次触发反伤”的无限递归死循环。
+      - 硬性熔断阈值：单一动作触发链的嵌套深度强制限制为 \text{Depth} \le 16。一旦超过 16
+        层，引擎强制中断该链条并向控制台抛出警告，同时锁定当前结算结果，保证游戏绝对不卡死。
+
+第六章：效果 DSL 规范与数据配置 Schema (Data Schema & DSL)
+
+整个游戏所有的卡牌、遗物、意图在配置层采用统一的 复合动作树（Composite Action Tree） 结构，支持任意复杂逻辑的零代码拼装。
+
+6.1 通用动作节点标准 Schema (JSON 契约)
+
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "EffectActionNode",
+  "type": "object",
+  "required": ["action_type"],
+  "properties": {
+    "action_type": {
+      "type": "string",
+      "enum": [
+        "DealDamage", "GainBlock", "Heal", "ModifyEnergy", "ModifyResource",
+        "DrawCards", "DiscardCards", "ExileCard", "FetchFromPile", "GenerateCard",
+        "ApplyBuff", "ConsumeBuff", "CleanseBuff",
+        "Sequence", "Parallel", "ConditionalBranch", "ForEachTarget", "Repeat"
+      ]
+    },
+    "target_selector": {
+      "type": "string",
+      "enum": ["Self", "SingleEnemy", "AllEnemies", "RandomEnemy", "AllAllies", "SingleAlly", "LowestHpUnit", "AdjacentEnemies"],
+      "default": "SingleEnemy"
+    },
+    "filters": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "filter_type": { "type": "string", "enum": ["HasBuff", "HpPercentLessThan", "ExcludeSelf", "HasTag"] },
+          "param_key": { "type": "string" },
+          "param_value": { "type": "number" }
+        }
+      }
+    },
+    "params": { "type": "object" },
+    "conditions": { "type": "array" },
+    "on_success": { "type": "array", "items": { "$ref": "#" } },
+    "on_failure": { "type": "array", "items": { "$ref": "#" } }
+  }
+}
+
+6.2 典型复杂机制 DSL 配置实战案例
+
+案例 1：【赤炎狂战士·暴怒火斩】
+
+策划机制描述： “消耗 1 点能量。对选中单体造成 12 点伤害。若目标身上携带【燃烧】，消耗其身上所有的燃烧层数，对全场所有敌人造成等同于消耗层数
+\times 3 的范围火焰伤害，并从抽牌堆摸 1 张牌。”
+
+{
+  "id": "card_ber_furious_fire_slash",
+  "cost": 1,
+  "type": "Attack",
+  "target_type": "SingleEnemy",
+  "action_tree": {
+    "action_type": "Sequence",
+    "params": {
+      "actions": [
+        {
+          "action_type": "DealDamage",
+          "target_selector": "SingleEnemy",
+          "params": {
+            "base_damage": 12,
+            "damage_type": "Physical_Fire"
+          }
+        },
+        {
+          "action_type": "ConditionalBranch",
+          "conditions": [
+            {
+              "condition_type": "TargetHasBuff",
+              "buff_id": "buff_burn",
+              "operator": ">=",
+              "value": 1
+            }
+          ],
+          "on_true": [
+            {
+              "action_type": "ConsumeBuff",
+              "target_selector": "SingleEnemy",
+              "params": {
+                "buff_id": "buff_burn",
+                "consume_all": true,
+                "store_consumed_stacks_to": "var_consumed_burn"
+              }
+            },
+            {
+              "action_type": "DealDamage",
+              "target_selector": "AllEnemies",
+              "params": {
+                "base_damage": 0,
+                "scaling": [
+                  {
+                    "attribute": "CustomVariable",
+                    "variable_name": "var_consumed_burn",
+                    "multiplier": 3.0
+                  }
+                ],
+                "damage_type": "Fire_TrueDamage"
+              }
+            },
+            {
+              "action_type": "DrawCards",
+              "target_selector": "Self",
+              "params": {
+                "amount": 1
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
+
+案例 2：【神射手·猎鹰协同俯冲被动遗物】
+
+策划机制描述： “每当你打出的攻击产生暴击时，战隼立即从天顶俯冲，对该受击目标追加造成 8 点真实破甲伤害，并将其护甲清零。”
+
+{
+  "id": "relic_falcon_dive_strike",
+  "rarity": "ClassExclusive",
+  "hooks": [
+    {
+      "hook_point": "AfterDamageDealt",
+      "conditions": [
+        {
+          "condition_type": "ContextFlagCheck",
+          "flag_name": "IsCriticalHit",
+          "expected_value": true
+        }
+      ],
+      "action_tree": {
+        "action_type": "Sequence",
+        "params": {
+          "actions": [
+            {
+              "action_type": "TriggerVFX",
+              "target_selector": "SingleEnemy",
+              "params": { "vfx_id": "vfx_falcon_dive_bomb" }
+            },
+            {
+              "action_type": "DealDamage",
+              "target_selector": "SingleEnemy",
+              "params": {
+                "base_damage": 8,
+                "damage_type": "TrueDamage"
+              }
+            },
+            {
+              "action_type": "ClearBlock",
+              "target_selector": "SingleEnemy"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

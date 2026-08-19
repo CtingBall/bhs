@@ -1,0 +1,268 @@
+Web / 移动端商业级肉鸽卡牌爬塔（Roguelike Deckbuilder）全景工程与系统设计总纲
+
+模块一：全局系统架构与分层模型
+
+本系统遵循 “无头逻辑核（Headless Core）与表现层（View Adapter）完全解耦” 的单一数据流架构，保证逻辑可在无 DOM/Canvas
+环境下运行（用于自动化平衡性跑测与回放验证）。
+
++-----------------------------------------------------------------------------------+
+|                            1. 表现与交互适配层 (VIEW LAYER)                          |
+|  - 弹性安全区网格 (Safe-Area Grid)       - 移动端双模触控力场 (Tap/Drag Dual-Input)        |
+|  - 响应式动态手牌扇面 (Fan-out Field)   - 动效时钟与表现插值器 (Animation Sequencer)     |
++------------------------------------------▲----------------------------------------+
+                                           │ 单向渲染指令 / 状态快照 (Snapshots)
++------------------------------------------▼----------------------------------------+
+|                            2. 核心逻辑引擎 (CORE ENGINE)                          |
+|  - 命令执行队列 (Command Queue FSM)      - 多路确定性随机数分流器 (Multi-Stream PRNG)     |
+|  - 复合原子动作管道 (Action Pipeline)   - 五阶段数值修饰管线 (5-Stage Value Pipeline)    |
++------------------------------------------▲----------------------------------------+
+|                            3. 规则、内容与地图生态 (PROGRESSION)                   |
+|  - 约束满足 DAG 爬塔地图生成器 (CSP Map) - 跨流派协同桥梁矩阵 (Synergy Matrix)            |
+|  - 全局生命周期钩子总线 (Hook Matrix)    - 意图推导与决策系统 (Transparent Intent)        |
++------------------------------------------▲----------------------------------------+
+|                            4. 静态商业化基建 (STATIC INFRASTRUCTURE)              |
+|  - 双槽位事务级快照存盘 (LZ-Save Slot)   - 零后端静态每日挑战推导 (Deterministic Daily)    |
+|  - 外部 Schema 热注册接口 (Mod Ready)   - PWA 离线沙盒与生命周期管控                      |
++-----------------------------------------------------------------------------------+
+
+1.1 核心循环生命周期（Life-Cycle State Machine）
+
+  - Run 级生命周期：ProfileSelect \rightarrow SeedDerivation \rightarrow DAGMapGen
+    \rightarrow [NodeTraversal Loop] \rightarrow GameOver / Win \rightarrow
+    MetaUnlocks & Stats.
+  - Node 级生命周期：NodeEnter \rightarrow EncounterDispatch(Combat | Event | Shop |
+    Rest) \rightarrow TransactionalSave \rightarrow NodeExit.
+  - Combat 级生命周期：
+    1.  BattleInit：装载玩家卡组与遗物、初始化单位属性、派生战斗随机数流。
+    2.  RoundStart / TurnStart：触发阶段 Hook、执行护甲衰减、推导敌人下回合意图（Intent）、玩家抽牌与费用重置。
+    3.  PlayerAction Phase：接收输入指令 \rightarrow 校验合法性 \rightarrow
+        压入动作队列（ActionQueue） \rightarrow 逐帧/顺序处理连锁反应 \rightarrow
+        判定胜负。
+    4.  EnemyAction Phase：遍历执行敌人意图队列 \rightarrow 触发受击反震/阶段转化。
+    5.  RoundEnd / TurnEnd：结算 DOT 状态（中毒/流血）、衰减 Buff 层数、清空未保留手牌。
+
+模块二：数据驱动与超高可配置核心引擎
+
+引擎内部不存在任何“硬编码”卡牌或遗物，所有机制均抽象为：触发器（Trigger） \rightarrow 条件（Condition） \rightarrow
+目标选择器（Targeting） \rightarrow 复合原子动作树（Composite Action Tree）。
+
+[Trigger / Hook] (例: OnCardPlayed, BeforeDamageReceived)
+       │
+       ▼
+┌──────────────────┐      False
+│  Condition Tree  │ ──────────────► [终止执行]
+└────────┬─────────┘
+         │ True
+         ▼
+┌──────────────────┐
+│ Target Selection │ ──────────────► [Single, AllEnemies, Self, Random(N)]
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────┐
+│  Action Pipeline │ ──────────────► [按序/并发执行原子动作原语]
+└──────────────────┘
+
+2.1 执行原语集（Atomic Primitives）
+
+  - 数值类：DealDamage（伤害）、GainBlock（护甲）、Heal（治疗）、ModifyEnergy（费用变更）。
+  - 牌堆控制类：DrawCards（抽牌）、Discard（弃牌）、Exile（消耗/放逐）、FetchFromPile（定向检索）、TransformCard（临时/永久转化）、InsertCardToPile（衍生卡塞入）。
+  - 状态控制类：ApplyBuff（附加状态）、ConsumeBuff（引爆/消耗层数）、TransferBuff（状态转移）。
+  - 流程控制类：IfCondition（分支）、ForEachTarget（遍历）、RepeatAction（多段执行）、ScaleByContext（按动态属性如损失血量、打出牌数等缩放）。
+
+2.2 五阶段数值修正管道（5-Stage Value Calculation Pipeline）
+
+所有基础面板数值（伤害、护盾、治疗量）在最终结算前，必须严格流经以下公式计算链，彻底避免计算顺序引发的数值错误：
+
+\text{FinalValue} = \max\left(0, \left( (\text{Base} + \sum \text{Flat}_{\text{Atk}}) \times \prod (1 + \text{Percent}_{\text{Atk}}) \times \prod \text{Multiply}_{\text{Def}} - \text{Reduction}_{\text{Def}} \right) \times \text{GlobalMod}\right)
+
+| 计算阶段 (Stage)                    | 职责            | 示例                                 |
+| :------------------------------ | :------------ | :--------------------------------- |
+| **Stage 0: Base**               | 抓取配置表与卡牌升级基础值 | 卡牌基础造成 8 点伤害                       |
+| **Stage 1: Attacker Flat**      | 攻击发起方固定加成     | 力量 Buff（+3）、锋锐度                    |
+| **Stage 2: Attacker Scale**     | 攻击发起方百分比加成    | 狂暴状态（+50%）、充能倍率                    |
+| **Stage 3: Defender Scale**     | 受击防御方百分比与反应修正 | 易伤（$\times 1.5$）、虚弱（$\times 0.75$） |
+| **Stage 4: Defender Reduction** | 护甲抵扣与绝对减免     | 护甲吸收抵扣、神圣庇护（固定免伤 5 点）              |
+| **Stage 5: Global Clamp**       | 边界限制与特殊锁血     | 不为负数保底、Boss 单回合最大受击锁               |
+
+2.3 全局生命周期钩子矩阵（Hook Matrix）
+
+遗物、全局诅咒、装备、被动天赋通过向以下标准 Hook 点注册监听实现全解耦：
+
+  - 回合时钟
+    Hook：OnCombatStart、OnRoundStart、OnPlayerTurnStart、OnPlayerTurnEnd、OnCombatEnd。
+  - 手牌流转
+    Hook：OnCardDrawn、OnCardPlayed、OnCardDiscarded、OnCardExiled、OnDeckShuffled。
+  - 数值交互
+    Hook：BeforeDamageCalculated、BeforeDamageReceived、AfterDamageDealt、OnBlockGained、OnHealed。
+  - 胜负与斩杀 Hook：OnFatalDamage（名刀免死）、OnUnitKilled（击杀收益）、OnPlayerDefeat。
+
+模块三：Web 与移动端响应式人机交互系统
+
+针对纯静态网页部署及手机触控屏幕，设计了专用的视口自适应与防误触交互方案。
+
++-------------------------------------------------------------+
+| 顶部安全区 (Safe-Area Top) - 状态栏、局内金币、遗物栏、设置    |
++-------------------------------------------------------------+
+|                                                             |
+|                    战场与敌人区域 (Battle Arena)             |
+|                - 敌人意图展示 (Intent Icons)                |
+|                - 敌人状态、血条、护甲条                      |
+|                                                             |
++-------------------------------------------------------------+
+| 动态出牌分割线 (Cast Threshold Line)                         |
++-------------------------------------------------------------+
+|                  自适应手牌区 (Dynamic Hand Field)           |
+|                - 响应式抛物线扇面分布                        |
+|                - 聚焦悬浮放大与推力避让                      |
++-------------------------------------------------------------+
+| 底部安全区 (Safe-Area Bottom) - 能量球、抽牌堆、弃牌堆、结束回合按钮|
++-------------------------------------------------------------+
+
+3.1 视口弹性矩阵与平台防干扰
+
+1.  动态安全区隔离：全局通过计算系统级环境内边距（safe-area-inset），自动避开 iPhone 灵动岛/刘海与底部手势横条；视口支持在
+    16:9（宽屏/横屏）与 9:16 / 9:19.5（竖屏）间根据设备方向自动切换 UI 布局网格。
+2.  浏览器手势沙盒（Gesture Sandbox）：
+      - 在根容器锁定默认触摸行为，禁用双击缩放、下拉刷新、长按选择文本、边缘滑动回退等原生干扰手势。
+      - 移动端音频自动唤醒：在用户产生首次触摸动作时激活并解锁全局音频上下文（WebAudio Context），解决移动端浏览器静音策略。
+
+3.2 触控双模出牌机制（Dual-Input Paradigm）
+
+  - 点选模式（Tap-to-Target - 移动端单手主推）：
+      - 点击任意手牌 \rightarrow 卡牌向上浮起放大展示详情 \rightarrow 对应所有合法目标单位头顶亮起聚光选中光环。
+      - 点击任一合法目标 \rightarrow 出牌执行；点击战场任意空白区域 \rightarrow 平滑取消选中并归位。
+  - 拖拽模式（Drag-to-Cast - PC/平板快速操作）：
+      - 按住卡牌向上拖过“出牌分割线”：
+          - 若为指向性卡牌：卡牌停留在底部，手指拉出平滑贝塞尔指示曲线，吸附最近目标。
+          - 若为非指向性卡牌（AOE、自身增益）：卡牌化为扩散光环，手指越线后松手即释放。
+
+3.3 手牌自适应扇形力场算法
+
+  - 自适应排布：当手牌数量 N \le 4 时，水平居中平铺；当 N > 4
+    时，启用抛物线曲率计算每张牌的角度偏移（\Delta \theta）与水平叠压距离（负间距）。
+  - 触控避让力场：手指在手牌区域滑动时，被触碰或距离最近的卡牌向上位移 40% 并放大至 1.3
+    倍，其左侧卡牌向左偏移、右侧卡牌向右偏移，消除手机端小屏幕“手指遮挡卡面文字”的痛点。
+
+模块四：DAG 爬塔地图与随机生态生成器
+
+关卡路线生成基于约束满足问题（CSP）求解的有向无环图（DAG）算法，确保兼顾探索选择性与合理的节奏曲线。
+
+[Layer 15]                   [ B O S S ]
+                                  ▲
+[Layer 14]                  [ Rest Site ]      (全路径必经营地保底)
+                             ▲    ▲    ▲
+[Layer ...]                  │ ╲ ╱ │ ╲ │       (拓扑无交叉连线校验)
+[Layer 09]                [Treasure Chest]     (中盘资源节点)
+                             ▲    ▲    ▲
+[Layer 02]             [Elite] [Monster] [Shop]
+                             ▲    ▲    ▲
+[Layer 01]             [Monster] [Monster]     (首层安全战斗)
+                             ▲    ▲    ▲
+[Layer 00]                 [ S T A R T ]
+
+4.1 拓扑生成与约束规则集
+
+1.  网格与连通性：
+      - 构建 N 层 \times M 列的离散矩阵（标准为 15 层 \times 3~5 列）。
+      - 起点层随机选取 2~4 个节点连通，后续每层节点只允许连接上一层横向距离 \le 1 的节点。
+      - 拓扑去交叉（No-Crossing Rule）：若节点 (r, c) 连接到 (r+1, c+1)，则严禁节点 (r, c+1) 连接到
+        (r+1, c)，杜绝路线在视觉与逻辑上的交叉混乱。
+2.  内容分配约束规则（Hard Constraints）：
+      - 首层规则：Layer 1 强制全部为基础普通怪物战，杜绝“出门杀”。
+      - 精英怪分布：第 5 层前不出现精英怪；任何两条路径上严禁连续出现两场精英怪战。
+      - 终点保底：Boss 战前一层（Layer 14）强制全为休息营地（Rest Site）；中层（Layer 9）强制为大型宝箱节点。
+3.  动态权重轮盘（Dynamic Weight Compensation）：
+      - 基础权重池：普通战斗（45%）、随机事件（25%）、商店（12%）、精英战（18%）。
+      - 保底递增机制：若玩家连续 3
+        次未经过商店或休息点，该类型的生成权重在后续节点分配中每层累加 15%，直至命中后重置，防止恶性随机导致构筑流派报废。
+
+模块五：玩法深度、非线性协同与张力设计
+
+好的卡牌构筑乐趣来源于乘法级别的协同效应（Synergies）与在已知威胁下的精密解题感。
+
+5.1 跨流派“桥梁卡（Bridge Design）”矩阵
+
+拒绝“孤岛式单一流派”（例如：纯毒、纯防），卡池体系规划 3 大核心支柱并用“桥梁卡”互相打通：
+
+                    ┌─────────────────────────┐
+                    │  支柱 A: 自残/卖血爆发流  │
+                    └───────────┬─────────────┘
+                                │
+                    [桥梁卡 1: 鲜血转化]
+           (受到自身伤害时，使所有流血敌人受到等量真实伤害)
+                                │
+                    ┌───────────▼─────────────┐
+                    │    支柱 B: 状态流血/DOT   │
+                    └───────────┬─────────────┘
+                                │
+                    [桥梁卡 2: 毒性护甲]
+           (消耗目标身上所有流血，转化为自身 200% 的格挡并过牌)
+                                │
+                    ┌───────────▼─────────────┐
+                    │  支柱 C: 防守反击/叠甲流  │
+                    └─────────────────────────┘
+
+  - 桥梁设计原则：任何强力单卡必须具备“主标签”与“副标签”，允许玩家在中途根据掉落遗物顺畅完成卡组转职，提升每局的重玩自由度。
+
+5.2 明牌意图决策闭环（Transparent Intent Loop）
+
+  - 随机归玩家，确定归怪物：
+      - 敌人下一动作为完全确定的明牌信息：包括明确的伤害总值、分段段数、护甲值及特殊状态附加。
+      - 将构筑与局内计算的博弈焦点放在：“面对敌人已知的必杀回合，如何利用当前随机抽到的手牌与有限费用，计算出一套最佳的攻防拆招解法”。
+  - 诅咒与高风险博弈（Risk-Reward Boons）：
+      - 提供强力的“质变级遗物/卡牌”，但伴随永久代价（例如：“获得额外 1
+        点初始能量，但战斗无法再看到敌人攻击意图”或“所有卡牌伤害翻倍，但洗牌时受到 5 点自身伤害”），制造策略张力。
+
+模块六：零后端商业化与静态运维体系
+
+针对 GitHub Pages 纯静态托管 环境，构建企业级的持久化、反作弊防 SL（存读档）以及免后端在线活动体系。
+
+6.1 种子分流隔离系统（Seeded Multi-Stream PRNG）
+
+单局游戏仅由一个 Master Seed 驱动，在初始化阶段派生出 4 条互不干扰的伪随机数子流：
+
+                    ┌───► RNG_Map       (专供 DAG 地图生成与事件分支)
+                    │
+[Master Run Seed] ──┼───► RNG_Deck      (专供战斗内洗牌与抽卡顺序)
+                    │
+                    ├───► RNG_Combat    (专供暴击率、随机目标、卡牌随机衍生)
+                    │
+                    └───► RNG_Reward    (专供战后三选一卡牌池、商店货物生成)
+
+  - SL（Save &
+    Load）作弊防御：玩家在战斗中无论通过刷新页面重开多少次，由于抽牌子流与掉落子流完全隔离且确定，重开后每回合抽到的手牌、敌人的行动序列、战后奖励完全固定不变，彻底杜绝刷牌作弊，同时支持单局仅通过一个
+    Seed 字符串进行 100% 录像还原与无头校验。
+
+6.2 事务级双槽快照持久化（Double-Buffer Transactional Save）
+
+  - 存档触发时机：仅在状态确定提交点（节点进入瞬间、战后奖励领取完成、回合结束计算完毕）触发持久化。
+  - 双槽原子写入机制：采用 Slot_A 与 Slot_B
+    轮替写入，结合数据校验码（Checksum）。写入完成并验证无损后再迁移指针；若遇到移动端浏览器因异常崩溃或断电中断写入，自动回滚至上一个完整槽位，保证玩家存档零损坏。
+
+6.3 零后端 Live-Ops（每日挑战与 Mod 扩展）
+
+1.  静态每日挑战（Static Deterministic Daily Run）：
+      - 以全球统一自然日（UTC 零点）的日期字符串计算唯一哈希作为当日 Master Seed。
+      - 通过确定性映射自动匹配当日 3 个“突变词缀”（例如：突变A-所有攻击卡费用减 1 但抽牌少 1 +
+        突变B-精英怪数量翻倍）。全球玩家在无服务器参与下，均可进入完全一致的每日关卡竞技。
+2.  Schema 驱动的外部 Mod 架构：
+      - 所有角色、卡牌、遗物、怪物意图均通过外部标准化 JSON 字典注册。
+      - 游戏开放“自定义包（Custom Mod Pack）”导入接口，玩家只需在网页端导入一个合规的 JSON 文件或外部
+        URL，即可完成新角色、新流派的热加载扩充。
+
+模块七：项目交付与部署流水线规范
+
+7.1 GitHub Actions 自动化持续集成（CI/CD Pipeline）
+
+  - 工作流规划：
+    1.  监听代码仓库 main 分支的 Push 动作。
+    2.  启动自动化构建与打包，对所有卡牌/遗物配置文件进行 Schema 强类型校验与断链检查。
+    3.  静态产物自动推送到 gh-pages 分支并发布。
+    4.  全流程在 60 秒内全自动完成部署上线，支持免服务器零成本运维。
+
+7.2 PWA 原生应用化体验（Progressive Web App）
+
+  - 配置离线 Service Worker 缓存策略，首次加载后，后续打开无需网络，秒级加载完成。
+  - 支持移动端“添加到主屏幕（Add to Home Screen）”，以原生全屏独立窗口（Standalone
+    Window）运行，隐藏浏览器原生地址栏与控制条，达到等同于原生 App 的沉浸式操作体验。

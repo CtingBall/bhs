@@ -1,0 +1,19 @@
+{
+  "name": "薄荷色氏族公约",
+  "short_name": "氏族公约",
+  "description": "从聊天记录里长出来的肉鸽卡牌爬塔",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b0f1a",
+  "theme_color": "#0f1420",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
