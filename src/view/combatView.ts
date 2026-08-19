@@ -794,6 +794,7 @@ function handleEvent(v: CombatViewState, ev: CombatViewEvent): void {
       break;
     }
     case 'cardPlayed': {
+      renderPlayer(v);
       updateEnergy(v);
       updateEndBtn(v);
       updateCardStates(v);
