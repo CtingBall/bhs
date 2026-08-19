@@ -516,7 +516,7 @@ function bindCardInput(v: CombatViewState, node: HTMLElement, card: CardInstance
     }
     if (dragging) {
       node.style.transform = `translateY(${-Math.min(120, Math.max(0, startY - y))}px) scale(1.08)`;
-      node.style.zIndex = '40';
+      node.style.zIndex = '120';
     }
   });
 
@@ -584,6 +584,12 @@ function pickNearestEnemy(v: CombatViewState, x: number): Unit | null {
 function highlightTargets(v: CombatViewState): void {
   const selected = v.selectedCard;
   const showTargets = selected && upgradeCardDef(getCardDef(selected.defId), selected.upgradeLevel).targetType === 'SingleEnemy';
+  // 选中的牌必须压过同一手牌中的其他牌，否则扇形重叠时会被后面的牌盖住。
+  for (const [index, node] of Array.from(v.cardEls.values()).entries()) {
+    const isSelected = selected?.uid === node.dataset['uid'];
+    node.classList.toggle('focus', isSelected);
+    node.style.zIndex = isSelected ? '100' : String(10 + index);
+  }
   for (const [id, node] of v.enemyEls) {
     const alive = v.combat.aliveEnemies().some((e) => e.id === id);
     node.classList.toggle('targetable', !!showTargets && alive);
