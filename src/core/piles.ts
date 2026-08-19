@@ -93,10 +93,13 @@ export class PileManager {
     this.discard.push(card);
   }
 
-  /** 从指定牌堆检索一张指定卡（青岚骑士回流机制预留） */
+  /**
+   * 从指定牌堆检索一张卡：优先按运行时 uid，兼容按定义 defId 检索。
+   * uid 用于 ExileCard 精确操作某张牌；defId 用于“找一张指定卡”的效果。
+   */
   fetchFromPile(cardId: string, from: 'draw' | 'discard' | 'exhaust'): CardInstance | undefined {
     const pile = this[from];
-    const idx = pile.findIndex((c) => c.defId === cardId);
+    const idx = pile.findIndex((c) => c.uid === cardId || c.defId === cardId);
     if (idx < 0) return undefined;
     return pile.splice(idx, 1)[0];
   }

@@ -8,6 +8,7 @@ import { resolveDamage, emptyDamageRequest } from '../src/core/valuePipeline';
 import { generateMap } from '../src/core/map';
 import { Run } from '../src/core/run';
 import { getCardDef } from '../src/core/cards';
+import { PileManager } from '../src/core/piles';
 
 // 注册全部内容（副作用导入）
 import '../src/content/cards';
@@ -94,6 +95,23 @@ describe('DAG 地图生成', () => {
     const sig1 = JSON.stringify(m1.layers.map((l) => l.map((n) => n.type + '@' + n.col)));
     const sig2 = JSON.stringify(m2.layers.map((l) => l.map((n) => n.type + '@' + n.col)));
     expect(sig1).not.toBe(sig2);
+  });
+});
+
+describe('牌堆精确检索', () => {
+  it('ExileCard 可按 uid 从弃牌堆放逐指定副本，defId 检索仍兼容', () => {
+    const rng = new RngBank('pile-test').deck;
+    const piles = new PileManager(rng);
+    piles.initDeck([
+      { defId: 'card_syl_light_tap' },
+      { defId: 'card_syl_light_tap' },
+    ]);
+    const first = piles.draw.pop()!;
+    const second = piles.draw.pop()!;
+    piles.moveToDiscard(first);
+    piles.moveToDiscard(second);
+    expect(piles.fetchFromPile(first.uid, 'discard')?.uid).toBe(first.uid);
+    expect(piles.fetchFromPile('card_syl_light_tap', 'discard')?.uid).toBe(second.uid);
   });
 });
 
