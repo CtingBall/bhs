@@ -293,10 +293,13 @@ export class Combat {
   endTurn(): void {
     if (this.phase !== 'PlayerAction' || this.ended) return;
     this.hooks.trigger('OnPlayerTurnEnd', { combat: this });
+    if (this.ended) return;
     this.phase = 'AllyAction';
     this.emit('phase', { phase: this.phase });
     this.alliesAct();
+    if (this.ended) return;
     this.hooks.trigger('OnAllyActed', { combat: this });
+    if (this.ended) return;
     this.enemyAct();
   }
 

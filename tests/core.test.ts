@@ -151,6 +151,21 @@ describe('弃牌生命周期钩子', () => {
   });
 });
 
+describe('回合流程终止保护', () => {
+  it('回合结束钩子结束战斗后，不再进入友军或敌人阶段', () => {
+    const run = Run.newRun('hero_sylvanguard', 'turn-end-stop-test');
+    run.enterNode(run.reachableNodes()[0].id);
+    const combat = run.startCombat();
+    combat.hooks.on('OnPlayerTurnEnd', 1000, () => {
+      combat.player.hp = 0;
+      (combat as unknown as { checkEnd: () => void }).checkEnd();
+    });
+    combat.endTurn();
+    expect(combat.ended).toBe(true);
+    expect(combat.phase).toBe('Defeat');
+  });
+});
+
 describe('无头战斗跑测', () => {
   function autoPlay(classId: string, seed: string, rounds: number) {
     const run = Run.newRun(classId, seed);
