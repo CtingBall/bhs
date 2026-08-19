@@ -460,7 +460,7 @@ function buildCardNode(v: CombatViewState, card: CardInstance): HTMLElement {
   desc.innerHTML = highlightNumbers(def.description);
   node.appendChild(desc);
   if (card.upgradeLevel > 0) node.appendChild(el('div', 'upgraded', card.upgradeLevel === 1 ? '✦A' : '✦B'));
-  if (def.unplayable || (def.requires && v.combat.getResource(v.combat.player, def.requires.resourceId) < def.requires.min) || cost > v.combat.energy || v.combat.cardSummonConflict(card)) {
+  if (def.unplayable || (def.requires && v.combat.getResource(v.combat.player, def.requires.resourceId) < def.requires.min) || cost > v.combat.energy) {
     node.classList.add('disabled');
   }
   node.title = `单击出牌（唯一敌人自动选定/悬停敌人指定目标）· 长按查看【${def.name}】完整介绍`;
@@ -481,7 +481,6 @@ function bindCardInput(v: CombatViewState, node: HTMLElement, card: CardInstance
     const cur = upgradeCardDef(getCardDef(card.defId), card.upgradeLevel);
     if (cur.unplayable) return true;
     if (cur.requires && v.combat.getResource(v.combat.player, cur.requires.resourceId) < cur.requires.min) return true;
-    if (v.combat.cardSummonConflict(card)) return true;
     return v.combat.effectiveCost(card) > v.combat.energy;
   };
   let dragging = false;
@@ -692,7 +691,6 @@ function updateCardStates(v: CombatViewState): void {
     const cur = upgradeCardDef(getCardDef(card.defId), card.upgradeLevel);
     const disabled = cur.unplayable
       || (cur.requires && v.combat.getResource(v.combat.player, cur.requires.resourceId) < cur.requires.min)
-      || !!v.combat.cardSummonConflict(card)
       || v.combat.effectiveCost(card) > v.combat.energy;
     node.classList.toggle('disabled', disabled);
   }

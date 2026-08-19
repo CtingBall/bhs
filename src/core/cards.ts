@@ -2,7 +2,7 @@
 // 卡牌模型（静态配置原型 CardDef + 运行时实例 CardInstance 分离）
 // ============================================================================
 
-import type { ActionNode } from './actions';
+import type { ActionNode, ActionType } from './actions';
 
 export type CardType = 'Attack' | 'Skill' | 'Power' | 'Status' | 'Curse';
 export type CardRarity = 'Common' | 'Uncommon' | 'Rare' | 'Special';
@@ -68,7 +68,24 @@ export function registerCard(def: CardDef): void {
   if (CARD_REGISTRY.has(def.id)) {
     console.warn(`[Card] 重复注册卡牌: ${def.id}`);
   }
+  // 杀戮尖塔式召唤牌：真正包含 SummonAlly 动作的卡牌打出后消耗，
+  // 不依赖手写标签，避免漏配（Sequence/分支/Repeat 内嵌也能识别）。
+  if (!def.exhaust && containsAction(def.actionTree, 'SummonAlly')) {
+    def = { ...def, exhaust: true };
+  }
   CARD_REGISTRY.set(def.id, def);
+}
+
+function containsAction(node: ActionNode | ActionNode[], actionType: ActionType): boolean {
+  const nodes = Array.isArray(node) ? node : [node];
+  return nodes.some((current) => {
+    if (current.action_type === actionType) return true;
+    const params = current.params ?? {};
+    return containsAction(current.actions ?? [], actionType)
+      || containsAction(current.on_true ?? [], actionType)
+      || containsAction(current.on_failure ?? [], actionType)
+      || (Array.isArray(params.actions) && containsAction(params.actions as ActionNode[], actionType));
+  });
 }
 
 export function getCardDef(id: string): CardDef {

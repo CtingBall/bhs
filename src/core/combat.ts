@@ -255,12 +255,7 @@ export class Combat {
       this.lastPlayError = '需要的资源不足';
       return false;
     }
-    const summonConflict = this.cardSummonConflict(card);
-    if (summonConflict) {
-      this.lastPlayError = `「${summonConflict}」已在场，不能重复召唤`;
-      return false;
-    }
-
+    // 召唤牌由 CardDef.exhaust 负责一次性规则；允许不同卡牌/升级分支继续召唤。
     // 扣费 / 移出手牌
     this.energy -= cost;
     this.piles.removeFromHand(uid);

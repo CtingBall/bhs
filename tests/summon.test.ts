@@ -17,14 +17,22 @@ beforeAll(() => {
   };
 });
 
-describe('召唤物唯一性', () => {
+describe('召唤牌一次性与召唤物唯一性', () => {
   function makeCombat() {
     const run = Run.newRun('hero_sylvanguard', 'summon-uniq-1');
     run.enterNode(run.reachableNodes()[0].id);
     return { run, combat: run.startCombat() };
   }
 
-  it('同类召唤物在场时，再次召唤被拒绝', () => {
+  it('动作树召唤牌自动标记为消耗牌', () => {
+    expect(getCardDef('card_syl_ancient_treant').exhaust).toBe(true);
+    expect(getCardDef('card_sht_beast_whistle').exhaust).toBe(true);
+    expect(getCardDef('card_sht_wild_call').exhaust).toBe(true);
+    // 镰车只操作月刃 Buff，不含 SummonAlly，不应被误判为消耗牌
+    expect(getCardDef('card_tb_scythe_wheel').exhaust ?? false).toBe(false);
+  });
+
+  it('同类召唤物在场时，再次直接召唤被拒绝', () => {
     const { combat } = makeCombat();
     combat.summonAlly({ unitId: 'treant', name: '远古树人', maxHp: 30, autoAttack: 8 });
     expect(combat.allies.filter((a) => a.state['summonKey'] === 'treant').length).toBe(1);
