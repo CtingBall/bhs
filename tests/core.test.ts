@@ -115,6 +115,22 @@ describe('牌堆精确检索', () => {
   });
 });
 
+describe('弃牌生命周期钩子', () => {
+  it('回合结束弃牌逐张触发 OnCardDiscarded，保留牌不触发', () => {
+    const run = Run.newRun('hero_sylvanguard', 'discard-hook-test');
+    run.enterNode(run.reachableNodes()[0].id);
+    const combat = run.startCombat();
+    const discarded: string[] = [];
+    combat.hooks.on<{ card: { uid: string }; reason?: string }>('OnCardDiscarded', 1, (ev) => {
+      discarded.push(`${ev.payload.card.uid}:${ev.payload.reason}`);
+    });
+    const handBefore = combat.piles.hand.filter((card) => !card.retain).map((card) => card.uid);
+    combat.endTurn();
+    expect(discarded.map((entry) => entry.split(':')[0])).toEqual(handBefore);
+    expect(discarded.every((entry) => entry.endsWith(':TurnEnd'))).toBe(true);
+  });
+});
+
 describe('无头战斗跑测', () => {
   function autoPlay(classId: string, seed: string, rounds: number) {
     const run = Run.newRun(classId, seed);

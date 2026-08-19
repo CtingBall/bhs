@@ -355,9 +355,13 @@ export class Combat {
     // 营地祭仪回合数递减
     const campRounds = this.player.state['campAttackRounds'] as number | undefined;
     if (campRounds !== undefined && campRounds > 0) this.player.state['campAttackRounds'] = campRounds - 1;
-    // 手牌清理
+    // 手牌清理：保留牌留下，其余逐张触发弃牌钩子，确保弃牌联动不漏算。
+    const discardedAtTurnEnd = this.piles.hand.filter((card) => !card.retain);
     this.piles.discardHandAtTurnEnd();
-    this.emit('discard', { to: 'discard', allHand: true });
+    for (const card of discardedAtTurnEnd) {
+      this.hooks.trigger('OnCardDiscarded', { combat: this, card, reason: 'TurnEnd' });
+    }
+    this.emit('discard', { to: 'discard', allHand: true, count: discardedAtTurnEnd.length });
 
     this.checkEnd();
     if (!this.ended) this.beginRound();
@@ -716,7 +720,7 @@ export class Combat {
     for (const card of [...this.piles.hand]) {
       this.piles.removeFromHand(card.uid);
       this.piles.moveToDiscard(card);
-      this.hooks.trigger('OnCardDiscarded', { combat: this, card });
+      this.hooks.trigger('OnCardDiscarded', { combat: this, card, reason: 'Manual' });
     }
     this.emit('discard', { to: 'discard' });
   }
