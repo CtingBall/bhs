@@ -730,12 +730,22 @@ export class Combat {
   }
 
   discardHand(): void {
+    const discarded: CardInstance[] = [];
+    const temporary: CardInstance[] = [];
     for (const card of [...this.piles.hand]) {
       this.piles.removeFromHand(card.uid);
-      this.piles.moveToDiscard(card);
-      this.hooks.trigger('OnCardDiscarded', { combat: this, card, reason: 'Manual' });
+      if (card.temporary) {
+        this.piles.moveToExhaust(card);
+        temporary.push(card);
+        this.hooks.trigger('OnCardExiled', { combat: this, card, reason: 'TemporaryManualDiscard' });
+      } else {
+        this.piles.moveToDiscard(card);
+        discarded.push(card);
+        this.hooks.trigger('OnCardDiscarded', { combat: this, card, reason: 'Manual' });
+      }
     }
-    this.emit('discard', { to: 'discard' });
+    if (discarded.length > 0) this.emit('discard', { to: 'discard', count: discarded.length });
+    if (temporary.length > 0) this.emit('discard', { to: 'exhaust', count: temporary.length });
   }
 
   exileCard(uid: string): void {
