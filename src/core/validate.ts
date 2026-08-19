@@ -4,6 +4,7 @@
 // ============================================================================
 
 import type { ActionNode } from './actions';
+import { CARD_REGISTRY } from './cards';
 import type { CardDef } from './cards';
 import { BUFF_REGISTRY } from './buffs';
 
@@ -34,6 +35,12 @@ export function validateActionTree(node: ActionNode, errors: string[], path = 'r
   }
   if (node.params && typeof node.params.buff_id === 'string' && !BUFF_REGISTRY[node.params.buff_id]) {
     errors.push(`${path}: 引用未知 Buff「${node.params.buff_id}」`);
+  }
+  if (node.action_type === 'GenerateCard' || node.action_type === 'FetchFromPile') {
+    const cardId = node.params?.card_id;
+    if (typeof cardId === 'string' && !CARD_REGISTRY.has(cardId)) {
+      errors.push(`${path}: 引用未知卡牌「${cardId}」`);
+    }
   }
   if (node.actions) node.actions.forEach((n, i) => validateActionTree(n, errors, `${path}.actions[${i}]`));
   if (node.on_true) node.on_true.forEach((n, i) => validateActionTree(n, errors, `${path}.on_true[${i}]`));

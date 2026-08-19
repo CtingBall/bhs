@@ -18,7 +18,6 @@ export type HookName =
   | 'OnCardExiled'
   | 'OnDeckShuffled'
   | 'BeforeDamageCalculated'
-  | 'BeforeDamageCalculated'
   | 'BeforeDamageReceived'
   | 'AfterDamageDealt'
   | 'OnBlockGained'
