@@ -454,12 +454,16 @@ function renderHand(v: CombatViewState): void {
   cards.forEach((card, i) => {
     const node = buildCardNode(v, card);
     node.style.marginLeft = i === 0 ? '0px' : `${spacing}px`;
-    node.style.zIndex = String(10 + i);
+    setCardLayer(node, 10 + i);
     hand.appendChild(node);
     v.cardEls.set(card.uid, node);
   });
   updateEnergy(v);
   updateEndBtn(v);
+}
+
+function setCardLayer(node: HTMLElement, layer: number): void {
+  node.style.zIndex = String(layer);
 }
 
 function buildCardNode(v: CombatViewState, card: CardInstance): HTMLElement {
@@ -507,8 +511,19 @@ function bindCardInput(v: CombatViewState, node: HTMLElement, card: CardInstance
   let longPress = false;
   let pressTimer = 0;
 
+  on(node, 'pointerenter', () => {
+    if (v.selectedCard?.uid !== card.uid) setCardLayer(node, 900);
+  });
+  on(node, 'pointerleave', () => {
+    if (v.selectedCard?.uid !== card.uid) {
+      const index = [...v.cardEls.keys()].indexOf(card.uid);
+      setCardLayer(node, 10 + Math.max(0, index));
+    }
+  });
+
   on(node, 'pointerdown', (e) => {
     e.stopPropagation();
+    setCardLayer(node, 1200);
     sfx.hover();
     if (v.blockInput) return;
     dragging = false;
@@ -532,7 +547,7 @@ function bindCardInput(v: CombatViewState, node: HTMLElement, card: CardInstance
     }
     if (dragging) {
       node.style.transform = `translateY(${-Math.min(120, Math.max(0, startY - y))}px) scale(1.08)`;
-      node.style.zIndex = '120';
+      setCardLayer(node, 1200);
     }
   });
 
@@ -602,7 +617,7 @@ function setSelectedCard(v: CombatViewState, card: CardInstance | null): void {
   for (const [uid, node] of v.cardEls) {
     const selected = card?.uid === uid;
     node.classList.toggle('focus', selected);
-    node.style.zIndex = selected ? '1000' : '10';
+    setCardLayer(node, selected ? 2000 : 10);
   }
 }
 
@@ -614,7 +629,7 @@ function highlightTargets(v: CombatViewState): void {
   for (const [index, node] of Array.from(v.cardEls.values()).entries()) {
     const isSelected = selected?.uid === node.dataset['uid'];
     node.classList.toggle('focus', isSelected);
-    node.style.zIndex = isSelected ? '1000' : String(10 + index);
+    setCardLayer(node, isSelected ? 2000 : 10 + index);
   }
   for (const [id, node] of v.enemyEls) {
     const alive = v.combat.aliveEnemies().some((e) => e.id === id);

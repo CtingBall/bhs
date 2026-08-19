@@ -381,7 +381,7 @@ html, body {
   flex-shrink: 0;
   box-shadow: 0 3px 10px rgba(0,0,0,.4);
 }
-.card:hover, .card.focus { transform: translateY(-26px) scale(1.12); z-index: 30; box-shadow: 0 8px 24px rgba(0,0,0,.6); }
+.card:hover, .card.focus { transform: translateY(-26px) scale(1.12); z-index: 900; box-shadow: 0 8px 24px rgba(0,0,0,.6); }
 .card.focus { border-color: var(--gold); z-index: 100 !important; }
 .card.disabled { opacity: .5; }
 .card.playing { transition: transform .18s ease-out, opacity .2s; transform: translateY(-120px) scale(1.25); opacity: 0; }
