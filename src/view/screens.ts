@@ -7,7 +7,7 @@ import { sfx } from './audio';
 import type { GameApp } from './main';
 import type { EncounterScreen, ShopItem } from '../core/encounter';
 import type { CombatReward } from '../core/run';
-import { getCardDef } from '../core/cards';
+import { getCardDef, upgradeCardDef } from '../core/cards';
 import { getRelicDef } from '../content/relics';
 import { getCharacterDef } from '../content/characters';
 
@@ -160,7 +160,7 @@ function openRemoveCardPicker(app: GameApp, price: number, after: () => void): v
   const run = app.ctx!.run;
   const body = el('div', 'deck-grid');
   run.state.deck.forEach((entry, i) => {
-    const def = getCardDef(entry.defId);
+    const def = upgradeCardDef(getCardDef(entry.defId), entry.level);
     const node = el('div', `card large ${def.cardType.toLowerCase()}`);
     node.appendChild(el('div', `cost${def.baseCost === 0 ? ' zero' : ''}`, String(def.baseCost)));
     node.appendChild(el('div', 'cname', def.name));
@@ -252,7 +252,7 @@ function openUpgradePicker(app: GameApp, after: () => void): void {
   const body = el('div', 'deck-grid');
   run.state.deck.forEach((entry, i) => {
     if (entry.level !== 0) return;
-    const def = getCardDef(entry.defId);
+    const def = upgradeCardDef(getCardDef(entry.defId), entry.level);
     const node = el('div', `card large ${def.cardType.toLowerCase()}`);
     node.appendChild(el('div', `cost${def.baseCost === 0 ? ' zero' : ''}`, String(def.baseCost)));
     node.appendChild(el('div', 'cname', def.name));
