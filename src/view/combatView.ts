@@ -5,7 +5,7 @@
 import { el, clear, on, toast, modal, confirmModal } from './dom';
 import { sfx } from './audio';import type { GameApp } from './main';
 import type { Combat, CombatViewEvent } from '../core/combat';
-import { getCardDef } from '../core/cards';
+import { getCardDef, upgradeCardDef } from '../core/cards';
 import { getBuffDef } from '../core/buffs';
 import type { Unit } from '../core/units';
 import type { CardInstance } from '../core/cards';
@@ -447,7 +447,7 @@ function renderHand(v: CombatViewState): void {
 }
 
 function buildCardNode(v: CombatViewState, card: CardInstance): HTMLElement {
-  const def = getCardDef(card.defId);
+  const def = upgradeCardDef(getCardDef(card.defId), card.upgradeLevel);
   const node = el('div', `card ${def.cardType.toLowerCase()}`);
   node.dataset['uid'] = card.uid;
   const cost = v.combat.effectiveCost(card);
@@ -474,11 +474,11 @@ function buildCardNode(v: CombatViewState, card: CardInstance): HTMLElement {
 // ---------------------------------------------------------------------------
 
 function bindCardInput(v: CombatViewState, node: HTMLElement, card: CardInstance): void {
-  const def = getCardDef(card.defId);
+  const def = upgradeCardDef(getCardDef(card.defId), card.upgradeLevel);
   // 实时判定可打出性（不依赖渲染时的 disabled 类）：
   // 本回合内资源变化（如攒够 5 音符）后应立即变为可打出
   const isDisabled = (): boolean => {
-    const cur = getCardDef(card.defId);
+    const cur = upgradeCardDef(getCardDef(card.defId), card.upgradeLevel);
     if (cur.unplayable) return true;
     if (cur.requires && v.combat.getResource(v.combat.player, cur.requires.resourceId) < cur.requires.min) return true;
     if (v.combat.cardSummonConflict(card)) return true;
@@ -581,7 +581,7 @@ function pickNearestEnemy(v: CombatViewState, x: number): Unit | null {
 /** 目标高亮：统一 class 管理，杜绝内联样式残留 */
 function highlightTargets(v: CombatViewState): void {
   const selected = v.selectedCard;
-  const showTargets = selected && getCardDef(selected.defId).targetType === 'SingleEnemy';
+  const showTargets = selected && upgradeCardDef(getCardDef(selected.defId), selected.upgradeLevel).targetType === 'SingleEnemy';
   for (const [id, node] of v.enemyEls) {
     const alive = v.combat.aliveEnemies().some((e) => e.id === id);
     node.classList.toggle('targetable', !!showTargets && alive);
@@ -624,7 +624,7 @@ function castCard(v: CombatViewState, card: CardInstance, target: Unit | null): 
 /** 卡牌详情弹窗（长按/点击禁用卡触发） */
 function showCardDetail(v: CombatViewState, card: CardInstance): void {
   const combat = v.combat;
-  const def = getCardDef(card.defId);
+  const def = upgradeCardDef(getCardDef(card.defId), card.upgradeLevel);
   const body = el('div');
   const big = el('div', `card large ${def.cardType.toLowerCase()}`);
   big.appendChild(el('div', `cost${def.baseCost === 0 ? ' zero' : ''}`, String(def.baseCost)));
@@ -689,7 +689,7 @@ function updateCardStates(v: CombatViewState): void {
   for (const [uid, node] of v.cardEls) {
     const card = v.combat.piles.hand.find((c) => c.uid === uid);
     if (!card) continue;
-    const cur = getCardDef(card.defId);
+    const cur = upgradeCardDef(getCardDef(card.defId), card.upgradeLevel);
     const disabled = cur.unplayable
       || (cur.requires && v.combat.getResource(v.combat.player, cur.requires.resourceId) < cur.requires.min)
       || !!v.combat.cardSummonConflict(card)
@@ -953,7 +953,7 @@ function updateEnergy(v: CombatViewState): void {
       if (v.blockInput) return;
       // 仍有真正可打的牌（费用 + 前置资源都满足）时做二级确认
       const hasPlayable = v.combat.piles.hand.some((c) => {
-        const cur = getCardDef(c.defId);
+        const cur = upgradeCardDef(getCardDef(c.defId), c.upgradeLevel);
         if (cur.unplayable) return false;
         if (cur.requires && v.combat.getResource(v.combat.player, cur.requires.resourceId) < cur.requires.min) return false;
         return v.combat.effectiveCost(c) <= v.combat.energy;
