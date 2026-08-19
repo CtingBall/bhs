@@ -405,6 +405,12 @@ html, body {
 .card.power { border-top: 3px solid #b58cff; }
 .card.curse { border-top: 3px solid #555; }
 .card .upgraded { position: absolute; bottom: 4px; right: 6px; color: var(--gold); font-size: 10px; font-weight: 700; }
+.card .card-keyword {
+  position: absolute; left: 6px; bottom: 4px; padding: 1px 4px; border-radius: 3px;
+  font-size: 9px; font-weight: 800; letter-spacing: .05em;
+}
+.card .exhaust-keyword { color: #ffd783; background: rgba(112, 68, 26, .75); border: 1px solid rgba(255, 215, 131, .5); }
+.card .retain-keyword { color: #a9e5ff; background: rgba(25, 81, 112, .75); border: 1px solid rgba(169, 229, 255, .5); }
 
 /* 卡牌详情弹窗 */
 .card-meta { font-size: 12px; color: var(--text-dim); line-height: 1.7; margin-top: 8px; text-align: center; }

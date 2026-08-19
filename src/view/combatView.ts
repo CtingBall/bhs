@@ -460,6 +460,8 @@ function buildCardNode(v: CombatViewState, card: CardInstance): HTMLElement {
   desc.innerHTML = highlightNumbers(def.description);
   node.appendChild(desc);
   if (card.upgradeLevel > 0) node.appendChild(el('div', 'upgraded', card.upgradeLevel === 1 ? '✦A' : '✦B'));
+  if (card.exhaust || def.cardType === 'Power') node.appendChild(el('div', 'card-keyword exhaust-keyword', '消耗'));
+  else if (card.retain) node.appendChild(el('div', 'card-keyword retain-keyword', '保留'));
   if (def.unplayable || (def.requires && v.combat.getResource(v.combat.player, def.requires.resourceId) < def.requires.min) || cost > v.combat.energy) {
     node.classList.add('disabled');
   }
@@ -626,7 +628,8 @@ function showCardDetail(v: CombatViewState, card: CardInstance): void {
   const def = upgradeCardDef(getCardDef(card.defId), card.upgradeLevel);
   const body = el('div');
   const big = el('div', `card large ${def.cardType.toLowerCase()}`);
-  big.appendChild(el('div', `cost${def.baseCost === 0 ? ' zero' : ''}`, String(def.baseCost)));
+  const detailCost = combat.effectiveCost(card);
+  big.appendChild(el('div', `cost${detailCost === 0 ? ' zero' : ''}`, String(detailCost)));
   const ctype = def.cardType === 'Attack' ? '🗡️' : def.cardType === 'Skill' ? '🛡️' : def.cardType === 'Power' ? '✨' : '☠️';
   big.appendChild(el('div', 'ctype', ctype));
   big.appendChild(el('div', 'cname', def.name));
@@ -634,6 +637,8 @@ function showCardDetail(v: CombatViewState, card: CardInstance): void {
   desc.innerHTML = highlightNumbers(def.description);
   big.appendChild(desc);
   if (card.upgradeLevel > 0) big.appendChild(el('div', 'upgraded', card.upgradeLevel === 1 ? '✦A' : '✦B'));
+  if (card.exhaust || def.cardType === 'Power') big.appendChild(el('div', 'card-keyword exhaust-keyword', '消耗'));
+  else if (card.retain) big.appendChild(el('div', 'card-keyword retain-keyword', '保留'));
   body.appendChild(big);
   // 稀有度/类型说明
   const meta = el('div', 'card-meta');
