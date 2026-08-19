@@ -733,7 +733,8 @@ export class Combat {
   fetchFromPile(cardId: string, from: 'draw' | 'discard' | 'exhaust', costOverride: number | null): boolean {
     const card = this.piles.fetchFromPile(cardId, from);
     if (!card) return false;
-    if (costOverride !== null) card.tempCostOverride = costOverride;
+    // 检索是新的牌堆流转事件：没有显式覆盖时，不继承旧回合临时费用。
+    card.tempCostOverride = costOverride;
     this.piles.addToHand(card);
     this.emit('draw', { count: 1 });
     return true;
