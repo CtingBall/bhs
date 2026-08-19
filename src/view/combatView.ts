@@ -1143,14 +1143,17 @@ function openDeckOverlay(v: CombatViewState): void {
   const deck = v.app.ctx?.run.state.deck ?? [];
   const body = el('div', 'deck-grid');
   for (const entry of deck) {
-    const def = getCardDef(entry.defId);
+    const def = upgradeCardDef(getCardDef(entry.defId), entry.level);
     const node = el('div', `card large ${def.cardType.toLowerCase()} sts-deck-card`);
     const costEl = el('div', `cost${def.baseCost === 0 ? ' zero' : ''}`, String(def.baseCost));
     node.appendChild(costEl);
     const ctype = def.cardType === 'Attack' ? '🗡️' : def.cardType === 'Skill' ? '🛡️' : def.cardType === 'Power' ? '✨' : '☠️';
     node.appendChild(el('div', 'ctype', ctype));
     node.appendChild(el('div', 'cname', def.name));
-    node.appendChild(el('div', 'cdesc', def.description));
+    const desc = el('div', 'cdesc');
+    desc.innerHTML = highlightNumbers(def.description);
+    node.appendChild(desc);
+    if (def.exhaust || def.cardType === 'Power') node.appendChild(el('div', 'card-keyword exhaust-keyword', '消耗'));
     if (entry.level > 0) node.appendChild(el('div', 'upgraded', entry.level === 1 ? '✦A' : '✦B'));
     body.appendChild(node);
   }
