@@ -72,6 +72,7 @@ describe('UI 集成（jsdom）', () => {
     expect(document.querySelector('.sts-command-bar')).toBeTruthy();
     expect(document.querySelectorAll('.pile-indicator').length).toBe(3);
     expect(document.querySelectorAll('.enemy').length).toBeGreaterThan(0);
+    expect(document.querySelector('.player-effects')).toBeTruthy();
 
     // 4. 点选一张攻击牌，再点击敌人施放（点选模式）
     const attackCard = [...document.querySelectorAll('.card')].find(

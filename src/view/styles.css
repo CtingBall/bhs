@@ -929,6 +929,10 @@ html, body {
 .sts-battle-screen .enemy { background: linear-gradient(180deg, rgba(54,39,48,.98), rgba(20,17,25,.98)); border-color: rgba(190,106,91,.55); border-radius: 5px; box-shadow: 0 8px 18px rgba(0,0,0,.35), inset 0 1px rgba(255,255,255,.05); }
 .sts-battle-screen .player-unit { background: linear-gradient(180deg, rgba(42,57,70,.98), rgba(15,23,32,.98)); border-color: rgba(190,161,103,.55); border-radius: 5px; box-shadow: 0 8px 24px rgba(0,0,0,.4), inset 0 1px rgba(255,255,255,.06); }
 .sts-battle-screen .ally-unit { border-radius: 5px; border-color: rgba(110,190,145,.55); }
+.player-effects { display: flex; flex-direction: column; gap: 4px; min-width: 112px; }
+.persistent-effect { padding: 4px 7px; border-radius: 4px; font-size: 10px; font-weight: 700; border: 1px solid; white-space: nowrap; }
+.storm-effect { color: #c5eaff; border-color: rgba(115,198,244,.65); background: rgba(31,82,114,.68); }
+.chant-effect { color: #f0cbff; border-color: rgba(190,132,223,.65); background: rgba(76,40,94,.68); }
 .sts-battle-screen .card { border-radius: 7px; border-color: rgba(205,185,145,.38); box-shadow: 0 5px 14px rgba(0,0,0,.55), inset 0 1px rgba(255,255,255,.08); background: linear-gradient(180deg, #354356, #1b2430 72%, #131a23); }
 .sts-battle-screen .card.attack { border-top-color: #d96b5e; }
 .sts-battle-screen .card.skill { border-top-color: #67aeca; }

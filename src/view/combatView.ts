@@ -191,6 +191,8 @@ function renderPlayer(v: CombatViewState): void {
   clear(zone);
   const unit = el('div', 'player-unit sts-player-panel');
   unit.appendChild(el('div', 'player-portrait', '🧝'));
+  unit.appendChild(el('div', 'player-effects'));
+  updatePlayerEffects(v, unit);
   const info = el('div', 'player-info');
   info.appendChild(el('div', 'player-name', `${combat.player.name}`));
   const hpRow = el('div', 'player-hp-row');
@@ -214,6 +216,20 @@ function renderPlayer(v: CombatViewState): void {
 }
 
 /** 友军随从渲染 */
+function updatePlayerEffects(v: CombatViewState, unit: HTMLElement): void {
+  const effects = unit.querySelector('.player-effects') as HTMLElement | null;
+  if (!effects) return;
+  clear(effects);
+  const state = v.combat.player.state;
+  if (state['blizzard'] === true) {
+    const storm = el('div', 'persistent-effect storm-effect', '❄️ 寒冰风暴');
+    storm.title = `每回合结束造成 ${(state['blizzardDmg'] as number | undefined) ?? 5} 点冰霜伤害并施加虚弱`;
+    effects.appendChild(storm);
+  }
+  const chant = state['chantDamage'] as number | undefined;
+  if (chant) effects.appendChild(el('div', 'persistent-effect chant-effect', `吟唱 ${chant}点`));
+}
+
 function renderAllies(v: CombatViewState, zone: HTMLElement): void {
   const row = el('div', 'ally-row');
   for (const ally of v.combat.allies) {
@@ -552,7 +568,7 @@ function bindCardInput(v: CombatViewState, node: HTMLElement, card: CardInstance
         castCard(v, card, v.hoverEnemy);
       } else {
         // 多敌人未指定：进入选目标模式（再点敌人出牌）
-        v.selectedCard = v.selectedCard?.uid === card.uid ? null : card;
+        setSelectedCard(v, v.selectedCard?.uid === card.uid ? null : card);
         highlightTargets(v);
       }
     } else {
@@ -580,6 +596,16 @@ function pickNearestEnemy(v: CombatViewState, x: number): Unit | null {
   return best;
 }
 
+/** 选牌状态统一同步，避免扇形手牌的层叠上下文盖住目标牌。 */
+function setSelectedCard(v: CombatViewState, card: CardInstance | null): void {
+  v.selectedCard = card;
+  for (const [uid, node] of v.cardEls) {
+    const selected = card?.uid === uid;
+    node.classList.toggle('focus', selected);
+    node.style.zIndex = selected ? '1000' : '10';
+  }
+}
+
 /** 目标高亮：统一 class 管理，杜绝内联样式残留 */
 function highlightTargets(v: CombatViewState): void {
   const selected = v.selectedCard;
@@ -588,7 +614,7 @@ function highlightTargets(v: CombatViewState): void {
   for (const [index, node] of Array.from(v.cardEls.values()).entries()) {
     const isSelected = selected?.uid === node.dataset['uid'];
     node.classList.toggle('focus', isSelected);
-    node.style.zIndex = isSelected ? '100' : String(10 + index);
+    node.style.zIndex = isSelected ? '1000' : String(10 + index);
   }
   for (const [id, node] of v.enemyEls) {
     const alive = v.combat.aliveEnemies().some((e) => e.id === id);
@@ -598,7 +624,7 @@ function highlightTargets(v: CombatViewState): void {
   v.screen.onpointerdown = (e) => {
     const t = e.target as HTMLElement;
     if (t === v.screen || t.classList.contains('arena') || t.classList.contains('combat-bg')) {
-      v.selectedCard = null;
+      setSelectedCard(v, null);
       highlightTargets(v);
     }
   };
@@ -614,7 +640,7 @@ function castCard(v: CombatViewState, card: CardInstance, target: Unit | null): 
   const ok = combat.playCard(card.uid, def.targetType === 'SingleEnemy' ? target?.id : undefined);
   if (ok) {
     sfx.playCard();
-    v.selectedCard = null;
+    setSelectedCard(v, null);
     highlightTargets(v);
     if (node) {
       node.classList.add('playing');
@@ -624,7 +650,7 @@ function castCard(v: CombatViewState, card: CardInstance, target: Unit | null): 
     if (node) node.classList.remove('focus');
     const err = combat.lastPlayError || '无法打出这张牌';
     toast(err);
-    v.selectedCard = null;
+    setSelectedCard(v, null);
     highlightTargets(v);
   }
 }
@@ -747,11 +773,13 @@ function handleEvent(v: CombatViewState, ev: CombatViewEvent): void {
       break;
     }
     case 'buff': {
+      updatePlayerEffects(v, v.screen.querySelector('.player-unit') as HTMLElement);
       updatePlayerBuffs(v);
       updateAllEnemyBars(v);
       break;
     }
     case 'resource': {
+      renderPlayer(v);
       renderWidget(v);
       updateEnergy(v);
       updateEndBtn(v);
