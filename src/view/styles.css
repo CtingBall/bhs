@@ -586,7 +586,9 @@ html, body {
 .card.large .cdesc { font-size: 12px; }
 
 /* 牌组查看 */
-.deck-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+.deck-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; padding: 8px; }
+.sts-deck-card { transition: transform .12s ease, filter .12s ease; }
+.sts-deck-card:hover { transform: translateY(-4px); filter: brightness(1.12); }
 .deck-grid .card { width: 100%; height: 160px; cursor: default; }
 
 /* ---------- 结算 ---------- */
@@ -937,6 +939,11 @@ html, body {
 .sts-battle-screen .intent { border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,.4); }
 .sts-battle-screen .end-turn-btn { border-radius: 5px; background: linear-gradient(180deg, #b76045, #713526); border-color: rgba(244,171,113,.75); box-shadow: 0 4px 12px rgba(0,0,0,.4); }
 .sts-battle-screen .bottom-bar { background: linear-gradient(0deg, rgba(5,8,13,.82), transparent); }
+.sts-player-panel { min-width: 310px; }
+.sts-resource-panel { min-width: 260px; padding: 8px 14px; background: linear-gradient(180deg, rgba(21,31,39,.96), rgba(10,16,22,.96)); border-color: rgba(190,161,103,.42); box-shadow: 0 5px 16px rgba(0,0,0,.38); }
+.sts-battle-screen .pile-indicator { min-width: 42px; padding: 3px 6px; border: 1px solid rgba(190,161,103,.28); border-radius: 4px; background: rgba(12,18,26,.72); }
+.sts-battle-screen .pile-indicator:first-child { color: #d3b46f; }
+.sts-battle-screen .pile-indicator:nth-child(2) { color: #9fb1c3; }
 @media (max-width: 700px) {
   .sts-arena { bottom: calc(205px + var(--safe-bottom)); }
   .sts-hand-zone, .sts-battle-screen .hand-field { height: 212px; }

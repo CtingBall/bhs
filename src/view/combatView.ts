@@ -60,7 +60,7 @@ function buildView(app: GameApp, combat: Combat): CombatViewState {
   screen.appendChild(hud);
 
   // 职业挂件（紧贴玩家单位下方，标注专属资源）
-  const widget = el('div', 'class-widget');
+  const widget = el('div', 'class-widget sts-resource-panel');
 
   // 战场
   const arena = el('div', 'arena sts-arena');
@@ -189,7 +189,7 @@ function renderPlayer(v: CombatViewState): void {
   const { combat } = v;
   const zone = v.screen.querySelector('.player-zone') as HTMLElement;
   clear(zone);
-  const unit = el('div', 'player-unit');
+  const unit = el('div', 'player-unit sts-player-panel');
   unit.appendChild(el('div', 'player-portrait', '🧝'));
   const info = el('div', 'player-info');
   info.appendChild(el('div', 'player-name', `${combat.player.name}`));
@@ -1144,7 +1144,7 @@ function openDeckOverlay(v: CombatViewState): void {
   const body = el('div', 'deck-grid');
   for (const entry of deck) {
     const def = getCardDef(entry.defId);
-    const node = el('div', `card large ${def.cardType.toLowerCase()}`);
+    const node = el('div', `card large ${def.cardType.toLowerCase()} sts-deck-card`);
     const costEl = el('div', `cost${def.baseCost === 0 ? ' zero' : ''}`, String(def.baseCost));
     node.appendChild(costEl);
     const ctype = def.cardType === 'Attack' ? '🗡️' : def.cardType === 'Skill' ? '🛡️' : def.cardType === 'Power' ? '✨' : '☠️';
